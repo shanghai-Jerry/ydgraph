@@ -1,0 +1,45 @@
+syntax = "proto3";
+package com.lieluobo.norm;
+
+message CompanyInfo{
+  string name=1;
+  string legal_person=2;
+  string registered_no=3;
+  string org_code=4;
+  string nature_code=5;
+  string establish_at=6;
+  float registered_capital=7;
+  string location=8;
+  string location_detail=9;
+  repeated string org_industries=10;
+  repeated string phones=11;
+  string qcc_unique=12;
+  string name_core=13;
+  string name_ind=14;
+  string name_loc=15;
+  string name_form=16;
+  string v_name_core=17;
+  string v_name_ind=18;
+  string v_name_loc=19;
+  string v_name_form=20;
+}
+
+service CompanyNormalizeService {
+  // Normalize a single query.
+  rpc Normalize(CompanyNormRequest) returns (CompanyNormReply);
+}
+
+message CompanyNormRequest{
+  repeated string names=1;
+}
+
+message CompanyNormReply{
+  message NormedItem{
+    string origin=1;
+    repeated string normed=2;
+    repeated float score=3;
+    string origin_core_ind=4;
+    string origin_loc_core_ind=5;
+  }
+  repeated NormedItem items=1;
+}
