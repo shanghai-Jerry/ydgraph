@@ -1,2 +1,2 @@
 # hbase-demo
-habse api 
+hbase api 
