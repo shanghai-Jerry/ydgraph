@@ -48,26 +48,54 @@ public class Demo {
   }
   public static  void main(String []args) {
     Demo demo = new Demo();
-    // demo.dClient.dropSchema();
+    demo.dClient.dropSchema();
+    demo.dClient.alterSchema(Config.schema);
     demo.dClient.alterSchema(Config.updateSchema);
     List<String>  personList = new ArrayList<String>();
     List<Person> persons = new ArrayList<Person>();
+    // 先入实体
     Person person1 = new Person("P1-new", "youcj", 25);
     person1.setGender(1);
     Person person3 = new Person("P3","Gehy", 24);
     person3.setGender(2);
     Person person2 = new Person("P2", "youys", 1);
+    Person person4 = new Person("P4", "daughter", 1);
+    person4.setGender(2);
     person2.setGender(1);
     persons.add(person1);
     persons.add(person2);
     persons.add(person3);
-    // 所有实体必须验证是否存在dgraph中，先判断uid是否有了
+    persons.add(person4);
     demo.CheckOutEntities(persons);
-    List<Person> friends = new ArrayList<Person>();
-    friends.add(person3);
-    friends.add(person2);
-    person1.setFriend(friends);
     personList.add(person1.toString());
+    personList.add(person2.toString());
+    personList.add(person3.toString());
+    personList.add(person4.toString());
+    demo.feedEntities(personList);
+    // 后入实体之前的关系
+    List<Person> pesonOnesfriends = new ArrayList<Person>();
+    List<Person> pesonttwosfriends = new ArrayList<Person>();
+    pesonOnesfriends.add(person3);
+    // pesonOnesfriends.add(person4);
+    pesonOnesfriends.add(person2);
+    pesonttwosfriends.add(person3);
+    person2.setFriend(pesonttwosfriends);
+    person1.setFriend(pesonOnesfriends);
+    persons.clear();
+    persons.add(person1);
+    persons.add(person2);
+    persons.add(person3);
+    persons.add(person4);
+    demo.CheckOutEntities(persons);
+    personList.clear();
+    // 所有实体必须验证是否存在dgraph中，先判断uid是否有了
+    personList.add(person1.toString());
+    personList.add(person2.toString());
+    personList.add(person3.toString());
+    personList.add(person4.toString());
+    logger.info("object obj:" + person1.toString());
+    // 验证是否存在dgraph中，先判断uid是否有了
+    demo.CheckOutEntities(persons);
     List<DgraphProto.Assigned> assignedList = demo.feedEntities(personList);
     for (DgraphProto.Assigned assigned : assignedList) {
       Map<String, String> map = assigned.getUidsMap();

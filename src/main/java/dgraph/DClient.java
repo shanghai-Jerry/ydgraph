@@ -100,7 +100,8 @@ public class DClient {
     try {
         classNameClass = Class.forName(className);
         // people = classNameClass.newInstance();
-        people = new Gson().fromJson(res.getJson().toStringUtf8(), Class.forName(className));
+        String resp = res.getJson().toStringUtf8();
+        people = new Gson().fromJson(resp, Class.forName(className));
         Method[] methods = classNameClass.getMethods();
         // 循环查找想要的方法
         for(Method method : methods) {

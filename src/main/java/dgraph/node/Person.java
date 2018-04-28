@@ -8,6 +8,7 @@ public class Person {
   String id;
   String name;
   List<Person> friend;
+  List<Person> isExist;
   int gender;
 
   int age;
@@ -56,6 +57,21 @@ public class Person {
 
   public void setGender(int gender) {
     this.gender = gender;
+  }
+
+  public List<Person> getIsExist() {
+    return isExist;
+  }
+
+  public void setIsExist(List<Person> isExist) {
+    this.isExist = isExist;
+  }
+
+  public String getExistUid() {
+    if (isExist.size() == 1) {
+      return isExist.get(0).getUid();
+    }
+    return "";
   }
 
   @Override
