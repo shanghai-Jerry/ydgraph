@@ -6,13 +6,9 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.mapreduce.TableReducer;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -44,7 +40,7 @@ public class TestResumePutMapred extends Configured implements Tool {
     private Counter noFiledCounter;
     private Counter originSuccessCounter;
     private Counter jsonSuccessCounter;
-    private DgraphClient dgraphClient;
+    private DClient dClient;
     private final String TEST_HOSTNAME = "172.20.0.68";
     private final int TEST_PORT = 9080;
     private  String schema =
@@ -72,9 +68,9 @@ public class TestResumePutMapred extends Configured implements Tool {
       noFiledCounter = context.getCounter("runner", "noFiledCounter");
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
-      dgraphClient = new DgraphClient(TEST_HOSTNAME, TEST_PORT);
-      dgraphClient.InitDict("/Users/devops/workspace/hbase-demo/src/main/resources/school_dict.txt");
-      dgraphClient.createSchema(schema);
+      dClient = new DClient(TEST_HOSTNAME, TEST_PORT);
+      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/main/resources/school_dict.txt");
+      dClient.alterSchema(schema);
     }
 
     @Override
@@ -151,8 +147,8 @@ public class TestResumePutMapred extends Configured implements Tool {
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
     args = new String[] {
-        "/Users/devops/workspace/hbase-demo/src/main/resources/part-m-00371",
-        "/Users/devops/workspace/hbase-demo/src/main/resources",
+        "/Users/devops/workspace/hbase-Demo/src/main/resources/part-m-00371",
+        "/Users/devops/workspace/hbase-Demo/src/main/resources",
         "idmg:resume_test",
     };
     int exitCode = new TestResumePutMapred().run(args);

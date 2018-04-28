@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+package kb.rpc;
+
+option java_multiple_files = true;
+
+service EntityIdService {
+    rpc entityLinkSimple(BatchEntityIdRequest) returns (BatchEntityIdResponse) {
+    };
+    rpc feedEntity(BatchEntityIdRequest) returns (BatchEntityIdResponse) {
+    };
+}
+
+message EntityIdRequest{
+  string type=1;
+  repeated string name=2;
+  int64 id=3;
+}
+message BatchEntityIdRequest{
+    repeated EntityIdRequest entity_req=1;
+}
+
+message EntityIdResponse{
+    int64 id=1;
+    bool  ok=2;
+    string msg=3;
+}
+
+message BatchEntityIdResponse{
+    repeated EntityIdResponse entity_res=1;
+}
