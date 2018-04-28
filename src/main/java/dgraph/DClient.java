@@ -74,6 +74,33 @@ public class DClient {
     dgraphClient.alter(op);
   }
 
+  public DgraphProto.Assigned mutationEntityEdgeSet(io.dgraph.DgraphClient.Transaction txn,
+                                                    String id, String predicate,String idRelat) {
+    DgraphProto.NQuad quad =
+        DgraphProto.NQuad.newBuilder()
+            .setSubject(String.format("_:%s", id))
+            .setPredicate(predicate)
+            .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(String.format("_:%s",idRelat))
+                .build())
+            .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(quad).build();
+    DgraphProto.Assigned ag = txn.mutate(mu);
+    return ag;
+  }
+
+  public String mutationEntityAttriSet(io.dgraph.DgraphClient.Transaction txn, String id,
+                                       String predicate,String value) {
+    DgraphProto.NQuad quad =
+        DgraphProto.NQuad.newBuilder()
+            .setSubject(String.format("_:%s", id))
+            .setPredicate(predicate)
+            .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(String.format("%s",value)).build())
+            .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(quad).build();
+    DgraphProto.Assigned ag = txn.mutate(mu);
+    return ag.getUidsOrThrow(id);
+  }
+
   public List<DgraphProto.Assigned> mutiplyMutation(io.dgraph.DgraphClient.Transaction txn, List<String> jsons) {
    List<DgraphProto.Assigned> assignedList = new ArrayList<DgraphProto.Assigned>();
     for (String json : jsons) {

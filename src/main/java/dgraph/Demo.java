@@ -46,11 +46,9 @@ public class Demo {
     }
     return assignedList;
   }
-  public static  void main(String []args) {
-    Demo demo = new Demo();
-    demo.dClient.dropSchema();
-    demo.dClient.alterSchema(Config.schema);
-    demo.dClient.alterSchema(Config.updateSchema);
+
+  public void batchJsonPut() {
+    this.dClient.alterSchema(Config.updateSchema);
     List<String>  personList = new ArrayList<String>();
     List<Person> persons = new ArrayList<Person>();
     // 先入实体
@@ -66,17 +64,17 @@ public class Demo {
     persons.add(person2);
     persons.add(person3);
     persons.add(person4);
-    demo.CheckOutEntities(persons);
+    this.CheckOutEntities(persons);
     personList.add(person1.toString());
     personList.add(person2.toString());
     personList.add(person3.toString());
     personList.add(person4.toString());
-    demo.feedEntities(personList);
+    this.feedEntities(personList);
     // 后入实体之前的关系
     List<Person> pesonOnesfriends = new ArrayList<Person>();
     List<Person> pesonttwosfriends = new ArrayList<Person>();
     pesonOnesfriends.add(person3);
-    // pesonOnesfriends.add(person4);
+    pesonOnesfriends.add(person4);
     pesonOnesfriends.add(person2);
     pesonttwosfriends.add(person3);
     person2.setFriend(pesonttwosfriends);
@@ -86,7 +84,7 @@ public class Demo {
     persons.add(person2);
     persons.add(person3);
     persons.add(person4);
-    demo.CheckOutEntities(persons);
+    this.CheckOutEntities(persons);
     personList.clear();
     // 所有实体必须验证是否存在dgraph中，先判断uid是否有了
     personList.add(person1.toString());
@@ -95,8 +93,8 @@ public class Demo {
     personList.add(person4.toString());
     logger.info("object obj:" + person1.toString());
     // 验证是否存在dgraph中，先判断uid是否有了
-    demo.CheckOutEntities(persons);
-    List<DgraphProto.Assigned> assignedList = demo.feedEntities(personList);
+    this.CheckOutEntities(persons);
+    List<DgraphProto.Assigned> assignedList = this.feedEntities(personList);
     for (DgraphProto.Assigned assigned : assignedList) {
       Map<String, String> map = assigned.getUidsMap();
       Set<Map.Entry<String, String>> entrySet=  map.entrySet();
@@ -109,5 +107,14 @@ public class Demo {
       }
     }
 
+  }
+
+  public static  void main(String []args) {
+    Demo demo = new Demo();
+    // demo.dClient.dropSchema();
+    // demo.dClient.alterSchema(Config.schema);
+    List<String> edgeConnect = new ArrayList<String>();
+    edgeConnect.add("\"0xe5a5\" <friend> \"0xe5a6\" .}");
+    demo.feedEntities(edgeConnect);
   }
 }
