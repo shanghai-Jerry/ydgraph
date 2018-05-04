@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.JsonFormat;
 
-import com.sangupta.murmur.Murmur2;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +19,7 @@ import java.util.Map;
 
 import dgraph.node.People;
 import dgraph.node.Person;
-import dgraph.put.Dput;
+import dgraph.put.Nodeput;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
@@ -34,18 +32,7 @@ public class DClient {
 
   private static final Logger logger = LoggerFactory.getLogger(DClient.class);
 
-  private static HashMap<String, Integer> schoolDict = new HashMap<String, Integer>();
-
   private static JsonFormat.Parser parser = JsonFormat.parser();
-  private static final long MURMUR_SEED = 0x7f3a21eaL;
-
-  private static long generateMurMurHashId(String src) {
-    byte[] bytes = src.getBytes();
-    long murmurId = Murmur2.hash64(bytes, bytes.length, MURMUR_SEED);
-    return murmurId;
-  }
-
-  private int maxUid = 0;
 
   public DgraphClient getDgraphClient() {
     return dgraphClient;
@@ -68,7 +55,6 @@ public class DClient {
   }
 
   public void alterSchema(String schema) {
-    // DgraphProto.AssignedIds.newBuilder().setStartId(1).setEndId(80000).build();
     DgraphProto.Operation op = DgraphProto.Operation.newBuilder()
         .setSchema(schema).build();
     dgraphClient.alter(op);
@@ -89,7 +75,7 @@ public class DClient {
     return ag;
   }
 
-  public void entityAddIntAttr(io.dgraph.DgraphClient.Transaction txn, List<Dput> putList) {
+  public void entityAddIntAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -117,7 +103,35 @@ public class DClient {
     txn.mutate(mu);
   }
 
-  public void entityAddStrAttr(io.dgraph.DgraphClient.Transaction txn, List<Dput> putList) {
+  public void entityAddAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
+    int ids = putList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<Object> values = putList.get(j).getValueObjects();
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad quad =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(String.format("%s", uid))
+                .setPredicate(predicates.get(i))
+                .setObjectValue(DgraphProto.Value.newBuilder()
+                    .setStrVal(String.format("%s", values.get(i))).build())
+                .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    txn.mutate(mu);
+  }
+
+  public void entityAddStrAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -146,7 +160,7 @@ public class DClient {
   }
 
   public DgraphProto.Assigned entityWithStrAttrInitial(io.dgraph.DgraphClient.Transaction txn,
-                                                       List<Dput> schoolPutList) {
+                                                       List<Nodeput> schoolPutList) {
     int ids = schoolPutList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {

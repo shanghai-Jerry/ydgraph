@@ -3,7 +3,7 @@ package dgraph.put;
 
 import java.util.List;
 
-public class Dput {
+public class Nodeput {
 
   String uid;
 
@@ -12,6 +12,16 @@ public class Dput {
   List<String> predicates;
 
   List<String> values;
+
+  List<Object> valueObjects;
+
+  public List<Object> getValueObjects() {
+    return valueObjects;
+  }
+
+  public void setValueObjects(List<Object> valueObjects) {
+    this.valueObjects = valueObjects;
+  }
 
   public List<String> getPredicates() {
     return predicates;

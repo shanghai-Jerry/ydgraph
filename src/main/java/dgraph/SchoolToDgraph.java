@@ -8,7 +8,7 @@ import java.util.Map;
 import client.EntityIdClient;
 import dgraph.node.NodeUtil;
 import dgraph.node.School;
-import dgraph.put.Dput;
+import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -68,14 +68,14 @@ public class SchoolToDgraph {
   public void insertEntity(List<School> schoolList,String type) {
     // insert new
     Map<String, String> uidMaps = new HashMap<String, String>();
-    List<Dput> dputList = new ArrayList<Dput>();
+    List<Nodeput> dputList = new ArrayList<Nodeput>();
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     int batch = 0;
     for (School school : schoolList) {
       List<String> pres = new ArrayList<String>();
       List<String> values = new ArrayList<String>();
       school.getStrAttrValueMap(pres, values);
-      Dput dput = new Dput();
+      Nodeput dput = new Nodeput();
       dput.setUniqueId(school.getName());
       dput.setPredicates(pres);
       dput.setValues(values);
@@ -106,12 +106,12 @@ public class SchoolToDgraph {
   public void updateEntity(List<School> updateSchoolList) {
     int updateBatch = 0;
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
-    List<Dput> updatePutList = new ArrayList<Dput>();
+    List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (School school : updateSchoolList) {
       List<String> pres = new ArrayList<String>();
       List<String> values = new ArrayList<String>();
       school.getStrAttrValueMap(pres, values);
-      Dput dput = new Dput();
+      Nodeput dput = new Nodeput();
       dput.setUid(school.getUid());
       dput.setUniqueId(school.getName());
       dput.setPredicates(pres);

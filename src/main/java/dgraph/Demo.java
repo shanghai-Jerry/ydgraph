@@ -128,7 +128,7 @@ public class Demo {
     long value = Long.parseLong("0x1780e".substring(2), 16);
     String hexValue = Long.toHexString(98951);
     System.out.println(value + ", 0x" + hexValue);
-    // demo.dClient.dropSchema();
+    demo.dClient.dropSchema();
     demo.dClient.alterSchema(Config.updateSchema);
     System.out.println("finished");
   }

@@ -8,7 +8,7 @@ import java.util.Map;
 import client.EntityIdClient;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
-import dgraph.put.Dput;
+import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -66,14 +66,14 @@ public class MajorToDgraph {
 
   public void insertEntity(List<Major> majorList, String type) {
     Map<String, String> uidMaps = new HashMap<String, String>();
-    List<Dput> dputList = new ArrayList<Dput>();
+    List<Nodeput> dputList = new ArrayList<Nodeput>();
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     int batch = 0;
     for (Major major : majorList) {
       List<String> pres = new ArrayList<String>();
       List<String> values = new ArrayList<String>();
       major.getStrAttrValueMap(pres, values);
-      Dput dput = new Dput();
+      Nodeput dput = new Nodeput();
       dput.setUniqueId(major.getName());
       dput.setPredicates(pres);
       dput.setValues(values);
@@ -104,14 +104,14 @@ public class MajorToDgraph {
 
   public void updateEntity(List<Major> majorList) {
     // update
-    List<Dput> dputList = new ArrayList<Dput>();
+    List<Nodeput> dputList = new ArrayList<Nodeput>();
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     int batch = 0;
     for (Major major : majorList) {
       List<String> pres = new ArrayList<String>();
       List<String> values = new ArrayList<String>();
       major.getStrAttrValueMap(pres, values);
-      Dput dput = new Dput();
+      Nodeput dput = new Nodeput();
       dput.setUid(major.getUid());
       dput.setUniqueId(major.getName());
       dput.setPredicates(pres);
