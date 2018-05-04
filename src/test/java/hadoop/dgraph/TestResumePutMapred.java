@@ -1,4 +1,4 @@
-package dgraph;
+package hadoop.dgraph;
 
 
 import org.apache.hadoop.conf.Configuration;
@@ -19,6 +19,7 @@ import org.apache.hadoop.util.Tool;
 
 import java.io.IOException;
 
+import dgraph.DClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -69,7 +70,7 @@ public class TestResumePutMapred extends Configured implements Tool {
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
       dClient = new DClient(TEST_HOSTNAME, TEST_PORT);
-      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/main/resources/school_dict.txt");
+      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/school_dict.txt");
       dClient.alterSchema(schema);
     }
 
@@ -102,7 +103,7 @@ public class TestResumePutMapred extends Configured implements Tool {
 
   public void configJob(Job job, String input, String tableName) throws Exception {
     job.setJarByClass(TestResumePutMapred.class);
-    job.setJobName("dgraph put -" + input.substring(input.lastIndexOf("/") +
+    job.setJobName("hadoop.dgraph put -" + input.substring(input.lastIndexOf("/") +
         1));
     job.setMapperClass(Map.class);
     FileInputFormat.setInputPaths(job, input);
@@ -147,8 +148,8 @@ public class TestResumePutMapred extends Configured implements Tool {
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
     args = new String[] {
-        "/Users/devops/workspace/hbase-Demo/src/main/resources/part-m-00371",
-        "/Users/devops/workspace/hbase-Demo/src/main/resources",
+        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources/part-m-00371",
+        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources",
         "idmg:resume_test",
     };
     int exitCode = new TestResumePutMapred().run(args);

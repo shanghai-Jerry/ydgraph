@@ -21,33 +21,31 @@ import java.util.Map;
 
 import dgraph.node.People;
 import dgraph.node.Person;
+import dgraph.put.Dput;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 public class DClient {
 
-  private static final String TEST_HOSTNAME = "172.20.0.68";
-  private static final int TEST_PORT = 9080;
   private static final Logger logger = LoggerFactory.getLogger(DClient.class);
 
-  private static  HashMap<String, Integer> schoolDict = new HashMap<String, Integer>();
+  private static HashMap<String, Integer> schoolDict = new HashMap<String, Integer>();
 
   private static JsonFormat.Parser parser = JsonFormat.parser();
   private static final long MURMUR_SEED = 0x7f3a21eaL;
+
   private static long generateMurMurHashId(String src) {
     byte[] bytes = src.getBytes();
     long murmurId = Murmur2.hash64(bytes, bytes.length, MURMUR_SEED);
     return murmurId;
   }
 
-  private  int maxUid = 0;
+  private int maxUid = 0;
 
   public DgraphClient getDgraphClient() {
     return dgraphClient;
@@ -64,7 +62,9 @@ public class DClient {
 
   public void dropSchema() {
     // Initialize
-    dgraphClient.alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
+    dgraphClient.alter(DgraphProto.Operation.newBuilder()
+        .setDropAll(true)
+        .build());
   }
 
   public void alterSchema(String schema) {
@@ -74,13 +74,14 @@ public class DClient {
     dgraphClient.alter(op);
   }
 
-  public DgraphProto.Assigned mutationEntityEdgeSet(io.dgraph.DgraphClient.Transaction txn,
-                                                    String id, String predicate,String idRelat) {
+  public DgraphProto.Assigned entityAddEdge(io.dgraph.DgraphClient.Transaction txn,
+                                              String uid, String predicate, String idRelat) {
     DgraphProto.NQuad quad =
         DgraphProto.NQuad.newBuilder()
-            .setSubject(String.format("_:%s", id))
+            .setSubject(String.format("%s", uid))
             .setPredicate(predicate)
-            .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(String.format("_:%s",idRelat))
+            .setObjectValue(DgraphProto.Value.newBuilder()
+                .setStrVal(String.format("%s", idRelat))
                 .build())
             .build();
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(quad).build();
@@ -88,21 +89,98 @@ public class DClient {
     return ag;
   }
 
-  public String mutationEntityAttriSet(io.dgraph.DgraphClient.Transaction txn, String id,
-                                       String predicate,String value) {
-    DgraphProto.NQuad quad =
-        DgraphProto.NQuad.newBuilder()
-            .setSubject(String.format("_:%s", id))
-            .setPredicate(predicate)
-            .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(String.format("%s",value)).build())
-            .build();
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(quad).build();
-    DgraphProto.Assigned ag = txn.mutate(mu);
-    return ag.getUidsOrThrow(id);
+  public void entityAddIntAttr(io.dgraph.DgraphClient.Transaction txn, List<Dput> putList) {
+    int ids = putList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<String> values = putList.get(j).getValues();
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad quad =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(String.format("%s", uid))
+                .setPredicate(predicates.get(i))
+                .setObjectValue(DgraphProto.Value.newBuilder()
+                    .setIntVal(Long.parseLong(values.get(i))).build())
+                .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    txn.mutate(mu);
   }
 
-  public List<DgraphProto.Assigned> mutiplyMutation(io.dgraph.DgraphClient.Transaction txn, List<String> jsons) {
-   List<DgraphProto.Assigned> assignedList = new ArrayList<DgraphProto.Assigned>();
+  public void entityAddStrAttr(io.dgraph.DgraphClient.Transaction txn, List<Dput> putList) {
+    int ids = putList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<String> values = putList.get(j).getValues();
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad quad =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(String.format("%s", uid))
+                .setPredicate(predicates.get(i))
+                .setObjectValue(DgraphProto.Value.newBuilder()
+                    .setStrVal(String.format("%s", values.get(i))).build())
+                .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    txn.mutate(mu);
+  }
+
+  public DgraphProto.Assigned entityWithStrAttrInitial(io.dgraph.DgraphClient.Transaction txn,
+                                                       List<Dput> schoolPutList) {
+    int ids = schoolPutList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uniqueId = schoolPutList.get(j).getUniqueId();
+      List<String> predicates = schoolPutList.get(j).getPredicates();
+      List<String> values = schoolPutList.get(j).getValues();
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad quad =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(String.format("_:%s", uniqueId))
+                .setPredicate(predicates.get(i))
+                .setObjectValue(DgraphProto.Value.newBuilder()
+                    .setStrVal(String.format("%s", values.get(i))).build())
+                .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    DgraphProto.Assigned ag = txn.mutate(mu);
+    return ag;
+  }
+
+  /**
+   * 对象json的方式写入
+   */
+  public List<DgraphProto.Assigned> mutiplyMutation(io.dgraph.DgraphClient.Transaction txn,
+                                                    List<String> jsons) {
+    List<DgraphProto.Assigned> assignedList = new ArrayList<DgraphProto.Assigned>();
     for (String json : jsons) {
       assignedList.add(mutation(txn, json));
     }
@@ -116,6 +194,7 @@ public class DClient {
     DgraphProto.Assigned assigned = txn.mutate(mu);
     return assigned;
   }
+
   public String QueryById(String did, String className, String methodName) {
     String query =
         "query did($a: string){\n" + "isExist(func: eq(id, $a)) {\n" + "uid\n" + "  }\n" + "}";
@@ -125,21 +204,21 @@ public class DClient {
     Object people = null;
     String ret = "";
     try {
-        classNameClass = Class.forName(className);
-        // people = classNameClass.newInstance();
-        String resp = res.getJson().toStringUtf8();
-        people = new Gson().fromJson(resp, Class.forName(className));
-        Method[] methods = classNameClass.getMethods();
-        // 循环查找想要的方法
-        for(Method method : methods) {
-          if (methodName.equals(method.getName())) {
-            // 调用这个方法，invoke第一个参数是类名，后面是方法需要的参数
-            Object result = method.invoke(people);
-            return (String)result;
-          }
+      classNameClass = Class.forName(className);
+      // people = classNameClass.newInstance();
+      String resp = res.getJson().toStringUtf8();
+      people = new Gson().fromJson(resp, Class.forName(className));
+      Method[] methods = classNameClass.getMethods();
+      // 循环查找想要的方法
+      for (Method method : methods) {
+        if (methodName.equals(method.getName())) {
+          // 调用这个方法，invoke第一个参数是类名，后面是方法需要的参数
+          Object result = method.invoke(people);
+          return (String) result;
         }
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
+      }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (InvocationTargetException e) {
@@ -148,7 +227,8 @@ public class DClient {
     return ret;
 
   }
-  public void QueryDemo(String query,  Map<String, String> vars) {
+
+  public void QueryDemo(String query, Map<String, String> vars) {
     /*
     // Query
     String query =
@@ -175,7 +255,7 @@ public class DClient {
       int line = 0;
       // 一次读入一行，直到读入null为文件结束
       while ((tempString = reader.readLine()) != null) {
-        String [] split = tempString.split("\t");
+        String[] split = tempString.split("\t");
         map.put(split[2], Integer.valueOf(split[0].trim()));
       }
     } catch (FileNotFoundException e) {
@@ -184,28 +264,7 @@ public class DClient {
       e.printStackTrace();
     }
   }
+
   public static void main(final String[] args) {
-    // Set schema
-    String schema =
-            "uid:int . \n" +
-            "chineseName:string @index(exact,term) . \n" +
-            "gender:int @index(int) . \n"  +
-            "currentJobTitle:string @index(exact,term) .\n" +
-            // "industries: uid @reverse . \n" +
-            "code:int @index(int) . \n" +
-            "title:string @index(exact,term) . \n" +
-            "seniority:int @index(int) . \n" +
-            "salary:float @index(float) . \n" +
-            "educationDegree:int @index(int) . \n" +
-            // "pastWorkExperiences:uid @reverse . \n" +
-            // "org:uid @reverse . \n" +
-            "suggest:string @index(exact,term) .\n" +
-            "jobTitle: string @index(exact,term) .\n" +
-            // "educationExperiences:uid @reverse . \n" +
-            // "school:uid @reverse . \n" +
-            "age:int @index(int) . \n";
-    DClient dClient = new DClient(TEST_HOSTNAME, TEST_PORT);
-    // dClient.dropSchema();
-    // dClient.createSchema(schema);
   }
 }

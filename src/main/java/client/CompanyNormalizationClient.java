@@ -46,7 +46,7 @@ public class CompanyNormalizationClient {
     return rep;
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void StartMain(String[] args) throws Exception {
     CompanyNormalizationClient client = new CompanyNormalizationClient("172.20.0.81", 26543);
     try {
       Company.CompanyNormReply rep = client.normalize(Company.CompanyNormRequest.newBuilder()

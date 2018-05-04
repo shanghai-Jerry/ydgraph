@@ -16,18 +16,26 @@ public class Demo {
 
   // produ client ip : 172.20.0.8
   // test client ip : 172.20.0.68
-  private static final String TEST_HOSTNAME = "172.20.0.68";
-  private static final int TEST_PORT = 9080;
   private static final Logger logger = LoggerFactory.getLogger(Demo.class);
   private DClient dClient;
 
   public Demo() {
-    dClient = new DClient(TEST_HOSTNAME, TEST_PORT);
+    dClient = new DClient(Config.TEST_HOSTNAME, Config.TEST_PORT);
   }
 
   public List<Person> CheckOutEntities(List<Person> persons) {
     for (Person person : persons) {
-      String uid = dClient.QueryById(person.getId(), "dgraph.node.People", "getExistUid");
+      String uid = dClient.QueryById(person.getId(), "hadoop.dgraph.node.People", "getExistUid");
+      if (!"".equals(uid)) {
+        person.setUid(uid);
+      }
+    }
+    return persons;
+  }
+
+  public List<Person> searchUid(List<Person> persons) {
+    for (Person person : persons) {
+      String uid = dClient.QueryById(person.getId(), "hadoop.dgraph.node.People", "getExistUid");
       if (!"".equals(uid)) {
         person.setUid(uid);
       }
@@ -64,7 +72,7 @@ public class Demo {
     persons.add(person2);
     persons.add(person3);
     persons.add(person4);
-    this.CheckOutEntities(persons);
+    this.searchUid(persons);
     personList.add(person1.toString());
     personList.add(person2.toString());
     personList.add(person3.toString());
@@ -84,7 +92,7 @@ public class Demo {
     persons.add(person2);
     persons.add(person3);
     persons.add(person4);
-    this.CheckOutEntities(persons);
+    this.searchUid(persons);
     personList.clear();
     // 所有实体必须验证是否存在dgraph中，先判断uid是否有了
     personList.add(person1.toString());
@@ -93,7 +101,7 @@ public class Demo {
     personList.add(person4.toString());
     logger.info("object obj:" + person1.toString());
     // 验证是否存在dgraph中，先判断uid是否有了
-    this.CheckOutEntities(persons);
+    this.searchUid(persons);
     List<DgraphProto.Assigned> assignedList = this.feedEntities(personList);
     for (DgraphProto.Assigned assigned : assignedList) {
       Map<String, String> map = assigned.getUidsMap();
@@ -109,12 +117,19 @@ public class Demo {
 
   }
 
+  public void edgeConnect() {
+    List<String> edgeConnect = new ArrayList<String>();
+    edgeConnect.add("\"0xe5a5\" <friend> \"0xe5a6\" .");
+    feedEntities(edgeConnect);
+  }
+
   public static  void main(String []args) {
     Demo demo = new Demo();
+    long value = Long.parseLong("0x1780e".substring(2), 16);
+    String hexValue = Long.toHexString(98951);
+    System.out.println(value + ", 0x" + hexValue);
     // demo.dClient.dropSchema();
-    // demo.dClient.alterSchema(Config.schema);
-    List<String> edgeConnect = new ArrayList<String>();
-    edgeConnect.add("\"0xe5a5\" <friend> \"0xe5a6\" .}");
-    demo.feedEntities(edgeConnect);
+    demo.dClient.alterSchema(Config.updateSchema);
+    System.out.println("finished");
   }
 }

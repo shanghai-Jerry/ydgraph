@@ -147,7 +147,7 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
   public static void main(String[] args) throws Exception {
     args = new String[] {
         "resume/test/part-m-00371",
-        "/Users/devops/workspace/hbase-Demo/src/main/resources",
+        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources",
         "idmg:resume_test",
     };
     int exitCode = new TestResumeOriginContentMapred().run(args);

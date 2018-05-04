@@ -20,7 +20,7 @@ public class Demo {
 
 
     ArrayList list = new ArrayList<String>();
-    File file = new File("/Users/devops/workspace/hbase-Demo/src/main/resources/test");
+    File file = new File("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/test");
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(new FileReader(file));
