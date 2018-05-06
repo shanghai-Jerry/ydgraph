@@ -157,7 +157,7 @@ public class SchoolToDgraph {
     NodeUtil.insertEntity(dClient,entityIdClient, schoolList, "学校");
     // update
     // updateEntity(updateSchoolList);
-    NodeUtil.updateEntity(dClient, entityIdClient, updateSchoolList);
+    NodeUtil.updateEntityNew(dClient, entityIdClient, updateSchoolList);
 
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");

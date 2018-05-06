@@ -1,9 +1,6 @@
 package dgraph.node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import client.EntityIdClient;
 import dgraph.Config;
@@ -77,7 +74,7 @@ public class NodeUtil {
     }
     if (updateBatch > 0) {
       if (txn != null) {
-        dClient.entityAddStrAttr(txn, updatePutList);
+        dClient.entityAddAttr(txn, updatePutList);
         txn.commit();
         txn.discard();
       }
@@ -120,7 +117,7 @@ public class NodeUtil {
       }
     }
     entityIdClient.putFeedEntity(uidMaps, type);
-    FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/school_uid_map.txt", uidMaps);
+    // FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/school_uid_map.txt", uidMaps);
     System.out.println("get all uids :" + uidMaps.size());
   }
 
@@ -153,6 +150,18 @@ public class NodeUtil {
       } else {
         insertList.add(entityNode);
       }
+    }
+  }
+
+  public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid, List<T>  list, Map<String, String> uidMap) {
+    Set<Map.Entry<String, String>> entrySet=  blankUid.entrySet();
+    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+    while(iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      String key = entry.getKey();
+      String value = entry.getValue();
+      int index = Integer.parseInt(key.substring(6));
+      uidMap.put(list.get(index).getName(), value);
     }
   }
 }

@@ -61,7 +61,7 @@ public class School extends EntityNode {
   }
 
   @Override
-  public void getAttrValueMap(List<String> pre, List<Object> values) {
+  public  void getAttrValueMap(List<String> pre, List<Object> values) {
     pre.add("type");
     values.add(this.getType());
     pre.add("name");

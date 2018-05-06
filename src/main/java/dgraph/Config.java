@@ -2,7 +2,7 @@ package dgraph;
 
 public class Config {
 
-  public static final String TEST_HOSTNAME = "172.20.0.8";
+  public static final String TEST_HOSTNAME = "172.20.0.68";
 
   public static final int TEST_PORT = 9080;
 

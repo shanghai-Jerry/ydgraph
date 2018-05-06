@@ -1,9 +1,6 @@
 package dgraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import client.EntityIdClient;
 import dgraph.node.Major;
@@ -34,6 +31,7 @@ public class MajorToDgraph {
       major.setName(lineSplits[1]);
       major.setCode(lineSplits[0]);
       major.setType("专业");
+      major.setTestType(100);
       if ("0".equals(major.getCode())) {
         continue;
       }
@@ -64,78 +62,6 @@ public class MajorToDgraph {
     }
   }
 
-  public void insertEntity(List<Major> majorList, String type) {
-    Map<String, String> uidMaps = new HashMap<String, String>();
-    List<Nodeput> dputList = new ArrayList<Nodeput>();
-    io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
-    int batch = 0;
-    for (Major major : majorList) {
-      List<String> pres = new ArrayList<String>();
-      List<String> values = new ArrayList<String>();
-      major.getStrAttrValueMap(pres, values);
-      Nodeput dput = new Nodeput();
-      dput.setUniqueId(major.getName());
-      dput.setPredicates(pres);
-      dput.setValues(values);
-      dputList.add(dput);
-      batch++;
-      if (batch >= Config.batch) {
-        DgraphProto.Assigned ag = dClient.entityWithStrAttrInitial(txn, dputList);
-        uidMaps.putAll(ag.getUidsMap());
-        txn.commit();
-        txn.discard();
-        txn = dClient.getDgraphClient().newTransaction();
-        batch = 0;
-        dputList.clear();
-      }
-    }
-    if (batch > 0) {
-      if (txn != null) {
-        DgraphProto.Assigned ag = dClient.entityWithStrAttrInitial(txn, dputList);
-        uidMaps.putAll(ag.getUidsMap());
-        txn.commit();
-        txn.discard();
-      }
-    }
-    entityIdClient.putFeedEntity(uidMaps, type);
-    System.out.println("get all uids :" + uidMaps.size());
-    FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/major_uid_map.txt", uidMaps);
-  }
-
-  public void updateEntity(List<Major> majorList) {
-    // update
-    List<Nodeput> dputList = new ArrayList<Nodeput>();
-    io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
-    int batch = 0;
-    for (Major major : majorList) {
-      List<String> pres = new ArrayList<String>();
-      List<String> values = new ArrayList<String>();
-      major.getStrAttrValueMap(pres, values);
-      Nodeput dput = new Nodeput();
-      dput.setUid(major.getUid());
-      dput.setUniqueId(major.getName());
-      dput.setPredicates(pres);
-      dput.setValues(values);
-      dputList.add(dput);
-      batch++;
-      if (batch >= Config.batch) {
-        dClient.entityAddStrAttr(txn, dputList);
-        txn.commit();
-        txn.discard();
-        txn = dClient.getDgraphClient().newTransaction();
-        batch = 0;
-        dputList.clear();
-      }
-    }
-    if (batch > 0) {
-      if (txn != null) {
-        dClient.entityAddStrAttr(txn, dputList);
-        txn.commit();
-        txn.discard();
-      }
-    }
-  }
-
   public void init(String dictPath) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
@@ -149,19 +75,21 @@ public class MajorToDgraph {
     System.out.println("get separate list: :" + majorList.size() + ", "
         + updateMajorList.size());
     System.out.println("get all majors :" + majors.size());
-    NodeUtil.insertEntity(dClient, entityIdClient, majorList, "学校");
+    // NodeUtil.insertEntity(dClient, entityIdClient, majorList, "学校");
     // insertEntity(majorList, "专业");
-    NodeUtil.updateEntity(dClient, entityIdClient, updateMajorList);
+    NodeUtil.updateEntityNew(dClient, entityIdClient, updateMajorList);
     // updateEntity(updateMajorList);
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
+  /**
+   * this way is better and faster than NQuad, you'd better try this much more.
+   * @param dictPath
+   */
   public void initWithJson(String dictPath) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
-    List<String> majorString = new ArrayList<String>();
-    List<String> keys = new ArrayList<String>();
     List<String> values = new ArrayList<String>();
     Map<String, String> uidMaps = new HashMap<String, String>();
     FileUtils.readFiles(dictPath, dictLines);
@@ -169,23 +97,17 @@ public class MajorToDgraph {
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     long startTime = System.currentTimeMillis();
     System.out.println("get all majors :" + majors.size());
-    for (Major major : majors) {
-      keys.add(major.getName());
-      majorString.add(major.toString());
-    }
-    List<DgraphProto.Assigned> assignedList = dClient.mutiplyMutation(txn, majorString);
-    for (DgraphProto.Assigned ag : assignedList) {
-      values.addAll(ag.getUidsMap().values());
-    }
+    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(txn, majors);
+    NodeUtil.uidFlattenMapping(assigned.getUidsMap(), majors, uidMaps);
     long endStart = System.currentTimeMillis();
     System.out.println("get all uids :" + uidMaps.size());
     System.out.println("spend time:" + (endStart - startTime) + " ms");
-    FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/major_uid_map.txt", uidMaps);
+    FileUtils.saveFile("/Users/lolaliva/Documents/知识图谱/major/major_uid_map.txt",uidMaps);
   }
   public static  void main(String []args) {
-    String dictPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
+    String dictPath = "/Users/lolaliva/workspace/home/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
-    majorToDgraph.init(dictPath);
-    // majorToDgraph.initWithJson(dictPath);
+    // majorToDgraph.init(dictPath);
+    majorToDgraph.initWithJson(dictPath);
   }
 }

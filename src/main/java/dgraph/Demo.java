@@ -43,8 +43,8 @@ public class Demo {
     return persons;
   }
 
-  public List<DgraphProto.Assigned> feedEntities(List<String> entities) {
-    List<DgraphProto.Assigned> assignedList;
+  public DgraphProto.Assigned feedEntities(List<String> entities) {
+    DgraphProto.Assigned assignedList;
     io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     try {
       assignedList = dClient.mutiplyMutation(txn, entities);
@@ -102,17 +102,15 @@ public class Demo {
     logger.info("object obj:" + person1.toString());
     // 验证是否存在dgraph中，先判断uid是否有了
     this.searchUid(persons);
-    List<DgraphProto.Assigned> assignedList = this.feedEntities(personList);
-    for (DgraphProto.Assigned assigned : assignedList) {
-      Map<String, String> map = assigned.getUidsMap();
-      Set<Map.Entry<String, String>> entrySet=  map.entrySet();
-      Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-      while(iterator.hasNext()) {
-        Map.Entry<String, String> entry = iterator.next();
-        String key = entry.getKey();
-        String value = entry.getValue();
-        logger.info("Key:" + key + ", value:" + value);
-      }
+    DgraphProto.Assigned assigned = this.feedEntities(personList);
+    Map<String, String> map = assigned.getUidsMap();
+    Set<Map.Entry<String, String>> entrySet=  map.entrySet();
+    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+    while(iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      String key = entry.getKey();
+      String value = entry.getValue();
+      logger.info("Key:" + key + ", value:" + value);
     }
 
   }

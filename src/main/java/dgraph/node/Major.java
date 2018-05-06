@@ -8,6 +8,17 @@ public class Major extends EntityNode {
 
   String code;
 
+  int testType;
+
+  public int getTestType() {
+    return testType;
+  }
+
+  public void setTestType(int testType) {
+    this.testType = testType;
+  }
+
+
   public String getUid() {
     return uid;
   }
@@ -38,6 +49,18 @@ public class Major extends EntityNode {
 
   public void setType(String type) {
     this.type = type;
+  }
+
+  @Override
+  public  void getAttrValueMap(List<String> pre, List<Object> values) {
+    pre.add("type");
+    values.add(this.getType());
+    pre.add("name");
+    values.add(this.getName());
+    pre.add("code");
+    values.add(this.getCode());
+    pre.add("test_type");
+    values.add(this.getTestType());
   }
 
   @Override
