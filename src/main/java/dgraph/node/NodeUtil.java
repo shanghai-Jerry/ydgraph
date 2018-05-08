@@ -1,14 +1,11 @@
 package dgraph.node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 import client.EntityIdClient;
 import client.dgrpah.DgraphClient;
+import com.google.gson.Gson;
 import dgraph.Config;
 import dgraph.DClient;
 import dgraph.put.Nodeput;
@@ -108,7 +105,31 @@ public class NodeUtil {
     System.out.println("get all uids :" + uidMaps.size());
   }
 
-  public static <T extends EntityNode> void putEntity(DClient dClient, EntityIdClient
+  public static <T> List<T> deepCopy(List<T> src) {
+    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+    ObjectOutputStream out = null;
+    try {
+      out = new ObjectOutputStream(byteOut);
+      out.writeObject(src);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+    ObjectInputStream in = null;
+    List<T> dest = new ArrayList<>();
+    try {
+      in = new ObjectInputStream(byteIn);
+      dest = (List<T>) in.readObject();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    return dest;
+  }
+
+
+  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient, EntityIdClient
       entityIdClient, List<T> list, String type, int needCheckUid) {
     Map<String, String> existuidMap = new HashMap<String, String>();
     Map<String, String> newUidMap = new HashMap<String, String>();
@@ -122,18 +143,21 @@ public class NodeUtil {
     } else {
       newPutList = list;
     }
-    NodeUtil.removeNames(newPutList);
+    List<T> copyList = deepCopy(newPutList);
     long startTime = System.currentTimeMillis();
-    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(newPutList);
+    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
     if (assigned != null) {
       logger.info("get ret uids :" + assigned.getUidsMap().size());
-      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), newPutList, newUidMap);
+      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), copyList, newUidMap);
     }
+    copyList.clear();
+    NodeUtil.checkEntityUid(newPutList, newUidMap, new ArrayList<T>());
     entityIdClient.putFeedEntity(newUidMap,  type);
     long endStart = System.currentTimeMillis();
     logger.info(" new uids:" + newUidMap.size() + ", existUids:" + existuidMap.size() + ", " +
         "newPutList:" + newPutList.size());
     logger.info("spend time:" + (endStart - startTime) + " ms");
+    return newUidMap;
   }
 
   /**
@@ -188,9 +212,30 @@ public class NodeUtil {
    * @param entityNodes
    * @param uidMap
    * @param <T>
+   * why this can now work ???
+   */
+  /*public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
+      String> uidMap) {
+    for (T entityNode : entityNodes) {
+      List<String> names = entityNode.getNames();
+      for (String name : names) {
+        if (!"".equals(name) && uidMap.containsKey(name)) {
+          entityNode.setUid(uidMap.get(name));
+          break;
+        }
+      }
+    }
+    NodeUtil.removeNames(entityNodes);
+  }
+*/
+  /**
+   * 将已有uid写入实体字段
+   * @param entityNodes
+   * @param uidMap
+   * @param <T>
    */
   public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap, List<T> resultList) {
+          String> uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
       List<String> names = entityNode.getNames();
       boolean isExist = false;
@@ -207,7 +252,6 @@ public class NodeUtil {
     }
   }
 
-
   /**
    * blank-id mapping uniqueName to uid
    * @param blankUid
@@ -218,12 +262,15 @@ public class NodeUtil {
   public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid, List<T>  list, Map<String, String> uidMap) {
     Set<Map.Entry<String, String>> entrySet=  blankUid.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    logger.info("list size:" + list.size());
     while(iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
       int index = Integer.parseInt(key.substring(6));
+      if (index >= list.size()) {
+        logger.info("uidFlattenMapping error blankUid size not equal list size");
+        continue;
+      }
       uidMap.put(list.get(index).getName(), value);
     }
   }

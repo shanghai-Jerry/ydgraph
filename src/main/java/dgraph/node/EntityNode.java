@@ -1,5 +1,6 @@
 package dgraph.node;
 
+import java.io.Serializable;
 import java.util.List;
 /**
  * User: JerryYou
@@ -10,7 +11,7 @@ import java.util.List;
  *
  * <<licensetext>>
  */
-public class EntityNode {
+public class EntityNode implements Serializable {
 
   String uid;
   // _:uniqueId <name> value

@@ -99,7 +99,7 @@ public class EntityIdClient {
         boolean ok = entityIdResponse.getOk();
         String msg = entityIdResponse.getMsg();
         // 如果服务直接返回了matched_name,可直接使用
-        String matchedName = entityIdResponse.getMatchedName();
+        // String matchedName = entityIdResponse.getMatchedName();
         if (ok) {
           String values = "0x" + Long.toHexString(id);
           // 使用names中第一个非空的name和uid做一个映射

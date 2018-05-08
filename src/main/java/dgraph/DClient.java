@@ -19,6 +19,7 @@ import java.util.Map;
 
 import client.dgrpah.DgraphClient;
 import dgraph.node.EntityNode;
+import dgraph.node.NodeUtil;
 import dgraph.node.People;
 import dgraph.node.Person;
 import dgraph.put.Nodeput;
@@ -279,6 +280,8 @@ public class DClient {
       int size = entities.size();
       if (size > 0) {
         Gson gson = new Gson();
+        NodeUtil.removeNames(entities);
+        logger.info("industry RMOVE:" + new Gson().toJson(entities.get(0)).toString());
         text = gson.toJson(entities);
         DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
             .setSetJson(ByteString.copyFromUtf8(text))
@@ -296,15 +299,17 @@ public class DClient {
 
   /**
    * 单个string json对象写入
-   * @param txn
    * @param json
    * @return
    */
-  public DgraphProto.Assigned mutation(DgraphClient.Transaction txn, String json) {
+  public DgraphProto.Assigned mutation(String json) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
         .setSetJson(ByteString.copyFromUtf8(json.toString()))
         .build();
     DgraphProto.Assigned assigned = txn.mutate(mu);
+    txn.commit();
+    txn.discard();
     return assigned;
   }
 

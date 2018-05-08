@@ -4,7 +4,7 @@ public class Industry extends  EntityNode {
 
   int code;
 
-  Industry partent_industry;
+  Industry parent_industry;
 
   public int getCode() {
     return code;
@@ -14,11 +14,11 @@ public class Industry extends  EntityNode {
     this.code = code;
   }
 
-  public Industry getPartent_industry() {
-    return partent_industry;
+  public Industry getParent_industry() {
+    return parent_industry;
   }
 
-  public void setPartent_industry(Industry partent_industry) {
-    this.partent_industry = partent_industry;
+  public void setParent_industry(Industry parent_industry) {
+    this.parent_industry = parent_industry;
   }
 }

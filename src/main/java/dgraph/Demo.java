@@ -137,6 +137,8 @@ public class Demo {
     System.out.println(value + ", 0x" + hexValue);
     demo.dClient.dropSchema();
     demo.dClient.alterSchema(Config.updateSchema);
+
     System.out.println("finished");
+
   }
 }
