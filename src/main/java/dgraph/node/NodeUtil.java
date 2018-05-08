@@ -101,21 +101,26 @@ public class NodeUtil {
   }
 
   public static <T extends EntityNode> void putEntity(DClient dClient, EntityIdClient
-      entityIdClient, List<T> list, String type) {
+      entityIdClient, List<T> list, String type, int needCheckUid) {
     Map<String, String> existuidMap = new HashMap<String, String>();
     Map<String, String> newUidMap = new HashMap<String, String>();
     List<List<String>> reqs = new ArrayList<List<String>>();
     NodeUtil.getCheckNames(list, reqs);
-    entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.checkEntityUid(list, existuidMap);
+    // 是否需要检查uid存在与否
+    if (needCheckUid > 0) {
+      entityIdClient.checkEntityList(reqs, existuidMap, type);
+      NodeUtil.checkEntityUid(list, existuidMap);
+    }
+    NodeUtil.removeNames(list);
     long startTime = System.currentTimeMillis();
     DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(list);
-    logger.info("get ret uids :" + assigned.getUidsMap().size() + ", existUids:" +
-        existuidMap.size());
-    NodeUtil.uidFlattenMapping(assigned.getUidsMap(), list, newUidMap);
+    if (assigned != null) {
+      logger.info("get ret uids :" + assigned.getUidsMap().size());
+      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), list, newUidMap);
+    }
     entityIdClient.putFeedEntity(newUidMap,  type);
     long endStart = System.currentTimeMillis();
-    logger.info(" new uids:" + newUidMap.size());
+    logger.info(" new uids:" + newUidMap.size() + ", existUids:" + existuidMap.size());
     logger.info("spend time:" + (endStart - startTime) + " ms");
     // util.mapCombiner(newUidMap, existuidMap);
     // FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/school_uid_map.txt", existuidMap);
@@ -158,6 +163,13 @@ public class NodeUtil {
   public static <T extends EntityNode> void getCheckNames(List<T> entityNodes, List<List<String>> reqs) {
     for (T entityNode : entityNodes) {
       reqs.add(entityNode.getNames());
+    }
+  }
+
+  public static <T extends EntityNode> void removeNames(List<T> entityNodes) {
+    for (T entityNode : entityNodes) {
+      List<String> names = new ArrayList<>();
+      entityNode.setNames(names);
     }
   }
 

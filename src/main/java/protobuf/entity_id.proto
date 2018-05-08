@@ -18,12 +18,15 @@ message EntityIdRequest{
 }
 message BatchEntityIdRequest{
     repeated EntityIdRequest entity_req=1;
+    bool not_override_origin_id=2;
+
 }
 
 message EntityIdResponse{
     int64 id=1;
     bool  ok=2;
     string msg=3;
+    string matched_name=4;
 }
 
 message BatchEntityIdResponse{

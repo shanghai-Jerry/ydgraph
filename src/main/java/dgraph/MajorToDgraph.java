@@ -87,23 +87,23 @@ public class MajorToDgraph {
   }
 
   /**
-   * this way is better and faster than NQuad, you'd better try this much more.
+   * this way is better and faster than NQuad, you'd better try this muc h more.
    * @param dictPath
    */
-  public void initWithJson(String dictPath) {
+  public void initWithJson(String dictPath, int needCheck) {
     String type = "专业";
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
     System.out.println("get all majors :" + majors.size());
-    NodeUtil.putEntity(dClient, entityIdClient, majors, type);
+    NodeUtil.putEntity(dClient, entityIdClient, majors, type, needCheck);
   }
   public static  void main(String []args) {
     String dictPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
+    int needCheck = 1;
     // majorToDgraph.init(dictPath);
-    majorToDgraph.initWithJson(dictPath);
-    majorToDgraph.dClient.getDgraphClient();
+    majorToDgraph.initWithJson(dictPath, needCheck);
   }
 }

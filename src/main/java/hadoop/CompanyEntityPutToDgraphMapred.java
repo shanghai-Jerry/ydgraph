@@ -100,14 +100,14 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           companyList.add(company);
         }
         if (batch > Config.batch) {
-          NodeUtil.putEntity(dClient, entityIdClient, companyList, type);
+          NodeUtil.putEntity(dClient, entityIdClient, companyList, type, 1);
           companyList.clear();
           batch = 0;
         }
         batch++;
       }
       if (batch > 0) {
-        NodeUtil.putEntity(dClient, entityIdClient, companyList, type);
+        NodeUtil.putEntity(dClient, entityIdClient, companyList, type, 1);
       }
       cleanup(context);
     }

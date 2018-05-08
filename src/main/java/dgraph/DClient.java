@@ -259,15 +259,20 @@ public class DClient {
   public <T extends EntityNode> DgraphProto.Assigned mutiplyMutationEntity(List<T> entities) {
     DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
-    // logger.info("bytes:" + new Gson().toJson(entities).toString());
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-            .setSetJson(ByteString.copyFromUtf8(new Gson().toJson(entities).toString()))
-            .build();
+    String text = "";
     try {
-      assigned = txnInner.mutate(mu);
-      txnInner.commit();
+      int size = entities.size();
+      if (size > 0) {
+        Gson gson = new Gson();
+        text = gson.toJson(entities);
+        DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+            .setSetJson(ByteString.copyFromUtf8(text))
+            .build();
+        assigned = txnInner.mutate(mu);
+        txnInner.commit();
+      }
     } catch (Exception e) {
-
+      logger.info("[mutiplyMutationEntity Expection]:" + e.getMessage() + ", entity:" + text);
     } finally {
       txnInner.discard();
     }

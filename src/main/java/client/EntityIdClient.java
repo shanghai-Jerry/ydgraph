@@ -23,7 +23,9 @@ import kb.rpc.EntityIdServiceGrpc;
  * Created by Jerry You on 2018/5/3.
  * hadoop.dgraph uid 自维护客户端
  *
- * 返回的数据（proto）可能需要稍作修改
+ * 返回的数据（proto）可能需要稍作修改如下：
+ * 1.重复names入库，uid需要根据最新一次更新
+ * 2.
  */
 
 public class EntityIdClient {
@@ -96,6 +98,9 @@ public class EntityIdClient {
         long id = entityIdResponse.getId();
         boolean ok = entityIdResponse.getOk();
         String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        String matchedName = entityIdResponse.getMatchedName();
+        logger.info("matchedName:" + matchedName + ", uid:" + id);
         if (ok) {
           String values = "0x" + Long.toHexString(id);
           // 使用names中第一个非空的name和uid做一个映射

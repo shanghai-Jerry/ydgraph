@@ -110,21 +110,22 @@ public class SchoolToDgraph {
    * 初始化实体以json的方式
    * @param filePath
    */
-  public void initWithJson(String filePath) {
+  public void initWithJson(String filePath, int needCheck) {
     String type = "学校";
     List<String> dictLines = new ArrayList<String>();
     List<School> schools = new ArrayList<School>();
     FileUtils.readFiles(filePath, dictLines);
     getSchool(dictLines, schools);
     System.out.println("get all schools :" + schools.size());
-    NodeUtil.putEntity(dClient, entityIdClient, schools, type);
+    NodeUtil.putEntity(dClient, entityIdClient, schools, type, needCheck);
   }
 
   public static void main(String[] args) {
     SchoolToDgraph schoolToDgraph = new SchoolToDgraph();
     List<School> schools = new ArrayList<School>();
     String dictPath = "/Users/devops/Documents/知识图谱/school/school_dump_dict.txt";
+    int needCheck = 1;
     // schoolToDgraph.init(dictPath);
-    schoolToDgraph.initWithJson(dictPath);
+    schoolToDgraph.initWithJson(dictPath, needCheck);
   }
 }

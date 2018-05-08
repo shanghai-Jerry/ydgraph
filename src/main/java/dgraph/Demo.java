@@ -122,7 +122,7 @@ public class Demo {
     feedEntities(edgeConnect);
   }
 
-  public static  void main(String []args) {
+  public static  void main(String []arg) {
     Demo demo = new Demo();
     long value = Long.parseLong("0x1780e".substring(2), 16);
     String hexValue = Long.toHexString(98951);
