@@ -22,6 +22,8 @@ import kb.rpc.EntityIdServiceGrpc;
 /**
  * Created by Jerry You on 2018/5/3.
  * hadoop.dgraph uid 自维护客户端
+ *
+ * 返回的数据（proto）可能需要稍作修改
  */
 
 public class EntityIdClient {
@@ -96,8 +98,14 @@ public class EntityIdClient {
         String msg = entityIdResponse.getMsg();
         if (ok) {
           String values = "0x" + Long.toHexString(id);
-          // 使用names中第一个name和uid做一个映射
-          uidMap.put(entityReqs.get(i).get(0), values);
+          // 使用names中第一个非空的name和uid做一个映射
+          List<String> names = entityReqs.get(i);
+          for (int j = 0; j < names.size(); j++) {
+            String name = names.get(j);
+            if (!"".equals(name)) {
+              uidMap.put(name, values);
+            }
+          }
         }
       }
     }

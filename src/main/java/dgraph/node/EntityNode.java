@@ -5,10 +5,18 @@ import java.util.List;
 public class EntityNode {
 
   String uid;
+  // _:uniqueId <name> value
   String uniqueId;
+  // 实体名称
   String name;
+  // 实体类别
   String type;
+  // 外部标识的names external ids
+  List<String> names;
 
+  public List<String> getNames() { return names; }
+
+  public void setNames(List<String> names) { this.names = names; }
 
   public String getUniqueId() {
     return uniqueId;

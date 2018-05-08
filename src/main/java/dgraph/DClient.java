@@ -17,12 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import client.dgrpah.DgraphClient;
 import dgraph.node.EntityNode;
-import dgraph.node.Major;
 import dgraph.node.People;
 import dgraph.node.Person;
 import dgraph.put.Nodeput;
-import io.dgraph.DgraphClient;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.grpc.ManagedChannel;
@@ -40,13 +39,13 @@ public class DClient {
     return dgraphClient;
   }
 
-  private io.dgraph.DgraphClient dgraphClient;
+  private DgraphClient dgraphClient;
 
   public DClient(String host, int port) {
     ManagedChannel channel =
         ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
     DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
-    dgraphClient = new io.dgraph.DgraphClient(Collections.singletonList(blockingStub));
+    dgraphClient = new DgraphClient(Collections.singletonList(blockingStub));
   }
 
   public void dropSchema() {
@@ -62,22 +61,42 @@ public class DClient {
     dgraphClient.alter(op);
   }
 
-  public DgraphProto.Assigned entityAddEdge(io.dgraph.DgraphClient.Transaction txn,
-                                              String uid, String predicate, String idRelat) {
-    DgraphProto.NQuad quad =
-        DgraphProto.NQuad.newBuilder()
-            .setSubject(String.format("%s", uid))
-            .setPredicate(predicate)
-            .setObjectValue(DgraphProto.Value.newBuilder()
-                .setStrVal(String.format("%s", idRelat))
-                .build())
-            .build();
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(quad).build();
-    DgraphProto.Assigned ag = txn.mutate(mu);
-    return ag;
+  /**
+   * 添加
+   * @param putList
+   */
+  public void entityAddEdge(List<Nodeput> putList) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    int ids = putList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<String> values = putList.get(j).getValues();
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad quad =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(String.format("%s", uid))
+                .setPredicate(predicates.get(i))
+                .setObjectValue(DgraphProto.Value.newBuilder()
+                    .setStrVal(String.format("%s", values.get(i))).build())
+                .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    txn.mutate(mu);
+    txn.commit();
+    txn.discard();
   }
 
-  public void entityAddIntAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
+  public void entityAddIntAttr(DgraphClient.Transaction txn, List<Nodeput> putList) {
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -105,7 +124,8 @@ public class DClient {
     txn.mutate(mu);
   }
 
-  public void entityAddAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
+  public void entityAddAttr(List<Nodeput> putList) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -140,10 +160,16 @@ public class DClient {
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
         .addAllSet(quads)
         .build();
-    txn.mutate(mu);
+    try {
+      txn.mutate(mu);
+      txn.commit();
+    } finally {
+      txn.discard();
+    }
   }
 
-  public void entityAddStrAttr(io.dgraph.DgraphClient.Transaction txn, List<Nodeput> putList) {
+  public void entityAddStrAttr(List<Nodeput> putList) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -169,10 +195,12 @@ public class DClient {
         .addAllSet(quads)
         .build();
     txn.mutate(mu);
+    txn.commit();
+    txn.discard();
   }
 
-  public DgraphProto.Assigned entityWithStrAttrInitial(io.dgraph.DgraphClient.Transaction txn,
-                                                       List<Nodeput> schoolPutList) {
+  public DgraphProto.Assigned entityWithStrAttrInitial(List<Nodeput> schoolPutList) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = schoolPutList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
@@ -197,14 +225,20 @@ public class DClient {
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
         .addAllSet(quads)
         .build();
-    DgraphProto.Assigned ag = txn.mutate(mu);
+    DgraphProto.Assigned ag;
+    try {
+      ag = txn.mutate(mu);
+      txn.commit();
+    } finally {
+      txn.discard();
+    }
     return ag;
   }
 
   /**
-   * 对象json的方式写入
+   * 批量对象json的方式写入
    */
-  public DgraphProto.Assigned mutiplyMutation(io.dgraph.DgraphClient.Transaction txn,
+  public DgraphProto.Assigned mutiplyMutation(DgraphClient.Transaction txn,
                                                     List<String> jsons) {
     List<DgraphProto.Assigned> assignedList = new ArrayList<DgraphProto.Assigned>();
     logger.info("bytes:" + new Gson().toJson(jsons).toString());
@@ -215,11 +249,17 @@ public class DClient {
     return assigned;
   }
 
-  public <T extends EntityNode> DgraphProto.Assigned mutiplyMutationEntity(io.dgraph.DgraphClient.Transaction txn,
-                                                                           List<T> entities) {
-    io.dgraph.DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
+  /**
+   * 批量对象json的方式写入，写入实体需继承EntityNode
+   * @param entities
+   * @param <T>
+   * @return
+   */
+
+  public <T extends EntityNode> DgraphProto.Assigned mutiplyMutationEntity(List<T> entities) {
+    DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
-    logger.info("bytes:" + new Gson().toJson(entities).toString());
+    // logger.info("bytes:" + new Gson().toJson(entities).toString());
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
             .setSetJson(ByteString.copyFromUtf8(new Gson().toJson(entities).toString()))
             .build();
@@ -234,7 +274,13 @@ public class DClient {
     return assigned;
   }
 
-  public DgraphProto.Assigned mutation(io.dgraph.DgraphClient.Transaction txn, String json) {
+  /**
+   * 单个string json对象写入
+   * @param txn
+   * @param json
+   * @return
+   */
+  public DgraphProto.Assigned mutation(DgraphClient.Transaction txn, String json) {
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
         .setSetJson(ByteString.copyFromUtf8(json.toString()))
         .build();

@@ -2,8 +2,6 @@ package dgraph.node;
 
 import com.google.gson.Gson;
 
-import org.apache.hadoop.util.LimitInputStream;
-
 import java.util.List;
 
 public class School extends EntityNode {
@@ -11,22 +9,6 @@ public class School extends EntityNode {
   String code;
   String alias;
   String engName;
-
-  public String getUid() {
-    return uid;
-  }
-
-  public void setUid(String uid) {
-    this.uid = uid;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public String getCode() {
     return code;
@@ -51,15 +33,6 @@ public class School extends EntityNode {
   public void setEngName(String engName) {
     this.engName = engName;
   }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
   @Override
   public  void getAttrValueMap(List<String> pre, List<Object> values) {
     pre.add("type");
@@ -68,7 +41,7 @@ public class School extends EntityNode {
     values.add(this.getName());
     pre.add("alias");
     values.add(this.getAlias());
-    pre.add("english_name");
+    pre.add("engName");
     values.add(this.getEngName());
   }
 

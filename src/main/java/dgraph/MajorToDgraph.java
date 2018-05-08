@@ -1,12 +1,13 @@
 package dgraph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
-import dgraph.put.Nodeput;
-import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import utils.FileUtils;
@@ -23,15 +24,18 @@ public class MajorToDgraph {
 
   public void getMajor(List<String> dictLines, List<Major> majors) {
     for (String line : dictLines) {
+      List<String> names = new ArrayList<String>();
       Major major = new Major();
       String[] lineSplits = line.split("\t");
       if (lineSplits.length != 2) {
         System.out.println("line:" + line + ",line length:" + lineSplits.length);
       }
-      major.setName(lineSplits[1]);
+      String name = lineSplits[1];
+      names.add(name);
+      major.setNames(names);
+      major.setName(name);
       major.setCode(lineSplits[0]);
       major.setType("专业");
-      major.setTestType(100);
       if ("0".equals(major.getCode())) {
         continue;
       }
@@ -67,7 +71,7 @@ public class MajorToDgraph {
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
-    int batch = 0;
+    Map<String, String> uidMaps = new HashMap<String, String>();
     long startTime = System.currentTimeMillis();
     List<Major> majorList = new ArrayList<Major>();
     List<Major> updateMajorList = new ArrayList<Major>();
@@ -75,10 +79,9 @@ public class MajorToDgraph {
     System.out.println("get separate list: :" + majorList.size() + ", "
         + updateMajorList.size());
     System.out.println("get all majors :" + majors.size());
-    // NodeUtil.insertEntity(dClient, entityIdClient, majorList, "学校");
-    // insertEntity(majorList, "专业");
-    NodeUtil.updateEntityNew(dClient, entityIdClient, updateMajorList);
-    // updateEntity(updateMajorList);
+    NodeUtil.insertEntity(dClient, majorList, uidMaps);
+    entityIdClient.putFeedEntity(uidMaps,  "学校");
+    NodeUtil.updateEntityNew(dClient, updateMajorList);
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
@@ -88,26 +91,19 @@ public class MajorToDgraph {
    * @param dictPath
    */
   public void initWithJson(String dictPath) {
+    String type = "专业";
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
-    List<String> values = new ArrayList<String>();
-    Map<String, String> uidMaps = new HashMap<String, String>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
-    io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
-    long startTime = System.currentTimeMillis();
     System.out.println("get all majors :" + majors.size());
-    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(txn, majors);
-    NodeUtil.uidFlattenMapping(assigned.getUidsMap(), majors, uidMaps);
-    long endStart = System.currentTimeMillis();
-    System.out.println("get all uids :" + uidMaps.size());
-    System.out.println("spend time:" + (endStart - startTime) + " ms");
-    FileUtils.saveFile("/Users/lolaliva/Documents/知识图谱/major/major_uid_map.txt",uidMaps);
+    NodeUtil.putEntity(dClient, entityIdClient, majors, type);
   }
   public static  void main(String []args) {
-    String dictPath = "/Users/lolaliva/workspace/home/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
+    String dictPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     // majorToDgraph.init(dictPath);
     majorToDgraph.initWithJson(dictPath);
+    majorToDgraph.dClient.getDgraphClient();
   }
 }

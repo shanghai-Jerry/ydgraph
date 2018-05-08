@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import client.dgrpah.DgraphClient;
 import dgraph.node.Person;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
@@ -45,7 +46,7 @@ public class Demo {
 
   public DgraphProto.Assigned feedEntities(List<String> entities) {
     DgraphProto.Assigned assignedList;
-    io.dgraph.DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
+    DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     try {
       assignedList = dClient.mutiplyMutation(txn, entities);
       txn.commit();
