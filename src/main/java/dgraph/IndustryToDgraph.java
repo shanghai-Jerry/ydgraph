@@ -8,7 +8,15 @@ import dgraph.node.Industry;
 import dgraph.node.Major;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
+/**
+ * User: JerryYou
+ *
+ * Date: 2018-05-08
+ *
+ * Copyright (c) 2018 devops
+ *
+ * <<licensetext>>
+ */
 public class IndustryToDgraph {
 
   private static final Logger logger = LoggerFactory.getLogger(IndustryToDgraph.class);

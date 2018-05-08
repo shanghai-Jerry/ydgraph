@@ -11,7 +11,15 @@ import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import utils.FileUtils;
-
+/**
+ * User: JerryYou
+ *
+ * Date: 2018-05-08
+ *
+ * Copyright (c) 2018 devops
+ *
+ * <<licensetext>>
+ */
 public class MajorToDgraph {
   private static final Logger logger = LoggerFactory.getLogger(MajorToDgraph.class);
   private DClient dClient;

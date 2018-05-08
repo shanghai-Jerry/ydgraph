@@ -12,6 +12,15 @@ import dgraph.node.Person;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+/**
+ * User: JerryYou
+ *
+ * Date: 2018-05-08
+ *
+ * Copyright (c) 2018 devops
+ *
+ * <<licensetext>>
+ */
 
 public class Demo {
 
@@ -113,7 +122,6 @@ public class Demo {
       String value = entry.getValue();
       logger.info("Key:" + key + ", value:" + value);
     }
-
   }
 
   public void edgeConnect() {

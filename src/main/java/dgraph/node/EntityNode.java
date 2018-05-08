@@ -1,7 +1,15 @@
 package dgraph.node;
 
 import java.util.List;
-
+/**
+ * User: JerryYou
+ *
+ * Date: 2018-05-08
+ *
+ * Copyright (c) 2018 devops
+ *
+ * <<licensetext>>
+ */
 public class EntityNode {
 
   String uid;

@@ -15,7 +15,15 @@ import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
+/**
+ * User: JerryYou
+ *
+ * Date: 2018-05-08
+ *
+ * Copyright (c) 2018 devops
+ *
+ * <<licensetext>>
+ */
 public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
