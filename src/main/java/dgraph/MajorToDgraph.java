@@ -26,7 +26,7 @@ public class MajorToDgraph {
   private EntityIdClient entityIdClient;
 
   public MajorToDgraph() {
-    dClient = new DClient(Config.TEST_HOSTNAME, Config.TEST_PORT);
+    dClient = new DClient(Config.addressList);
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 

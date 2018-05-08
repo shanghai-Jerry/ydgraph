@@ -55,7 +55,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       noFiledCounter = context.getCounter("runner", "noFiledCounter");
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
-      dClient = new DClient(Config.TEST_HOSTNAME, Config.TEST_PORT);
+      dClient = new DClient(Config.addressList);
       entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
     }
 

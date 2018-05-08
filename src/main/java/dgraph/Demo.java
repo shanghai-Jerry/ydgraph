@@ -30,7 +30,7 @@ public class Demo {
   private DClient dClient;
 
   public Demo() {
-    dClient = new DClient(Config.TEST_HOSTNAME, Config.TEST_PORT);
+    dClient = new DClient(Config.TEST_HOSTNAME);
   }
 
   public List<Person> CheckOutEntities(List<Person> persons) {

@@ -1,10 +1,14 @@
 package dgraph;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Config {
 
-  public static final String TEST_HOSTNAME = "172.20.0.8";
+  public static final List<String> addressList =  Arrays.asList("172.20.0.8:9080",
+      "172.20.0.9:9080","172.20.0.10:9080");
 
-  public static final int TEST_PORT = 9080;
+  public static final List<String> TEST_HOSTNAME = Arrays.asList("172.20.0.68:9080");
 
   public static final String EntityId_Host = "172.20.0.14";
 
@@ -23,7 +27,7 @@ public class Config {
             "uid:int . \n" +
             "name:string @index(hash,term,trigram) . \n" +
             "alias:string .\n" +
-            "code:string . \n" +
+            "code:int . \n" +
             "type:string . \n" +
             "engName:string . \n" +
             "location:string  .\n" +

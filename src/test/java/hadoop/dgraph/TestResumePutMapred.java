@@ -19,6 +19,7 @@ import org.apache.hadoop.util.Tool;
 
 import java.io.IOException;
 
+import dgraph.Config;
 import dgraph.DClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -69,7 +70,7 @@ public class TestResumePutMapred extends Configured implements Tool {
       noFiledCounter = context.getCounter("runner", "noFiledCounter");
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
-      dClient = new DClient(TEST_HOSTNAME, TEST_PORT);
+      dClient = new DClient(Config.TEST_HOSTNAME);
       // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/school_dict.txt");
       dClient.alterSchema(schema);
     }

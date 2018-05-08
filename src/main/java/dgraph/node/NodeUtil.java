@@ -112,26 +112,28 @@ public class NodeUtil {
       entityIdClient, List<T> list, String type, int needCheckUid) {
     Map<String, String> existuidMap = new HashMap<String, String>();
     Map<String, String> newUidMap = new HashMap<String, String>();
+    List<T> newPutList = new ArrayList<>();
     List<List<String>> reqs = new ArrayList<List<String>>();
     NodeUtil.getCheckNames(list, reqs);
     // 是否需要检查uid存在与否
     if (needCheckUid > 0) {
       entityIdClient.checkEntityList(reqs, existuidMap, type);
-      NodeUtil.checkEntityUid(list, existuidMap);
+      NodeUtil.checkEntityUid(list, existuidMap, newPutList);
+    } else {
+      newPutList = list;
     }
-    NodeUtil.removeNames(list);
+    NodeUtil.removeNames(newPutList);
     long startTime = System.currentTimeMillis();
-    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(list);
+    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(newPutList);
     if (assigned != null) {
       logger.info("get ret uids :" + assigned.getUidsMap().size());
-      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), list, newUidMap);
+      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), newPutList, newUidMap);
     }
     entityIdClient.putFeedEntity(newUidMap,  type);
     long endStart = System.currentTimeMillis();
-    logger.info(" new uids:" + newUidMap.size() + ", existUids:" + existuidMap.size());
+    logger.info(" new uids:" + newUidMap.size() + ", existUids:" + existuidMap.size() + ", " +
+        "newPutList:" + newPutList.size());
     logger.info("spend time:" + (endStart - startTime) + " ms");
-    // util.mapCombiner(newUidMap, existuidMap);
-    // FileUtils.saveFile("/Users/devops/Documents/知识图谱/school/school_uid_map.txt", existuidMap);
   }
 
   /**
@@ -188,17 +190,23 @@ public class NodeUtil {
    * @param <T>
    */
   public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap) {
+      String> uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
       List<String> names = entityNode.getNames();
+      boolean isExist = false;
       for (String name : names) {
         if (!"".equals(name) && uidMap.containsKey(name)) {
           entityNode.setUid(uidMap.get(name));
+          isExist = true;
           break;
         }
       }
+      if (!isExist) {
+        resultList.add(entityNode);
+      }
     }
   }
+
 
   /**
    * blank-id mapping uniqueName to uid
@@ -210,6 +218,7 @@ public class NodeUtil {
   public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid, List<T>  list, Map<String, String> uidMap) {
     Set<Map.Entry<String, String>> entrySet=  blankUid.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+    logger.info("list size:" + list.size());
     while(iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();

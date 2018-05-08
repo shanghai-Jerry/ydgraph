@@ -100,7 +100,6 @@ public class EntityIdClient {
         String msg = entityIdResponse.getMsg();
         // 如果服务直接返回了matched_name,可直接使用
         String matchedName = entityIdResponse.getMatchedName();
-        logger.info("matchedName:" + matchedName + ", uid:" + id);
         if (ok) {
           String values = "0x" + Long.toHexString(id);
           // 使用names中第一个非空的name和uid做一个映射
@@ -173,15 +172,16 @@ public class EntityIdClient {
     try {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder().addName("分析化学")
-                .setType("专业").build())
+            .addEntityReq(EntityIdRequest.newBuilder().addName("清华大学")
+                .setType("学校").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
         long id = entityIdResponse.getId();
+        String values = "0x" + Long.toHexString(id);
         boolean ok = entityIdResponse.getOk();
         String msg = entityIdResponse.getMsg();
-        System.out.println("id:" + id + ",ok:" + ok + ",msg:" + msg);
+        System.out.println("id/value:" + id + "," + values + ",ok:" + ok + ",msg:" + msg);
       }
     } catch (Exception e) {
       e.printStackTrace();

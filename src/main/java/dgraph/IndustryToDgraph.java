@@ -1,13 +1,18 @@
 package dgraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.node.Industry;
 import dgraph.node.Major;
+import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import utils.FileUtils;
+
 /**
  * User: JerryYou
  *
@@ -24,8 +29,17 @@ public class IndustryToDgraph {
   private EntityIdClient entityIdClient;
 
   public IndustryToDgraph() {
-    dClient = new DClient(Config.TEST_HOSTNAME, Config.TEST_PORT);
+    dClient = new DClient(Config.TEST_HOSTNAME);
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+  }
+
+  public List<Industry> getParentIndustry(List<Industry> industries) {
+    List<Industry> parents = new ArrayList<>();
+    for (Industry industry: industries) {
+      Industry parentIndustry  = industry.getPartent_industry();
+      parents.add(parentIndustry);
+    }
+    return parents;
   }
 
   public void getIndustry(List<String> dictLines, List<Industry> industries) {
@@ -47,7 +61,7 @@ public class IndustryToDgraph {
       names.add(name);
       names.add(code);
       industry.setNames(names);
-      industry.setCode(Integer.parseInt(name));
+      industry.setCode(Integer.parseInt(code));
       industry.setName(name);
       partentIndustry.setName(pName);
       partentIndustry.setCode(Integer.parseInt(pCode));
@@ -57,11 +71,26 @@ public class IndustryToDgraph {
     }
   }
 
-  public void initWithJson(String dictPath) {
-
+  public void initWithJson(String dictPath, int needCheck) {
+    String type = "行业";
+    List<String> dictLines = new ArrayList<String>();
+    List<Industry> industries = new ArrayList<Industry>();
+    FileUtils.readFiles(dictPath, dictLines);
+    getIndustry(dictLines, industries);
+    logger.info("industries size:" + industries.size());
+    Map<String, String> uidMaps = new HashMap<String, String>();
+    long startTime = System.currentTimeMillis();
+    List<Industry> parentsIndustry = getParentIndustry(industries);
+    NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry, type, 1);
+    // NodeUtil.putEntity(dClient, entityIdClient, industries, type, 1);
+    long endStart = System.currentTimeMillis();
+    System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
   public static  void main(String []args) {
-
+    String dict = "/Users/devops/Documents/知识图谱/industry/industry_dump_dict.txt";
+    int needCheck = 0;
+    IndustryToDgraph industryToDgraph = new IndustryToDgraph();
+    industryToDgraph.initWithJson(dict, needCheck);
   }
 }

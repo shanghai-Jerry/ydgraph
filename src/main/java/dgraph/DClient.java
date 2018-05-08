@@ -50,11 +50,17 @@ public class DClient {
 
   private DgraphClient dgraphClient;
 
-  public DClient(String host, int port) {
-    ManagedChannel channel =
-        ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
-    DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
-    dgraphClient = new DgraphClient(Collections.singletonList(blockingStub));
+  public DClient(List<String> adressList) {
+    List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
+    for (String address : adressList) {
+      String[] hosts = address.split(":");
+      ManagedChannel channel =
+          ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt(hosts[1])).usePlaintext(true)
+              .build();
+      DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
+      clients.add(blockingStub);
+    }
+    dgraphClient = new DgraphClient(clients);
   }
 
   public void dropSchema() {
