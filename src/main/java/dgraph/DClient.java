@@ -76,11 +76,36 @@ public class DClient {
         .setSchema(schema).build();
     dgraphClient.alter(op);
   }
+  /**
+   * 批量edge的方式写入
+   */
+  public DgraphProto.Assigned mutiplyEdgeMutation(String edges) {
+
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+            .setSetNquads(ByteString.copyFromUtf8(edges))
+            .build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+    } finally {
+      txn.discard();
+    }
+
+    return assigned;
+  }
+
+  private String edgeFormat(String src, String pred, String dest) {
+    return  String.format("<%s> <%s> <%s> . ", src, pred, dest);
+  }
 
   public void entityAddEdge(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
-    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    StringBuffer stringBuffer = new StringBuffer();
     for (int j = 0; j < ids; j++) {
       String uid = putList.get(j).getUid();
       if ("".equals(uid)) {
@@ -90,29 +115,16 @@ public class DClient {
       List<Object> values = putList.get(j).getValueObjects();
       int size = predicates.size();
       if (size != values.size()) {
-        logger.fatal("add egde predicates length not equal values ");
+        logger.fatal("add edge predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
-        Object value = values.get(i);
-        DgraphProto.NQuad.Builder builder =
-            DgraphProto.NQuad.newBuilder()
-                .setSubject(String.format("%s", uid))
-                .setPredicate(predicates.get(i))
-                .setObjectValue(DgraphProto.Value.newBuilder()
-                    .setStrVal(String.valueOf(value.toString()))
-                    .build());
-        quads.add(builder.build());
+        String value = String.valueOf(values.get(i).toString());
+        String pred = predicates.get(i);
+        String result = edgeFormat(uid, pred, value);
+        stringBuffer.append(result + "\n");
       }
     }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .addAllSet(quads)
-        .build();
-    try {
-      txn.mutate(mu);
-      txn.commit();
-    } finally {
-      txn.discard();
-    }
+    mutiplyEdgeMutation(stringBuffer.toString());
   }
 
 
@@ -207,18 +219,6 @@ public class DClient {
       txn.discard();
     }
     return ag;
-  }
-
-  /**
-   * 批量对象json的方式写入
-   */
-  public DgraphProto.Assigned mutiplyMutation(DgraphClient.Transaction txn,
-                                                    List<String> jsons) {
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-            .setSetJson(ByteString.copyFromUtf8(new Gson().toJson(jsons)))
-            .build();
-    DgraphProto.Assigned assigned = txn.mutate(mu);
-    return assigned;
   }
 
   /**
