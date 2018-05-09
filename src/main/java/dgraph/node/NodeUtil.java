@@ -128,6 +128,15 @@ public class NodeUtil {
     return dest;
   }
 
+  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
+      list, String type) {
+    List<List<String>> reqs = new ArrayList<List<String>>();
+    Map<String, String> existuidMap = new HashMap<String, String>();
+    NodeUtil.getCheckNames(list, reqs);
+    entityIdClient.checkEntityList(reqs, existuidMap, type);
+    NodeUtil.setEntityUid(list, existuidMap);
+  }
+
 
   public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient, EntityIdClient
       entityIdClient, List<T> list, String type, int needCheckUid) {
@@ -145,6 +154,7 @@ public class NodeUtil {
     }
     List<T> copyList = deepCopy(newPutList);
     long startTime = System.currentTimeMillis();
+    NodeUtil.removeNames(copyList);
     DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
     if (assigned != null) {
       logger.info("get ret uids :" + assigned.getUidsMap().size());
@@ -214,7 +224,7 @@ public class NodeUtil {
    * @param <T>
    * why this can now work ???
    */
-  /*public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
+  public static <T extends EntityNode> void setEntityUid(List<T> entityNodes, Map<String,
       String> uidMap) {
     for (T entityNode : entityNodes) {
       List<String> names = entityNode.getNames();
@@ -227,7 +237,6 @@ public class NodeUtil {
     }
     NodeUtil.removeNames(entityNodes);
   }
-*/
   /**
    * 将已有uid写入实体字段
    * @param entityNodes

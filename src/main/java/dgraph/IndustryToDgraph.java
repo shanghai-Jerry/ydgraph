@@ -88,18 +88,18 @@ public class IndustryToDgraph {
 
   public void initWithJson(String dictPath, int needCheck) {
     String type = "行业";
-    List<String> dictLines = new ArrayList<String>();
-    List<Industry> industries = new ArrayList<Industry>();
+    List<String> dictLines = new ArrayList<>();
+    List<Industry> industries = new ArrayList<>();
     FileUtils.readFiles(dictPath, dictLines);
     getIndustry(dictLines, industries);
     logger.info("industries size:" + industries.size());
-    Map<String, String> uidMaps = new HashMap<String, String>();
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
-    Map<String, String> parentIndustryUidMap = NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry, type, needCheck);
-    NodeUtil.checkEntityUid(getParentIndustry(industries), parentIndustryUidMap, new ArrayList<Industry>());
+    NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry, type, needCheck);
+    NodeUtil.setEntityUid(entityIdClient, getParentIndustry(industries), type);
     NodeUtil.putEntity(dClient, entityIdClient, industries, type, needCheck);
     logger.info("industry:" + new Gson().toJson(industries.get(0)).toString());
+    logger.info("industry:" + new Gson().toJson(industries.get(1)).toString());
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }

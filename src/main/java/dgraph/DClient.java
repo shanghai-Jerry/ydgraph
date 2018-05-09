@@ -256,7 +256,6 @@ public class DClient {
    */
   public DgraphProto.Assigned mutiplyMutation(DgraphClient.Transaction txn,
                                                     List<String> jsons) {
-    List<DgraphProto.Assigned> assignedList = new ArrayList<DgraphProto.Assigned>();
     logger.info("bytes:" + new Gson().toJson(jsons).toString());
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
             .setSetJson(ByteString.copyFromUtf8(new Gson().toJson(jsons)))
@@ -280,7 +279,6 @@ public class DClient {
       int size = entities.size();
       if (size > 0) {
         Gson gson = new Gson();
-        NodeUtil.removeNames(entities);
         logger.info("industry RMOVE:" + new Gson().toJson(entities.get(0)).toString());
         text = gson.toJson(entities);
         DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
