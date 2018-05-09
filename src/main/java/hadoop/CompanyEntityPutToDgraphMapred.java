@@ -34,6 +34,7 @@ import io.vertx.core.logging.LoggerFactory;
  * Created by Jerry on 2017/4/12.
  * 输入文件格式：（docId \t json)
  * 输出到dgraph
+ * 如果数据量的时候schema的index先不设置，否则会很慢？？？
  */
 public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
 
