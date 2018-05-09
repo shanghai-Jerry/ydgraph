@@ -77,7 +77,7 @@ public class DClient {
     dgraphClient.alter(op);
   }
   /**
-   * 批量edge的方式写入
+   * 批量<uid> <relation> <uid>的方式写入
    */
   public DgraphProto.Assigned mutiplyEdgeMutation(String edges) {
 
