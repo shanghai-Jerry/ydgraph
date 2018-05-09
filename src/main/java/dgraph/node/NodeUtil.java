@@ -156,7 +156,7 @@ public class NodeUtil {
     }
     List<T> copyList = deepCopy(newPutList);
     long startTime = System.currentTimeMillis();
-    // NodeUtil.removeNames(copyList);
+    NodeUtil.removeNames(copyList);
     DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
     if (assigned != null) {
       logger.info("get ret uids :" + assigned.getUidsMap().size());
@@ -165,6 +165,7 @@ public class NodeUtil {
     copyList.clear();
     long endStart = System.currentTimeMillis();
     logger.info("spend time:" + (endStart - startTime) + " ms");
+    // entityIdClient.putFeedEntity(newUidMap,  type);
     return newUidMap;
   }
 

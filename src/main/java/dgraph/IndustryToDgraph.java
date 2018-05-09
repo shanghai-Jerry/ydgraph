@@ -97,8 +97,11 @@ public class IndustryToDgraph {
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
     Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry,
         type, needCheck);
+    FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentUidMap);
     NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap);
-    NodeUtil.putEntity(dClient, entityIdClient, industries, type, needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, industries,
+        type, needCheck);
+    FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");

@@ -26,7 +26,7 @@ public class MajorToDgraph {
   private EntityIdClient entityIdClient;
 
   public MajorToDgraph() {
-    dClient = new DClient(Config.addressList);
+    dClient = new DClient(Config.TEST_HOSTNAME);
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 
@@ -105,12 +105,14 @@ public class MajorToDgraph {
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
     System.out.println("get all majors :" + majors.size());
-    NodeUtil.putEntity(dClient, entityIdClient, majors, type, needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, majors, type,
+        needCheck);
+    FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
   }
   public static  void main(String []args) {
     String dictPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
-    int needCheck = 1;
+    int needCheck = 0;
     // majorToDgraph.init(dictPath);
     majorToDgraph.initWithJson(dictPath, needCheck);
   }
