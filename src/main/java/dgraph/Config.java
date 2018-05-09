@@ -8,7 +8,9 @@ public class Config {
   public static final List<String> addressList =  Arrays.asList("172.20.0.8:9080",
       "172.20.0.9:9080","172.20.0.10:9080");
 
-  public static final List<String> TEST_HOSTNAME = Arrays.asList("172.20.0.68:9080");
+  public static final List<String> TEST_VM_HOSTNAME = Arrays.asList("172.20.0.68:9080");
+
+  public static final List<String> TEST_HOSTNAME = Arrays.asList("172.20.0.14:9080");
 
   public static final String EntityId_Host = "172.20.0.14";
 
@@ -33,6 +35,6 @@ public class Config {
             "location:string  .\n" +
             "legal_person:string .\n" +
             "establish_at:string .\n" +
-            "names:string .\n";
+            "names:string @index(hash,term,trigram) .\n";
 
 }

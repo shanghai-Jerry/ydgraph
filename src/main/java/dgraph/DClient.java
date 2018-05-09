@@ -279,7 +279,6 @@ public class DClient {
       int size = entities.size();
       if (size > 0) {
         Gson gson = new Gson();
-        logger.info("industry RMOVE:" + new Gson().toJson(entities.get(0)).toString());
         text = gson.toJson(entities);
         DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
             .setSetJson(ByteString.copyFromUtf8(text))

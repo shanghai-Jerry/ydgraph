@@ -106,6 +106,7 @@ public class NodeUtil {
   }
 
   public static <T> List<T> deepCopy(List<T> src) {
+    // 深拷贝， 引用对象独立，互不影响
     ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
     ObjectOutputStream out = null;
     try {
@@ -134,7 +135,7 @@ public class NodeUtil {
     Map<String, String> existuidMap = new HashMap<String, String>();
     NodeUtil.getCheckNames(list, reqs);
     entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.setEntityUid(list, existuidMap);
+    NodeUtil.putEntityUid(list, existuidMap);
   }
 
 
@@ -150,22 +151,19 @@ public class NodeUtil {
       entityIdClient.checkEntityList(reqs, existuidMap, type);
       NodeUtil.checkEntityUid(list, existuidMap, newPutList);
     } else {
+      // 浅拷贝，引用同一个地址空间下的对象，修改相互影响
       newPutList = list;
     }
     List<T> copyList = deepCopy(newPutList);
     long startTime = System.currentTimeMillis();
-    NodeUtil.removeNames(copyList);
+    // NodeUtil.removeNames(copyList);
     DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
     if (assigned != null) {
       logger.info("get ret uids :" + assigned.getUidsMap().size());
       NodeUtil.uidFlattenMapping(assigned.getUidsMap(), copyList, newUidMap);
     }
     copyList.clear();
-    NodeUtil.checkEntityUid(newPutList, newUidMap, new ArrayList<T>());
-    entityIdClient.putFeedEntity(newUidMap,  type);
     long endStart = System.currentTimeMillis();
-    logger.info(" new uids:" + newUidMap.size() + ", existUids:" + existuidMap.size() + ", " +
-        "newPutList:" + newPutList.size());
     logger.info("spend time:" + (endStart - startTime) + " ms");
     return newUidMap;
   }
@@ -210,6 +208,12 @@ public class NodeUtil {
     }
   }
 
+  /**
+   * names 字段是否存在，不影响实体的构建, 后期考虑是否有而外的影响，可直接remove
+   * cause   names value is not a JSON object.
+   * @param entityNodes
+   * @param <T>
+   */
   public static <T extends EntityNode> void removeNames(List<T> entityNodes) {
     for (T entityNode : entityNodes) {
       List<String> names = new ArrayList<>();
@@ -224,7 +228,7 @@ public class NodeUtil {
    * @param <T>
    * why this can now work ???
    */
-  public static <T extends EntityNode> void setEntityUid(List<T> entityNodes, Map<String,
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
       String> uidMap) {
     for (T entityNode : entityNodes) {
       List<String> names = entityNode.getNames();
@@ -235,7 +239,6 @@ public class NodeUtil {
         }
       }
     }
-    NodeUtil.removeNames(entityNodes);
   }
   /**
    * 将已有uid写入实体字段

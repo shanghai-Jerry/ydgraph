@@ -6,7 +6,6 @@ public class Company  extends  EntityNode {
   String legal_person;
   String establish_at;
 
-
   public String getLocation() {
     return location;
   }

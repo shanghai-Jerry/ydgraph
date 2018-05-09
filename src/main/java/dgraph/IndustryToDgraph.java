@@ -95,18 +95,18 @@ public class IndustryToDgraph {
     logger.info("industries size:" + industries.size());
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
-    NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry, type, needCheck);
-    NodeUtil.setEntityUid(entityIdClient, getParentIndustry(industries), type);
+    Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry,
+        type, needCheck);
+    NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap);
     NodeUtil.putEntity(dClient, entityIdClient, industries, type, needCheck);
-    logger.info("industry:" + new Gson().toJson(industries.get(0)).toString());
-    logger.info("industry:" + new Gson().toJson(industries.get(1)).toString());
+    logger.info("industry:" + new Gson().toJson(industries.get(0)));
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
   public static  void main(String []args) {
     String dict = "src/main/resources/industry_dump_dict.txt";
-    int needCheck = 1;
+    int needCheck = 0;
     IndustryToDgraph industryToDgraph = new IndustryToDgraph();
     industryToDgraph.initWithJson(dict, needCheck);
   }

@@ -18,6 +18,7 @@ import org.apache.hadoop.util.Tool;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.Config;
@@ -55,7 +56,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       noFiledCounter = context.getCounter("runner", "noFiledCounter");
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
-      dClient = new DClient(Config.addressList);
+      dClient = new DClient(Config.TEST_HOSTNAME);
       entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
     }
 
@@ -98,16 +99,25 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           company.setLegal_person(legal_person);
           company.setType(type);
           companyList.add(company);
+          batch++;
         }
-        if (batch > Config.batch) {
-          NodeUtil.putEntity(dClient, entityIdClient, companyList, type, 1);
+        if (batch >= Config.batch) {
+          java.util.Map<String, String> ret = NodeUtil.putEntity(dClient, entityIdClient,
+              companyList, type, 0);
           companyList.clear();
           batch = 0;
+          originSuccessCounter.increment(ret.size());
+          if (originSuccessCounter.getValue() % 1000 == 0) {
+            logger.info("originSuccessCounter:" + originSuccessCounter.getValue());
+          }
         }
-        batch++;
+        jsonSuccessCounter.increment(1L);
+        if (jsonSuccessCounter.getValue() % 1000 == 0) {
+          logger.info("jsonSuccessCounter:" + jsonSuccessCounter.getValue());
+        }
       }
       if (batch > 0) {
-        NodeUtil.putEntity(dClient, entityIdClient, companyList, type, 1);
+        NodeUtil.putEntity(dClient, entityIdClient, companyList, type, 0);
       }
       cleanup(context);
     }
