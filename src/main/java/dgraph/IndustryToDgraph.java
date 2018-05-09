@@ -28,8 +28,15 @@ public class IndustryToDgraph {
   private DClient dClient;
   private EntityIdClient entityIdClient;
 
+  private List<Industry> industries = new ArrayList<>();
+
   public IndustryToDgraph() {
     dClient = new DClient(Config.TEST_HOSTNAME);
+    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+  }
+
+  public IndustryToDgraph(DClient dClient) {
+    this.dClient = dClient;
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 
@@ -58,6 +65,7 @@ public class IndustryToDgraph {
   }
 
   public void getIndustry(List<String> dictLines, List<Industry> industries) {
+    String type = "行业";
     for (String line : dictLines) {
       List<String> pNames = new ArrayList<String>();
       List<String> names = new ArrayList<>();
@@ -75,15 +83,60 @@ public class IndustryToDgraph {
       String code = lineSplits[3];
       names.add(name);
       names.add(code);
+      industry.setType(type);
       industry.setNames(names);
       industry.setCode(Integer.parseInt(code));
       industry.setName(name);
       partentIndustry.setName(pName);
+      partentIndustry.setType(type);
       partentIndustry.setCode(Integer.parseInt(pCode));
       partentIndustry.setNames(pNames);
       industry.setParent_industry(partentIndustry);
       industries.add(industry);
     }
+  }
+
+  public void init(String dictPath) {
+    List<String> dictLines = new ArrayList<>();
+    FileUtils.readFiles(dictPath, dictLines);
+    getIndustry(dictLines, industries);
+  }
+
+  public void linkIndustry(Map<String, String> parentIndustryMap, Map<String, String> industryMap) {
+    for (Industry industry : industries) {
+      // check parent industry id;
+      Industry industry1 = industry.getParent_industry();
+      if (parentIndustryMap.containsKey(industry1.getName())) {
+        industry.setParent_industry_uid(parentIndustryMap.get(industry1.getName()));
+      }
+      if (industryMap.containsKey(industry.getName())) {
+        industry.setUid(industryMap.get(industry.getName()));
+      }
+    }
+    logger.info("industry:" + new Gson().toJson(industries.get(0)));
+    NodeUtil.addEntityEdge(dClient, industries);
+  }
+
+  public Map<String, String> initIndustry(Map<String, String> parentIndustry, int update) {
+    Map<String, String> uidMaps = new HashMap<String, String>();
+    if (update > 0) {
+      NodeUtil.updateEntity(dClient, industries);
+    } else {
+      NodeUtil.insertEntity(dClient, industries, uidMaps);
+    }
+    return uidMaps;
+  }
+
+  public Map<String, String> initParentIndustry(int update) {
+    Map<String, String> uidMaps = new HashMap<String, String>();
+    logger.info("industries size:" + industries.size());
+    List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
+    if (update > 0) {
+      NodeUtil.updateEntity(dClient, parentsIndustry);
+    } else {
+      NodeUtil.insertEntity(dClient, parentsIndustry, uidMaps);
+    }
+    return uidMaps;
   }
 
   public void initWithJson(String dictPath, int needCheck) {

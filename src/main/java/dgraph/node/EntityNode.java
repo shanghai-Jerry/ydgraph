@@ -59,8 +59,8 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
-  public void getStrAttrValueMap(List<String> pre, List<String> values) { }
-
   public void getAttrValueMap(List<String> pre, List<Object> values) {}
+
+  public void getEdgeValueMap(List<String> pre, List<Object> values) {}
 
 }

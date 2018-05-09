@@ -6,13 +6,13 @@ import java.util.List;
 
 public class Major extends EntityNode {
 
-  String code;
+  int code;
 
-  public String getCode() {
+  public int getCode() {
     return code;
   }
 
-  public void setCode(String code) {
+  public void setCode(int code) {
     this.code = code;
   }
 
@@ -29,15 +29,6 @@ public class Major extends EntityNode {
   @Override
   public String toString() {
     return new Gson().toJson(this);
-  }
-
-  public void getStrAttrValueMap(List<String> pre, List<String> values) {
-    pre.add("type");
-    values.add(this.getType());
-    pre.add("name");
-    values.add(this.getName());
-    pre.add("code");
-    values.add(this.getCode());
   }
 
 }

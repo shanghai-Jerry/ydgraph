@@ -11,8 +11,6 @@ public class Nodeput {
 
   List<String> predicates;
 
-  List<String> values;
-
   List<Object> valueObjects;
 
   public List<Object> getValueObjects() {
@@ -29,14 +27,6 @@ public class Nodeput {
 
   public void setPredicates(List<String> predicates) {
     this.predicates = predicates;
-  }
-
-  public List<String> getValues() {
-    return values;
-  }
-
-  public void setValues(List<String> values) {
-    this.values = values;
   }
 
   public String getUniqueId() {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import client.EntityIdClient;
+import dgraph.node.Industry;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
@@ -30,6 +31,11 @@ public class MajorToDgraph {
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 
+  public MajorToDgraph(DClient dClient) {
+    this.dClient = dClient;
+    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+  }
+
   public void getMajor(List<String> dictLines, List<Major> majors) {
     for (String line : dictLines) {
       List<String> names = new ArrayList<String>();
@@ -39,15 +45,19 @@ public class MajorToDgraph {
         System.out.println("line:" + line + ",line length:" + lineSplits.length);
       }
       String name = lineSplits[1];
-      names.add(name);
-      major.setNames(names);
-      major.setName(name);
-      major.setCode(lineSplits[0]);
-      major.setType("专业");
-      if ("0".equals(major.getCode())) {
-        continue;
+      String code = lineSplits[0];
+      if (!names.contains(name)) {
+        if ("电子信息".equals(name)) {
+          major.setUid("0x7fe");
+          major.setNames(names);
+          major.setName(name);
+          logger.info("code:" + code);
+          major.setCode(Integer.parseInt(code));
+          major.setType("专业");
+          names.add(name);
+          majors.add(major);
+        }
       }
-      majors.add(major);
     }
   }
 
@@ -74,24 +84,23 @@ public class MajorToDgraph {
     }
   }
 
-  public void init(String dictPath) {
+  public Map<String, String> init(String dictPath, int update) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
     Map<String, String> uidMaps = new HashMap<String, String>();
     long startTime = System.currentTimeMillis();
-    List<Major> majorList = new ArrayList<Major>();
-    List<Major> updateMajorList = new ArrayList<Major>();
-    getList(majors, majorList, updateMajorList);
-    System.out.println("get separate list: :" + majorList.size() + ", "
-        + updateMajorList.size());
     System.out.println("get all majors :" + majors.size());
-    NodeUtil.insertEntity(dClient, majorList, uidMaps);
-    entityIdClient.putFeedEntity(uidMaps,  "学校");
-    NodeUtil.updateEntityNew(dClient, updateMajorList);
+    if (update > 0) {
+      NodeUtil.updateEntity(dClient, majors);
+    } else {
+       NodeUtil.insertEntity(dClient, majors, uidMaps);
+      // entityIdClient.putFeedEntity(uidMaps,  "学校");
+    }
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
+    return uidMaps;
   }
 
   /**
@@ -110,10 +119,9 @@ public class MajorToDgraph {
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
   }
   public static  void main(String []args) {
-    String dictPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
+    String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     int needCheck = 0;
-    // majorToDgraph.init(dictPath);
     majorToDgraph.initWithJson(dictPath, needCheck);
   }
 }

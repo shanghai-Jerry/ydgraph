@@ -46,18 +46,6 @@ public class School extends EntityNode {
   }
 
   @Override
-  public void getStrAttrValueMap(List<String> pre, List<String> values) {
-    pre.add("type");
-    values.add(this.getType());
-    pre.add("name");
-    values.add(this.getName());
-    pre.add("alias");
-    values.add(this.getAlias());
-    pre.add("english_name");
-    values.add(this.getEngName());
-  }
-
-  @Override
   public String toString() {
     return new Gson().toJson(this);
   }

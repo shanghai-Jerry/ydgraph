@@ -31,6 +31,11 @@ public class SchoolToDgraph {
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 
+  public SchoolToDgraph(DClient dClient) {
+    this.dClient = dClient;
+    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+  }
+
   public void getSchool(List<String> dictLines, List<School> schools) {
     List<String> distinctSchoolName = new ArrayList<String>();
     for (String line : dictLines) {
@@ -106,9 +111,9 @@ public class SchoolToDgraph {
         ", " + updateSchoolList.size());
     // insert
     NodeUtil.insertEntity(dClient, schoolList, uidMaps);
-    entityIdClient.putFeedEntity(uidMaps, "学校");
+    // entityIdClient.putFeedEntity(uidMaps, "学校");
     // update
-    NodeUtil.updateEntityNew(dClient, updateSchoolList);
+    NodeUtil.updateEntity(dClient, updateSchoolList);
 
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
@@ -133,9 +138,8 @@ public class SchoolToDgraph {
   public static void main(String[] args) {
     SchoolToDgraph schoolToDgraph = new SchoolToDgraph();
     List<School> schools = new ArrayList<School>();
-    String dictPath = "/Users/devops/Documents/知识图谱/school/school_dump_dict.txt";
+    String dictPath = "src/main/resources/school_dump_dict.txt";
     int needCheck = 0;
-    // schoolToDgraph.init(dictPath);
     schoolToDgraph.initWithJson(dictPath, needCheck);
   }
 }

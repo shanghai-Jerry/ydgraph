@@ -24,33 +24,36 @@ import io.vertx.core.logging.LoggerFactory;
 public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
-  public static  <T extends  EntityNode> void updateEntity(DClient dClient, List<T> list) {
+
+  public static  <T extends  EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
     int updateBatch = 0;
-    DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (T school : list) {
       List<String> pres = new ArrayList<String>();
-      List<String> values = new ArrayList<String>();
-      school.getStrAttrValueMap(pres, values);
+      List<Object> values = new ArrayList<Object>();
+      school.getEdgeValueMap(pres, values);
       Nodeput dput = new Nodeput();
+      if ("".equals(school.getUid())) {
+        continue;
+      }
       dput.setUid(school.getUid());
       dput.setUniqueId(school.getName());
       dput.setPredicates(pres);
-      dput.setValues(values);
+      dput.setValueObjects(values);
       updatePutList.add(dput);
       updateBatch++;
       if (updateBatch >= Config.batch) {
-        dClient.entityAddStrAttr(updatePutList);
+        dClient.entityAddEdge(updatePutList);
         updateBatch = 0;
         updatePutList.clear();
       }
     }
     if (updateBatch > 0) {
-      dClient.entityAddStrAttr(updatePutList);
+      dClient.entityAddEdge(updatePutList);
     }
   }
 
-  public static  <T extends  EntityNode> void updateEntityNew(DClient dClient, List<T> list) {
+  public static  <T extends  EntityNode> void updateEntity(DClient dClient, List<T> list) {
     int updateBatch = 0;
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (T school : list) {
@@ -58,6 +61,9 @@ public class NodeUtil {
       List<Object> values = new ArrayList<Object>();
       school.getAttrValueMap(pres, values);
       Nodeput dput = new Nodeput();
+      if ("".equals(school.getUid())) {
+        continue;
+      }
       dput.setUid(school.getUid());
       dput.setUniqueId(school.getName());
       dput.setPredicates(pres);
@@ -78,33 +84,39 @@ public class NodeUtil {
 
   public static <T extends EntityNode> void insertEntity(DClient dClient,
                                   List<T> list, Map<String, String> uidMaps) {
-    // insert new
+    // insert
     List<Nodeput> dputList = new ArrayList<Nodeput>();
     int batch = 0;
     for (T item : list) {
       List<String> pres = new ArrayList<String>();
-      List<String> values = new ArrayList<String>();
-      item.getStrAttrValueMap(pres, values);
+      List<Object> values = new ArrayList<>();
+      item.getAttrValueMap(pres, values);
       Nodeput dput = new Nodeput();
       dput.setUniqueId(item.getName());
       dput.setPredicates(pres);
-      dput.setValues(values);
+      dput.setValueObjects(values);
       dputList.add(dput);
       batch++;
       if (batch >= Config.batch) {
-        DgraphProto.Assigned ag = dClient.entityWithStrAttrInitial(dputList);
+        DgraphProto.Assigned ag = dClient.entityInitial(dputList);
         mapCombiner(ag.getUidsMap(), uidMaps);
         batch = 0;
         dputList.clear();
       }
     }
     if (batch > 0) {
-      DgraphProto.Assigned ag = dClient.entityWithStrAttrInitial(dputList);
+      DgraphProto.Assigned ag = dClient.entityInitial(dputList);
       mapCombiner(ag.getUidsMap(), uidMaps);
     }
     System.out.println("get all uids :" + uidMaps.size());
   }
 
+  /**
+   *
+   * @param src
+   * @param <T>
+   * @return
+   */
   public static <T> List<T> deepCopy(List<T> src) {
     // 深拷贝， 引用对象独立，互不影响
     ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -190,7 +202,8 @@ public class NodeUtil {
       names.add(entityNode.getName());
       reqs.add(names);
     }
-    entityIdClient.checkEntityList(reqs, uidMap, type);
+    // 暂时不检查entitid服务
+    // entityIdClient.checkEntityList(reqs, uidMap, type);
     for (T entityNode : entityNodes) {
       if (uidMap.containsKey(entityNode.getName())) {
         entityNode.setUid(uidMap.get(entityNode.getName()));
@@ -318,6 +331,7 @@ public class NodeUtil {
   public static String longToHex(long i) {
     return Long.toHexString(i);
   }
+
   public static long hexToLong(String str) {
     if (str.startsWith("0x")) {
       return Long.parseLong(str.substring(2),16);

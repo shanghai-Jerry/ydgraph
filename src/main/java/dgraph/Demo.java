@@ -30,7 +30,11 @@ public class Demo {
   private DClient dClient;
 
   public Demo() {
-    dClient = new DClient(Config.TEST_HOSTNAME);
+    dClient = new DClient(Config.TEST_VM_HOSTNAME);
+  }
+
+  public Demo(DClient dClient) {
+    this.dClient = dClient;
   }
 
   public List<Person> CheckOutEntities(List<Person> persons) {
@@ -124,14 +128,9 @@ public class Demo {
     }
   }
 
-  public void edgeConnect() {
-    List<String> edgeConnect = new ArrayList<String>();
-    edgeConnect.add("\"0xe5a5\" <friend> \"0xe5a6\" .");
-    feedEntities(edgeConnect);
-  }
-
   public static  void main(String []arg) {
-    Demo demo = new Demo();
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    Demo demo = new Demo(dClient);
     long value = Long.parseLong("0x1780e".substring(2), 16);
     String hexValue = Long.toHexString(98951);
     System.out.println(value + ", 0x" + hexValue);

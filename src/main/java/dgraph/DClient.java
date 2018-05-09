@@ -77,68 +77,44 @@ public class DClient {
     dgraphClient.alter(op);
   }
 
-  /**
-   * 添加
-   * @param putList
-   */
   public void entityAddEdge(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
       String uid = putList.get(j).getUid();
+      if ("".equals(uid)) {
+        continue;
+      }
       List<String> predicates = putList.get(j).getPredicates();
-      List<String> values = putList.get(j).getValues();
+      List<Object> values = putList.get(j).getValueObjects();
       int size = predicates.size();
       if (size != values.size()) {
-        logger.fatal("predicates length not equal values ");
+        logger.fatal("add egde predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad quad =
+        Object value = values.get(i);
+        DgraphProto.NQuad.Builder builder =
             DgraphProto.NQuad.newBuilder()
                 .setSubject(String.format("%s", uid))
                 .setPredicate(predicates.get(i))
                 .setObjectValue(DgraphProto.Value.newBuilder()
-                    .setStrVal(String.format("%s", values.get(i))).build())
-                .build();
-        quads.add(quad);
+                    .setStrVal(String.valueOf(value.toString()))
+                    .build());
+        quads.add(builder.build());
       }
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
         .addAllSet(quads)
         .build();
-    txn.mutate(mu);
-    txn.commit();
-    txn.discard();
+    try {
+      txn.mutate(mu);
+      txn.commit();
+    } finally {
+      txn.discard();
+    }
   }
 
-  public void entityAddIntAttr(DgraphClient.Transaction txn, List<Nodeput> putList) {
-    int ids = putList.size();
-    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
-    for (int j = 0; j < ids; j++) {
-      String uid = putList.get(j).getUid();
-      List<String> predicates = putList.get(j).getPredicates();
-      List<String> values = putList.get(j).getValues();
-      int size = predicates.size();
-      if (size != values.size()) {
-        logger.fatal("predicates length not equal values ");
-      }
-      for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad quad =
-            DgraphProto.NQuad.newBuilder()
-                .setSubject(String.format("%s", uid))
-                .setPredicate(predicates.get(i))
-                .setObjectValue(DgraphProto.Value.newBuilder()
-                    .setIntVal(Long.parseLong(values.get(i))).build())
-                .build();
-        quads.add(quad);
-      }
-    }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .addAllSet(quads)
-        .build();
-    txn.mutate(mu);
-  }
 
   public void entityAddAttr(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
@@ -146,11 +122,14 @@ public class DClient {
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
       String uid = putList.get(j).getUid();
+      if ("".equals(uid)) {
+        continue;
+      }
       List<String> predicates = putList.get(j).getPredicates();
       List<Object> values = putList.get(j).getValueObjects();
       int size = predicates.size();
       if (size != values.size()) {
-        logger.fatal("predicates length not equal values ");
+        logger.fatal("add attr predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
         Object value = values.get(i);
@@ -184,58 +163,37 @@ public class DClient {
     }
   }
 
-  public void entityAddStrAttr(List<Nodeput> putList) {
-    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    int ids = putList.size();
-    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
-    for (int j = 0; j < ids; j++) {
-      String uid = putList.get(j).getUid();
-      List<String> predicates = putList.get(j).getPredicates();
-      List<String> values = putList.get(j).getValues();
-      int size = predicates.size();
-      if (size != values.size()) {
-        logger.fatal("predicates length not equal values ");
-      }
-      for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad quad =
-            DgraphProto.NQuad.newBuilder()
-                .setSubject(String.format("%s", uid))
-                .setPredicate(predicates.get(i))
-                .setObjectValue(DgraphProto.Value.newBuilder()
-                    .setStrVal(String.format("%s", values.get(i))).build())
-                .build();
-        quads.add(quad);
-      }
-    }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .addAllSet(quads)
-        .build();
-    txn.mutate(mu);
-    txn.commit();
-    txn.discard();
-  }
-
-  public DgraphProto.Assigned entityWithStrAttrInitial(List<Nodeput> schoolPutList) {
+  public DgraphProto.Assigned entityInitial(List<Nodeput> schoolPutList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = schoolPutList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
       String uniqueId = schoolPutList.get(j).getUniqueId();
       List<String> predicates = schoolPutList.get(j).getPredicates();
-      List<String> values = schoolPutList.get(j).getValues();
+      List<Object> values = schoolPutList.get(j).getValueObjects();
       int size = predicates.size();
       if (size != values.size()) {
-        logger.fatal("predicates length not equal values ");
+        logger.fatal("entity inital predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad quad =
+        DgraphProto.NQuad.Builder builder =
             DgraphProto.NQuad.newBuilder()
                 .setSubject(String.format("_:%s", uniqueId))
-                .setPredicate(predicates.get(i))
-                .setObjectValue(DgraphProto.Value.newBuilder()
-                    .setStrVal(String.format("%s", values.get(i))).build())
-                .build();
-        quads.add(quad);
+                .setPredicate(predicates.get(i));
+
+        Object value = values.get(i);
+        if (value instanceof Integer || value instanceof Long) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value.toString())).build());
+        } else  if (value instanceof String) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setStrVal((String) value).build());
+        } else if (value instanceof Double || value instanceof Float) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value.toString())).build());
+        } else if (value instanceof Boolean) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build());
+        } else  {
+          logger.info("unknow value type");
+        }
+        quads.add(builder.build());
       }
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
@@ -256,7 +214,6 @@ public class DClient {
    */
   public DgraphProto.Assigned mutiplyMutation(DgraphClient.Transaction txn,
                                                     List<String> jsons) {
-    logger.info("bytes:" + new Gson().toJson(jsons).toString());
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
             .setSetJson(ByteString.copyFromUtf8(new Gson().toJson(jsons)))
             .build();
