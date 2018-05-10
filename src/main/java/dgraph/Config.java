@@ -16,25 +16,26 @@ public class Config {
 
   public static final int EntityIdService_PORT = 26544;
 
+  // 批次小一点速度快一些，但是不能太小
   public  static  int batch = 200;
 
   public static  String schema =
           "uid:int . \n" +
-          "name:string @index(exact,term) . \n" +
-          "alias:string@index(exact,term) .\n" +
-          "code:string @index(exact,term) . \n" +
-          "english_name:string @index(exact,term) . \n";
+          "name:string @index(term) . \n" +
+          "alias:string .\n" +
+          "code:string . \n" +
+          "english_name:string . \n";
 
   public static String updateSchema =
             "uid:int . \n" +
-            "name:string @index(hash,term,trigram) . \n" +
+            "name:string  . \n" +
             "alias:string .\n" +
             "code:int . \n" +
-            "type:string . \n" +
-            "engName:string . \n" +
+            "type:string .  \n" +
+            "eng_name:string . \n" +
             "location:string  .\n" +
             "legal_person:string .\n" +
             "establish_at:string .\n" +
-            "names:string @index(hash,term,trigram) .\n";
+            "has_label:uid @reverse @count .\n";
 
 }

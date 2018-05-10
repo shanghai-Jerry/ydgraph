@@ -7,6 +7,7 @@ import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.node.Industry;
+import dgraph.node.Label;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
@@ -47,16 +48,14 @@ public class MajorToDgraph {
       String name = lineSplits[1];
       String code = lineSplits[0];
       if (!names.contains(name)) {
-        if ("电子信息".equals(name)) {
-          major.setUid("0x7fe");
-          major.setNames(names);
-          major.setName(name);
-          logger.info("code:" + code);
-          major.setCode(Integer.parseInt(code));
-          major.setType("专业");
-          names.add(name);
-          majors.add(major);
-        }
+        major.setName(name);
+        major.setCode(Integer.parseInt(code));
+        major.setType("专业");
+        names.add(name);
+        Label has_label = new Label();
+        has_label.setUid("0x118d");
+        major.setHas_label(has_label);
+        majors.add(major);
       }
     }
   }

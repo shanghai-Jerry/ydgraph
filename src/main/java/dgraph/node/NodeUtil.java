@@ -26,35 +26,24 @@ public class NodeUtil {
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
   public static  <T extends  EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
-    int updateBatch = 0;
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
-    for (T school : list) {
+    for (T entityNode : list) {
       List<String> pres = new ArrayList<String>();
       List<Object> values = new ArrayList<Object>();
-      school.getEdgeValueMap(pres, values);
+      entityNode.getEdgeValueMap(pres, values);
       Nodeput dput = new Nodeput();
-      if ("".equals(school.getUid())) {
+      if ("".equals(entityNode.getUid())) {
         continue;
       }
-      dput.setUid(school.getUid());
-      dput.setUniqueId(school.getName());
+      dput.setUid(entityNode.getUid());
       dput.setPredicates(pres);
       dput.setValueObjects(values);
       updatePutList.add(dput);
-      updateBatch++;
-      if (updateBatch >= Config.batch) {
-        dClient.entityAddEdge(updatePutList);
-        updateBatch = 0;
-        updatePutList.clear();
-      }
     }
-    if (updateBatch > 0) {
-      dClient.entityAddEdge(updatePutList);
-    }
+    dClient.entityAddEdge(updatePutList);
   }
 
   public static  <T extends  EntityNode> void updateEntity(DClient dClient, List<T> list) {
-    int updateBatch = 0;
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (T school : list) {
       List<String> pres = new ArrayList<String>();
@@ -69,16 +58,8 @@ public class NodeUtil {
       dput.setPredicates(pres);
       dput.setValueObjects(values);
       updatePutList.add(dput);
-      updateBatch++;
-      if (updateBatch >= Config.batch) {
-        dClient.entityAddAttr(updatePutList);
-        updateBatch = 0;
-        updatePutList.clear();
-      }
     }
-    if (updateBatch > 0) {
-      dClient.entityAddAttr(updatePutList);
-    }
+    dClient.entityAddAttr(updatePutList);
   }
 
 
@@ -96,18 +77,9 @@ public class NodeUtil {
       dput.setPredicates(pres);
       dput.setValueObjects(values);
       dputList.add(dput);
-      batch++;
-      if (batch >= Config.batch) {
-        DgraphProto.Assigned ag = dClient.entityInitial(dputList);
-        mapCombiner(ag.getUidsMap(), uidMaps);
-        batch = 0;
-        dputList.clear();
-      }
     }
-    if (batch > 0) {
-      DgraphProto.Assigned ag = dClient.entityInitial(dputList);
-      mapCombiner(ag.getUidsMap(), uidMaps);
-    }
+    DgraphProto.Assigned ag = dClient.entityInitial(dputList);
+    mapCombiner(ag.getUidsMap(), uidMaps);
     System.out.println("get all uids :" + uidMaps.size());
   }
 
@@ -168,17 +140,21 @@ public class NodeUtil {
     }
     List<T> copyList = deepCopy(newPutList);
     long startTime = System.currentTimeMillis();
-    NodeUtil.removeNames(copyList);
-    DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
-    if (assigned != null) {
-      logger.info("get ret uids :" + assigned.getUidsMap().size());
-      NodeUtil.uidFlattenMapping(assigned.getUidsMap(), copyList, newUidMap);
+    // NodeUtil.removUniqueId(copyList);
+    int size = copyList.size();
+    if (size > 0) {
+      logger.info("entity json object :" + new Gson().toJson(copyList.get(0)));
+      DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
+      if (assigned != null) {
+        logger.info("get ret uids :" + assigned.getUidsMap().size());
+        NodeUtil.uidFlattenMapping(assigned.getUidsMap(), copyList, newUidMap);
+      }
+      long endStart = System.currentTimeMillis();
+      logger.info("spend time:" + (endStart - startTime) + " ms");
+      // entityIdClient.putFeedEntity(newUidMap,  type);
+      return newUidMap;
     }
-    copyList.clear();
-    long endStart = System.currentTimeMillis();
-    logger.info("spend time:" + (endStart - startTime) + " ms");
-    // entityIdClient.putFeedEntity(newUidMap,  type);
-    return newUidMap;
+    return  newUidMap;
   }
 
   /**
@@ -218,20 +194,21 @@ public class NodeUtil {
 
   public static <T extends EntityNode> void getCheckNames(List<T> entityNodes, List<List<String>> reqs) {
     for (T entityNode : entityNodes) {
-      reqs.add(entityNode.getNames());
+      List<String> names = new ArrayList<>();
+      names.add(entityNode.getUnique_id());
+      reqs.add(names);
     }
   }
 
+
   /**
-   * names 字段是否存在，不影响实体的构建, 后期考虑是否有而外的影响，可直接remove
-   * cause   names value is not a JSON object.
+   * 不需要进入dgraph的属性
    * @param entityNodes
    * @param <T>
    */
-  public static <T extends EntityNode> void removeNames(List<T> entityNodes) {
+  public static <T extends EntityNode> void removUniqueId(List<T> entityNodes) {
     for (T entityNode : entityNodes) {
-      List<String> names = new ArrayList<>();
-      entityNode.setNames(names);
+      entityNode.setUnique_id("");
     }
   }
 
@@ -245,13 +222,12 @@ public class NodeUtil {
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
       String> uidMap) {
     for (T entityNode : entityNodes) {
-      List<String> names = entityNode.getNames();
-      for (String name : names) {
-        if (!"".equals(name) && uidMap.containsKey(name)) {
-          entityNode.setUid(uidMap.get(name));
-          break;
-        }
+      String unique_id = entityNode.getUnique_id();
+      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+        entityNode.setUid(uidMap.get(unique_id));
+        break;
       }
+
     }
   }
   /**
@@ -263,16 +239,10 @@ public class NodeUtil {
   public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
           String> uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
-      List<String> names = entityNode.getNames();
-      boolean isExist = false;
-      for (String name : names) {
-        if (!"".equals(name) && uidMap.containsKey(name)) {
-          entityNode.setUid(uidMap.get(name));
-          isExist = true;
-          break;
-        }
-      }
-      if (!isExist) {
+      String unique_id = entityNode.getUnique_id();
+      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+        entityNode.setUid(uidMap.get(unique_id));
+      } else {
         resultList.add(entityNode);
       }
     }

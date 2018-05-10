@@ -64,6 +64,19 @@ public class DClient {
     dgraphClient = new DgraphClient(clients);
   }
 
+  public DClient(String[] adressList) {
+    List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
+    for (String address : adressList) {
+      String[] hosts = address.split(",");
+      ManagedChannel channel =
+          ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt(hosts[1])).usePlaintext(true)
+              .build();
+      DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
+      clients.add(blockingStub);
+    }
+    dgraphClient = new DgraphClient(clients);
+  }
+
   public void dropSchema() {
     // Initialize
     dgraphClient.alter(DgraphProto.Operation.newBuilder()
@@ -298,23 +311,6 @@ public class DClient {
     }
     return ret;
 
-  }
-
-  public void QueryDemo(String query, Map<String, String> vars) {
-    /*
-    // Query
-    String query =
-        "query all($a: string){\n" + "all(func: eq(name, $a)) {\n" + "    name\n" + "  }\n" + "}";
-    System.out.println("Query \n:" + query);
-    Map<String, String> vars = Collections.singletonMap("$a", "ycj");
-    application.Query(query, vars);
-     */
-    DgraphProto.Response res = dgraphClient.newTransaction().queryWithVars(query, vars);
-    // Deserialize
-    People ppl = new Gson().fromJson(res.getJson().toStringUtf8(), People.class);
-    for (Person p : ppl.getAll()) {
-      System.out.println(p.getName());
-    }
   }
 
 

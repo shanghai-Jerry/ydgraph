@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import client.EntityIdClient;
+import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import dgraph.node.School;
 import io.vertx.core.logging.Logger;
@@ -26,6 +27,8 @@ public class SchoolToDgraph {
   private DClient dClient;
   private EntityIdClient entityIdClient;
 
+  private List<School> schools = new ArrayList<>();
+
   public SchoolToDgraph() {
     dClient = new DClient(Config.TEST_HOSTNAME);
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
@@ -39,7 +42,6 @@ public class SchoolToDgraph {
   public void getSchool(List<String> dictLines, List<School> schools) {
     List<String> distinctSchoolName = new ArrayList<String>();
     for (String line : dictLines) {
-      List<String> names = new ArrayList<String>();
       School school = new School();
       String[] lineSplits = line.split("\t");
       if (lineSplits.length != 7) {
@@ -48,12 +50,13 @@ public class SchoolToDgraph {
       String name = lineSplits[3];
       String alias = lineSplits[5];
       if (!distinctSchoolName.contains(name)) {
-        names.add(name);
         school.setName(name);
-        school.setEngName(lineSplits[4]);
+        school.setEng_name(lineSplits[4]);
         school.setAlias(alias);
         school.setType("学校");
-        school.setNames(names);
+        Label has_label = new Label();
+        has_label.setUid("0x118c");
+        school.setHas_label(has_label);
         schools.add(school);
       } else {
         logger.info("dup school name:" + name);
@@ -92,16 +95,19 @@ public class SchoolToDgraph {
   }
 
 
+
   /**
    * 初始化实体
    * @param filePath
    */
   public void init(String filePath) {
     List<String> dictLines = new ArrayList<String>();
-    List<School> schools = new ArrayList<School>();
-    Map<String, String> uidMaps = new HashMap<String, String>();
     FileUtils.readFiles(filePath, dictLines);
     getSchool(dictLines, schools);
+  }
+
+  public void initWithRDFMode() {
+    Map<String, String> uidMaps = new HashMap<String, String>();
     long startTime = System.currentTimeMillis();
     System.out.println("get all schools :" + schools.size());
     List<School> schoolList = new ArrayList<School>();
@@ -111,10 +117,6 @@ public class SchoolToDgraph {
         ", " + updateSchoolList.size());
     // insert
     NodeUtil.insertEntity(dClient, schoolList, uidMaps);
-    // entityIdClient.putFeedEntity(uidMaps, "学校");
-    // update
-    NodeUtil.updateEntity(dClient, updateSchoolList);
-
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }

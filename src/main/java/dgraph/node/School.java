@@ -8,7 +8,7 @@ public class School extends EntityNode {
 
   String code;
   String alias;
-  String engName;
+  String eng_name;
 
   public String getCode() {
     return code;
@@ -26,12 +26,12 @@ public class School extends EntityNode {
     this.alias = alias;
   }
 
-  public String getEngName() {
-    return engName;
+  public String getEng_name() {
+    return eng_name;
   }
 
-  public void setEngName(String engName) {
-    this.engName = engName;
+  public void setEng_name(String eng_name) {
+    this.eng_name = eng_name;
   }
   @Override
   public  void getAttrValueMap(List<String> pre, List<Object> values) {
@@ -41,8 +41,8 @@ public class School extends EntityNode {
     values.add(this.getName());
     pre.add("alias");
     values.add(this.getAlias());
-    pre.add("engName");
-    values.add(this.getEngName());
+    pre.add("eng_name");
+    values.add(this.getEng_name());
   }
 
   @Override

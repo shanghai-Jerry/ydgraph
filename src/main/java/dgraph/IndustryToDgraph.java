@@ -8,6 +8,7 @@ import java.util.Map;
 import client.EntityIdClient;
 import com.google.gson.Gson;
 import dgraph.node.Industry;
+import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -67,8 +68,6 @@ public class IndustryToDgraph {
   public void getIndustry(List<String> dictLines, List<Industry> industries) {
     String type = "行业";
     for (String line : dictLines) {
-      List<String> pNames = new ArrayList<String>();
-      List<String> names = new ArrayList<>();
       Industry industry = new Industry();
       Industry partentIndustry = new Industry();
       String[] lineSplits = line.split("\t");
@@ -77,20 +76,17 @@ public class IndustryToDgraph {
       }
       String pName = lineSplits[0];
       String pCode = lineSplits[1];
-      pNames.add(pName);
-      pNames.add(pCode);
       String name = lineSplits[2];
       String code = lineSplits[3];
-      names.add(name);
-      names.add(code);
       industry.setType(type);
-      industry.setNames(names);
       industry.setCode(Integer.parseInt(code));
       industry.setName(name);
+      Label has_label = new Label();
+      has_label.setUid("0x118e");
+      industry.setHas_label(has_label);
       partentIndustry.setName(pName);
       partentIndustry.setType(type);
       partentIndustry.setCode(Integer.parseInt(pCode));
-      partentIndustry.setNames(pNames);
       industry.setParent_industry(partentIndustry);
       industries.add(industry);
     }
@@ -107,7 +103,7 @@ public class IndustryToDgraph {
       // check parent industry id;
       Industry industry1 = industry.getParent_industry();
       if (parentIndustryMap.containsKey(industry1.getName())) {
-        industry.setParent_industry_uid(parentIndustryMap.get(industry1.getName()));
+        industry1.setUid(parentIndustryMap.get(industry1.getName()));
       }
       if (industryMap.containsKey(industry.getName())) {
         industry.setUid(industryMap.get(industry.getName()));

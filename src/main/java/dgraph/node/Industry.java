@@ -6,17 +6,7 @@ public class Industry extends  EntityNode {
 
   int code;
 
-  String parent_industry_uid;
-
   Industry parent_industry;
-
-  public String getParent_industry_uid() {
-    return parent_industry_uid;
-  }
-
-  public void setParent_industry_uid(String parent_industry_uid) {
-    this.parent_industry_uid = parent_industry_uid;
-  }
 
   public int getCode() {
     return code;
@@ -45,10 +35,10 @@ public class Industry extends  EntityNode {
 
   @Override
   public void getEdgeValueMap(List<String> pre, List<Object> values) {
-    if ("".equals(this.getUid()) && "".equals(this.getParent_industry_uid())) {
+    if ("".equals(this.getUid()) && "".equals(this.parent_industry.getUid())) {
       return;
     }
     pre.add("parent_industry");
-    values.add(this.getParent_industry_uid());
+    values.add(this.getParent_industry().getUid());
   }
 }
