@@ -188,14 +188,15 @@ public class DClient {
     }
   }
 
-  public DgraphProto.Assigned entityInitial(List<Nodeput> schoolPutList) {
+  public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    int ids = schoolPutList.size();
+    int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
     for (int j = 0; j < ids; j++) {
-      String uniqueId = schoolPutList.get(j).getUniqueId();
-      List<String> predicates = schoolPutList.get(j).getPredicates();
-      List<Object> values = schoolPutList.get(j).getValueObjects();
+      String uniqueId = putList.get(j).getUniqueId();
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<Object> values = putList.get(j).getValueObjects();
       int size = predicates.size();
       if (size != values.size()) {
         logger.fatal("entity inital predicates length not equal values ");
@@ -215,8 +216,12 @@ public class DClient {
           builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value.toString())).build());
         } else if (value instanceof Boolean) {
           builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build());
-        } else  {
+        } else if (value == null){
           logger.info("unknow value type");
+          continue;
+        } else {
+          logger.info("unknow value type");
+          continue;
         }
         quads.add(builder.build());
       }

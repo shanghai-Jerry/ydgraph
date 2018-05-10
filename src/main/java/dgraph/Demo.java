@@ -129,22 +129,28 @@ public class Demo {
 
   public void initCompanyLabel() {
     Label label = new Label();
-    Label labellease = new Label();
-    labellease.setLabel_name("lease类型");
-    labellease.setUid("0x0");
     label.setLabel_name("公司类型");
     // "公司类型": "0x118b"
     label.setUid("0x118b");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label, labellease), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
     FileUtils.saveFile("src/main/resources/company_label_uid_map.txt", uid);
   }
 
+  public void initLeaseLabel() {
+    Label labellease = new Label();
+    labellease.setLabel_name("lease类型");
+    labellease.setUid("0x00");
+    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(labellease), "", 0);
+    FileUtils.saveFile("src/main/resources/lease_label_uid_map.txt", uid);
+  }
+
   public static  void main(String []arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.QueryDemo();
     // demo.edgeConnect();
     demo.init();
+    demo.initLeaseLabel();
     demo.initCompanyLabel();
     demo.initSchoolLabel();
     demo.initMajorLabel();

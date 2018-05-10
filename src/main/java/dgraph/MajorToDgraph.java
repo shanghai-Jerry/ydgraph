@@ -94,7 +94,7 @@ public class MajorToDgraph {
     if (update > 0) {
       NodeUtil.updateEntity(dClient, majors);
     } else {
-       NodeUtil.insertEntity(dClient, majors, uidMaps);
+       uidMaps = NodeUtil.insertEntity(dClient, majors);
       // entityIdClient.putFeedEntity(uidMaps,  "学校");
     }
     long endStart = System.currentTimeMillis();

@@ -107,7 +107,6 @@ public class SchoolToDgraph {
   }
 
   public void initWithRDFMode() {
-    Map<String, String> uidMaps = new HashMap<String, String>();
     long startTime = System.currentTimeMillis();
     System.out.println("get all schools :" + schools.size());
     List<School> schoolList = new ArrayList<School>();
@@ -116,7 +115,7 @@ public class SchoolToDgraph {
     System.out.println("get separate list: :" + schoolList.size() +
         ", " + updateSchoolList.size());
     // insert
-    NodeUtil.insertEntity(dClient, schoolList, uidMaps);
+    Map<String, String> uidMaps = NodeUtil.insertEntity(dClient, schoolList);
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }

@@ -1,7 +1,11 @@
 package dgraph.node;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.List;
+
+import utils.util;
+
 /**
  * User: JerryYou
  *
@@ -78,8 +82,12 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
+  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object> values){}
+
   public void getAttrValueMap(List<String> pre, List<Object> values) {}
 
-  public void getEdgeValueMap(List<String> pre, List<Object> values) {}
+  public void getEdgeValueMap(List<String> pre, List<Object> values) {
+    // ... todo
+  }
 
 }

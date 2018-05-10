@@ -63,8 +63,8 @@ public class NodeUtil {
   }
 
 
-  public static <T extends EntityNode> void insertEntity(DClient dClient,
-                                  List<T> list, Map<String, String> uidMaps) {
+  public static <T extends EntityNode> Map<String, String> insertEntity(DClient dClient,
+                                  List<T> list) {
     // insert
     List<Nodeput> dputList = new ArrayList<Nodeput>();
     int batch = 0;
@@ -79,8 +79,8 @@ public class NodeUtil {
       dputList.add(dput);
     }
     DgraphProto.Assigned ag = dClient.entityInitial(dputList);
-    mapCombiner(ag.getUidsMap(), uidMaps);
-    System.out.println("get all uids :" + uidMaps.size());
+    // mapCombiner(ag.getUidsMap(), uidMaps);
+    return ag.getUidsMap();
   }
 
   /**

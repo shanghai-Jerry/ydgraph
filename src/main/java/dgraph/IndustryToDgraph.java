@@ -118,7 +118,7 @@ public class IndustryToDgraph {
     if (update > 0) {
       NodeUtil.updateEntity(dClient, industries);
     } else {
-      NodeUtil.insertEntity(dClient, industries, uidMaps);
+      uidMaps = NodeUtil.insertEntity(dClient, industries);
     }
     return uidMaps;
   }
@@ -130,7 +130,7 @@ public class IndustryToDgraph {
     if (update > 0) {
       NodeUtil.updateEntity(dClient, parentsIndustry);
     } else {
-      NodeUtil.insertEntity(dClient, parentsIndustry, uidMaps);
+      uidMaps = NodeUtil.insertEntity(dClient, parentsIndustry);
     }
     return uidMaps;
   }
