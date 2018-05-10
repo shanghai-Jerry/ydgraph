@@ -82,9 +82,31 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
-  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object> values){}
+  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object> values){
+    Field[] fields = clazz.getDeclaredFields();
+    Field.setAccessible(fields,   true);
+    for (Field field : fields) {
+      try {
+        pre.add(field.getName());
+        values.add(field.get(object));
+        util.println("name" , field.getName());
+      } catch (IllegalAccessException e) {
+      }
+    }
+  }
 
-  public void getAttrValueMap(List<String> pre, List<Object> values) {}
+  public  void getAttrValueMap(List<String> pre, List<Object> values) {
+   /* pre.add("type");
+    values.add(this.getType());
+    pre.add("name");
+    values.add(this.getName());
+    pre.add("alias");
+    values.add(this.getAlias());
+    pre.add("eng_name");
+    values.add(this.getEng_name());*/
+    getDeclaredFields(this, this.getClass(), pre, values);;
+    getDeclaredFields(this, this.getClass().getSuperclass(), pre, values);
+  }
 
   public void getEdgeValueMap(List<String> pre, List<Object> values) {
     // ... todo

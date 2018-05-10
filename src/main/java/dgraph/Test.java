@@ -26,7 +26,7 @@ public class Test {
     label.setHas_label(label);
     label.setLabel_name("学校类型");
     school.setHas_label(label);
-    school.getAttrValueMap(new ArrayList<String>(), new ArrayList<Object>());
+    // school.getAttrValueMap(new ArrayList<String>(), new ArrayList<Object>());
     Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(school));
     FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);
   }
