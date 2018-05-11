@@ -9,6 +9,5 @@ package dgraph.node;
  *
  * <<licensetext>>
  */
-public class Label  extends  EntityNode {
-
+public class Label extends EntityNode {
 }

@@ -2,9 +2,10 @@ package dgraph.node;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
-
-import utils.util;
 
 /**
  * User: JerryYou
@@ -13,9 +14,12 @@ import utils.util;
  *
  * Copyright (c) 2018 devops
  *
- * 入库： 分两种形式
- * 1. with json object
- * 2. with rdf <uid_1>  <predicate> <uid_2>
+ * 入库： 分两种形式 1. with json object 2. with rdf <uid_1>  <predicate> <uid_2>
+ *
+ * 多种形式的插入
+ *
+ * <0xd60> <friend> <0xd57> . _:id <friend> <0xd57> . _:id <name> "value1" . _:id <age> "value2" .
+ * 注：value 为int等类型都需""，具体类型转换由schema的类型定义决定
  *
  * <<licensetext>>
  */
@@ -27,20 +31,12 @@ public class EntityNode implements Serializable {
   String unique_id;
   // 实体名称
   String name;
-  // 实体label
-  String label_name;
   // 实体类型
   String type;
   // 实体类别
   Label has_label;
 
-  public Label getHas_label() {
-    return has_label;
-  }
-
-  public void setHas_label(Label has_label) {
-    this.has_label = has_label;
-  }
+  String label_name;
 
   public String getLabel_name() {
     return label_name;
@@ -48,6 +44,14 @@ public class EntityNode implements Serializable {
 
   public void setLabel_name(String label_name) {
     this.label_name = label_name;
+  }
+
+  public Label getHas_label() {
+    return has_label;
+  }
+
+  public void setHas_label(Label has_label) {
+    this.has_label = has_label;
   }
 
   public String getUnique_id() {
@@ -82,34 +86,82 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
-  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object> values){
+  public String getDeclaredEdgeUid(Object object, Class clazz, String methodName) {
+    String ret = "";
+    try {
+      Method[] methods = clazz.getMethods();
+      for (Method method : methods) {
+        if (methodName.equals(method.getName())) {
+          Object result = method.invoke(object);
+          return (String) result;
+        }
+      }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    return ret;
+
+  }
+
+  /**
+   * all fileld include sub EntityNode's uid
+   */
+  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object>
+      values, List<String> edges, List<String> ids, String methodName) {
     Field[] fields = clazz.getDeclaredFields();
-    Field.setAccessible(fields,   true);
+    Field.setAccessible(fields, true);
     for (Field field : fields) {
       try {
-        pre.add(field.getName());
-        values.add(field.get(object));
-        util.println("name" , field.getName());
+        String name = field.getName();
+        Object value = field.get(object);
+        if (value instanceof EntityNode) {
+          if (!"".equals(methodName)) {
+            String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
+            if (uid != null && !"".equals(uid)) {
+              edges.add(name);
+              ids.add(uid);
+            }
+          }
+        } else {
+          if (value != null) {
+            pre.add(name);
+            values.add(value);
+          }
+        }
       } catch (IllegalAccessException e) {
       }
     }
   }
 
-  public  void getAttrValueMap(List<String> pre, List<Object> values) {
-   /* pre.add("type");
-    values.add(this.getType());
-    pre.add("name");
-    values.add(this.getName());
-    pre.add("alias");
-    values.add(this.getAlias());
-    pre.add("eng_name");
-    values.add(this.getEng_name());*/
-    getDeclaredFields(this, this.getClass(), pre, values);;
-    getDeclaredFields(this, this.getClass().getSuperclass(), pre, values);
+  /**
+   * @param pre
+   * @param values
+   * @param edges
+   * @param ids
+   */
+  public void getValueMap(List<String> pre, List<Object> values, List<String> edges, List<String>
+      ids, String methodName) {
+    getDeclaredFields(this, this.getClass(), pre, values, edges, ids, methodName);
+    getDeclaredFields(this, this.getClass().getSuperclass(), pre, values, edges, ids, methodName);
+
   }
 
-  public void getEdgeValueMap(List<String> pre, List<Object> values) {
-    // ... todo
+  @Deprecated
+  public void getAttrValueMap(List<String> pre, List<Object> values) {
+    getDeclaredFields(this, this.getClass(), pre, values, new ArrayList<String>(), new
+        ArrayList<String>(), "");
+    getDeclaredFields(this, this.getClass().getSuperclass(), pre, values, new ArrayList<String>()
+        , new ArrayList<String>(), "");
+  }
+
+  @Deprecated
+  public void getEdgeValueMap(List<String> edges, List<String> ids, String methodName) {
+    getDeclaredFields(this, this.getClass(), new ArrayList<String>(), new ArrayList<Object>(),
+        edges, ids, methodName);
+    getDeclaredFields(this, this.getClass().getSuperclass(), new ArrayList<String>(), new
+        ArrayList<Object>(), edges, ids, methodName);
   }
 
 }

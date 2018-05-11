@@ -1,6 +1,5 @@
 package dgraph;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import utils.FileUtils;
@@ -16,7 +15,7 @@ import utils.FileUtils;
  */
 public class TestIndustryToDgraph {
 
-  public static  void main(String []args) {
+  public static void main(String[] args) {
     String dict = "src/main/resources/industry_dump_dict.txt";
     int needCheck = 0;
     IndustryToDgraph industryToDgraph = new IndustryToDgraph(new DClient(Config.TEST_VM_HOSTNAME));

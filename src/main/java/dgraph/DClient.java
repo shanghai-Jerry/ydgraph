@@ -19,9 +19,6 @@ import java.util.Map;
 
 import client.dgrpah.DgraphClient;
 import dgraph.node.EntityNode;
-import dgraph.node.NodeUtil;
-import dgraph.node.People;
-import dgraph.node.Person;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
@@ -55,9 +52,8 @@ public class DClient {
     List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
     for (String address : adressList) {
       String[] hosts = address.split(":");
-      ManagedChannel channel =
-          ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt(hosts[1])).usePlaintext(true)
-              .build();
+      ManagedChannel channel = ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt
+          (hosts[1])).usePlaintext(true).build();
       DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
       clients.add(blockingStub);
     }
@@ -68,9 +64,8 @@ public class DClient {
     List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
     for (String address : adressList) {
       String[] hosts = address.split(",");
-      ManagedChannel channel =
-          ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt(hosts[1])).usePlaintext(true)
-              .build();
+      ManagedChannel channel = ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt
+          (hosts[1])).usePlaintext(true).build();
       DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
       clients.add(blockingStub);
     }
@@ -79,16 +74,14 @@ public class DClient {
 
   public void dropSchema() {
     // Initialize
-    dgraphClient.alter(DgraphProto.Operation.newBuilder()
-        .setDropAll(true)
-        .build());
+    dgraphClient.alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
   }
 
   public void alterSchema(String schema) {
-    DgraphProto.Operation op = DgraphProto.Operation.newBuilder()
-        .setSchema(schema).build();
+    DgraphProto.Operation op = DgraphProto.Operation.newBuilder().setSchema(schema).build();
     dgraphClient.alter(op);
   }
+
   /**
    * 批量<uid> <relation> <uid>的方式写入
    */
@@ -96,9 +89,8 @@ public class DClient {
 
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(edges))
-            .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString
+        .copyFromUtf8(edges)).build();
     try {
       assigned = txn.mutate(mu);
       txn.commit();
@@ -112,7 +104,7 @@ public class DClient {
   }
 
   private String edgeFormat(String src, String pred, String dest) {
-    return  String.format("<%s> <%s> <%s> . ", src, pred, dest);
+    return String.format("<%s> <%s> <%s> . ", src, pred, dest);
   }
 
   public void entityAddEdge(List<Nodeput> putList) {
@@ -141,45 +133,14 @@ public class DClient {
   }
 
 
-  public void entityAddAttr(List<Nodeput> putList) {
+  public void entityAddAttrTest(String src, String predicate, String uid) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
-    for (int j = 0; j < ids; j++) {
-      String uid = putList.get(j).getUid();
-      if ("".equals(uid)) {
-        continue;
-      }
-      List<String> predicates = putList.get(j).getPredicates();
-      List<Object> values = putList.get(j).getValueObjects();
-      int size = predicates.size();
-      if (size != values.size()) {
-        logger.fatal("add attr predicates length not equal values ");
-      }
-      for (int i = 0; i < size; i++) {
-        Object value = values.get(i);
-        DgraphProto.NQuad.Builder builder =
-            DgraphProto.NQuad.newBuilder()
-                .setSubject(String.format("%s", uid))
-                .setPredicate(predicates.get(i));
 
-        if (value instanceof Integer || value instanceof Long) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value.toString())).build());
-        } else  if (value instanceof String) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setStrVal((String) value).build());
-        } else if (value instanceof Double || value instanceof Float) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value.toString())).build());
-        } else if (value instanceof Boolean) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build());
-        } else  {
-          logger.info("unknow value type");
-        }
-        quads.add(builder.build());
-      }
-    }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .addAllSet(quads)
-        .build();
+    DgraphProto.NQuad quad = DgraphProto.NQuad.newBuilder().setSubject(String.format("_:%s", src)
+    ).setPredicate(predicate).setObjectId(uid).build();
+    quads.add(quad);
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addAllSet(quads).build();
     try {
       txn.mutate(mu);
       txn.commit();
@@ -191,44 +152,52 @@ public class DClient {
   public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
-    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    List<DgraphProto.NQuad> quads = new ArrayList<>();
     for (int j = 0; j < ids; j++) {
       String uniqueId = putList.get(j).getUniqueId();
       String uid = putList.get(j).getUid();
       List<String> predicates = putList.get(j).getPredicates();
       List<Object> values = putList.get(j).getValueObjects();
+      List<String> edge_pred = putList.get(j).getEdge_predicates();
+      List<String> objectIds = putList.get(j).getObjectIds();
       int size = predicates.size();
-      if (size != values.size()) {
+      if (size != values.size() || edge_pred.size() != objectIds.size()) {
         logger.fatal("entity inital predicates length not equal values ");
       }
+      // value feed
       for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad.Builder builder =
-            DgraphProto.NQuad.newBuilder()
-                .setSubject(String.format("_:%s", uniqueId))
-                .setPredicate(predicates.get(i));
+        DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
+            .format("_:%s", uniqueId)).setPredicate(predicates.get(i));
 
         Object value = values.get(i);
         if (value instanceof Integer || value instanceof Long) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value.toString())).build());
-        } else  if (value instanceof String) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value
+              .toString())).build());
+        } else if (value instanceof String) {
           builder.setObjectValue(DgraphProto.Value.newBuilder().setStrVal((String) value).build());
         } else if (value instanceof Double || value instanceof Float) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value.toString())).build());
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value
+              .toString())).build());
         } else if (value instanceof Boolean) {
-          builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build());
-        } else if (value == null){
-          logger.info("unknow value type");
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build
+              ());
+        } else if (value == null) {
+          // field 没有设置属性的过滤
           continue;
         } else {
-          logger.info("unknow value type");
+          // 需要处理predicate为uid类型，... 见 edge feed
           continue;
         }
         quads.add(builder.build());
       }
+      // edge feed
+      for (int k = 0; k < edge_pred.size(); k++) {
+        DgraphProto.NQuad quad = DgraphProto.NQuad.newBuilder().setSubject(String.format("_:%s",
+            uniqueId)).setPredicate(edge_pred.get(k)).setObjectId(objectIds.get(k)).build();
+        quads.add(quad);
+      }
     }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .addAllSet(quads)
-        .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addAllSet(quads).build();
     DgraphProto.Assigned ag;
     try {
       ag = txn.mutate(mu);
@@ -241,9 +210,6 @@ public class DClient {
 
   /**
    * 批量对象json的方式写入，写入实体需继承EntityNode
-   * @param entities
-   * @param <T>
-   * @return
    */
 
   public <T extends EntityNode> DgraphProto.Assigned mutiplyMutationEntity(List<T> entities) {
@@ -255,9 +221,8 @@ public class DClient {
       if (size > 0) {
         Gson gson = new Gson();
         text = gson.toJson(entities);
-        DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-            .setSetJson(ByteString.copyFromUtf8(text))
-            .build();
+        DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
+            .copyFromUtf8(text)).build();
         assigned = txnInner.mutate(mu);
         txnInner.commit();
       }
@@ -271,14 +236,11 @@ public class DClient {
 
   /**
    * 单个string json对象写入
-   * @param json
-   * @return
    */
   public DgraphProto.Assigned mutation(String json) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .setSetJson(ByteString.copyFromUtf8(json.toString()))
-        .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
+        .copyFromUtf8(json.toString())).build();
     DgraphProto.Assigned assigned = txn.mutate(mu);
     txn.commit();
     txn.discard();
@@ -286,8 +248,8 @@ public class DClient {
   }
 
   public String QueryById(String did, String className, String methodName) {
-    String query =
-        "query did($a: string){\n" + "isExist(func: eq(id, $a)) {\n" + "uid\n" + "  }\n" + "}";
+    String query = "query did($a: string){\n" + "isExist(func: eq(id, $a)) {\n" + "uid\n" + "  "
+        + "}\n" + "}";
     Map<String, String> vars = Collections.singletonMap("$a", did);
     DgraphProto.Response res = dgraphClient.newTransaction().queryWithVars(query, vars);
     Class classNameClass = null;

@@ -1,8 +1,6 @@
 package dgraph.node;
 
-import java.util.List;
-
-public class Company  extends  EntityNode  {
+public class Company extends EntityNode {
 
   String location;
   String legal_person;
@@ -32,26 +30,4 @@ public class Company  extends  EntityNode  {
     this.establish_at = establish_at;
   }
 
-  @Override
-  public void getAttrValueMap(List<String> pre, List<Object> values) {
-    pre.add("type");
-    values.add(this.getType());
-    pre.add("name");
-    values.add(this.getName());
-    pre.add("legal_person");
-    values.add(this.getLegal_person());
-    pre.add("location");
-    values.add(this.getLocation());
-    pre.add("establish_at");
-    values.add(this.getEstablish_at());
-  }
-
-  @Override
-  public void getEdgeValueMap(List<String> pre, List<Object> values) {
-    if ("".equals(this.getUid()) && "".equals(this.getHas_label().getUid())) {
-      return;
-    }
-    pre.add("has_label");
-    values.add(this.getHas_label().getUid());
-  }
 }

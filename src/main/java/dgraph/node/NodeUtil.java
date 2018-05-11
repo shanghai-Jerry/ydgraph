@@ -5,13 +5,16 @@ import java.util.*;
 
 import client.EntityIdClient;
 import client.dgrpah.DgraphClient;
+
 import com.google.gson.Gson;
+
 import dgraph.Config;
 import dgraph.DClient;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+
 /**
  * User: JerryYou
  *
@@ -25,25 +28,25 @@ public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
-  public static  <T extends  EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
+  public static <T extends EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (T entityNode : list) {
       List<String> pres = new ArrayList<String>();
-      List<Object> values = new ArrayList<Object>();
-      entityNode.getEdgeValueMap(pres, values);
+      List<String> values = new ArrayList<>();
+      entityNode.getEdgeValueMap(pres, values, "getUid");
       Nodeput dput = new Nodeput();
       if ("".equals(entityNode.getUid())) {
         continue;
       }
       dput.setUid(entityNode.getUid());
-      dput.setPredicates(pres);
-      dput.setValueObjects(values);
+      dput.setEdge_predicates(pres);
+      dput.setObjectIds(values);
       updatePutList.add(dput);
     }
     dClient.entityAddEdge(updatePutList);
   }
 
-  public static  <T extends  EntityNode> void updateEntity(DClient dClient, List<T> list) {
+  public static <T extends EntityNode> void updateEntity(DClient dClient, List<T> list) {
     List<Nodeput> updatePutList = new ArrayList<Nodeput>();
     for (T school : list) {
       List<String> pres = new ArrayList<String>();
@@ -59,23 +62,28 @@ public class NodeUtil {
       dput.setValueObjects(values);
       updatePutList.add(dput);
     }
-    dClient.entityAddAttr(updatePutList);
+    // dClient.entityAddAttr(updatePutList);
   }
 
 
-  public static <T extends EntityNode> Map<String, String> insertEntity(DClient dClient,
-                                  List<T> list) {
+  public static <T extends EntityNode> Map<String, String> insertEntity(DClient dClient, List<T>
+      list) {
     // insert
     List<Nodeput> dputList = new ArrayList<Nodeput>();
     int batch = 0;
     for (T item : list) {
       List<String> pres = new ArrayList<String>();
+      List<String> edge_pres = new ArrayList<String>();
+      List<String> objectIds = new ArrayList<String>();
       List<Object> values = new ArrayList<>();
       item.getAttrValueMap(pres, values);
+      item.getEdgeValueMap(edge_pres, objectIds, "getUid");
       Nodeput dput = new Nodeput();
-      dput.setUniqueId(item.getName());
+      dput.setUniqueId(item.getUnique_id());
       dput.setPredicates(pres);
       dput.setValueObjects(values);
+      dput.setEdge_predicates(edge_pres);
+      dput.setObjectIds(objectIds);
       dputList.add(dput);
     }
     DgraphProto.Assigned ag = dClient.entityInitial(dputList);
@@ -123,8 +131,11 @@ public class NodeUtil {
   }
 
 
-  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient, EntityIdClient
-      entityIdClient, List<T> list, String type, int needCheckUid) {
+  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient,
+                                                                     EntityIdClient
+                                                                         entityIdClient, List<T>
+                                                                         list, String type, int
+                                                                         needCheckUid) {
     Map<String, String> existuidMap = new HashMap<String, String>();
     Map<String, String> newUidMap = new HashMap<String, String>();
     List<T> newPutList = new ArrayList<>();
@@ -154,19 +165,14 @@ public class NodeUtil {
       // entityIdClient.putFeedEntity(newUidMap,  type);
       return newUidMap;
     }
-    return  newUidMap;
+    return newUidMap;
   }
 
   /**
    * 泛型: 支持扩展
-   * @param entityIdClient
-   * @param entityNodes
-   * @param insertList
-   * @param updateList
-   * @param <T>
    */
-  public static <T extends EntityNode> void getList(EntityIdClient entityIdClient, List<T> entityNodes,
-                                                    List<T> insertList, List<T> updateList) {
+  public static <T extends EntityNode> void getList(EntityIdClient entityIdClient, List<T>
+      entityNodes, List<T> insertList, List<T> updateList) {
     List<List<String>> reqs = new ArrayList<List<String>>();
     Map<String, String> uidMap = new HashMap<String, String>();
     String type = "";
@@ -191,8 +197,8 @@ public class NodeUtil {
   }
 
 
-
-  public static <T extends EntityNode> void getCheckNames(List<T> entityNodes, List<List<String>> reqs) {
+  public static <T extends EntityNode> void getCheckNames(List<T> entityNodes, List<List<String>>
+      reqs) {
     for (T entityNode : entityNodes) {
       List<String> names = new ArrayList<>();
       names.add(entityNode.getUnique_id());
@@ -203,8 +209,6 @@ public class NodeUtil {
 
   /**
    * 不需要进入dgraph的属性
-   * @param entityNodes
-   * @param <T>
    */
   public static <T extends EntityNode> void removUniqueId(List<T> entityNodes) {
     for (T entityNode : entityNodes) {
@@ -214,13 +218,11 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段
-   * @param entityNodes
-   * @param uidMap
-   * @param <T>
-   * why this can now work ???
+   *
+   * @param <T> why this can now work ???
    */
-  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap) {
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
+      uidMap) {
     for (T entityNode : entityNodes) {
       String unique_id = entityNode.getUnique_id();
       if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
@@ -230,14 +232,12 @@ public class NodeUtil {
 
     }
   }
+
   /**
    * 将已有uid写入实体字段
-   * @param entityNodes
-   * @param uidMap
-   * @param <T>
    */
   public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
-          String> uidMap, List<T> resultList) {
+      String> uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
       String unique_id = entityNode.getUnique_id();
       if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
@@ -250,15 +250,13 @@ public class NodeUtil {
 
   /**
    * blank-id mapping uniqueName to uid
-   * @param blankUid
-   * @param list
-   * @param uidMap
-   * @param <T>
    */
-  public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid, List<T>  list, Map<String, String> uidMap) {
-    Set<Map.Entry<String, String>> entrySet=  blankUid.entrySet();
+  public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid,
+                                                              List<T> list, Map<String, String>
+                                                                  uidMap) {
+    Set<Map.Entry<String, String>> entrySet = blankUid.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    while(iterator.hasNext()) {
+    while (iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
@@ -274,9 +272,9 @@ public class NodeUtil {
   public static Map<String, String> getNewUidMap(Map<String, String> existUidMap, Map<String,
       String> retUidMap) {
     Map<String, String> newUidMap = new HashMap<String, String>();
-    Set<Map.Entry<String, String>> entrySet=  retUidMap.entrySet();
+    Set<Map.Entry<String, String>> entrySet = retUidMap.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    while(iterator.hasNext()) {
+    while (iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
@@ -288,9 +286,9 @@ public class NodeUtil {
   }
 
   public static void mapCombiner(Map<String, String> map, Map<String, String> resultMap) {
-    Set<Map.Entry<String, String>> entrySet=  map.entrySet();
+    Set<Map.Entry<String, String>> entrySet = map.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    while(iterator.hasNext()) {
+    while (iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
@@ -304,9 +302,9 @@ public class NodeUtil {
 
   public static long hexToLong(String str) {
     if (str.startsWith("0x")) {
-      return Long.parseLong(str.substring(2),16);
-    } else  {
-      return  Long.parseLong(str,16);
+      return Long.parseLong(str.substring(2), 16);
+    } else {
+      return Long.parseLong(str, 16);
     }
   }
 

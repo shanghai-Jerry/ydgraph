@@ -12,6 +12,7 @@ import dgraph.node.School;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import utils.FileUtils;
+
 /**
  * User: JerryYou
  *
@@ -67,9 +68,6 @@ public class SchoolToDgraph {
 
   /**
    * 分别获取是新增实体list还是需更新的实体list
-   * @param schools
-   * @param dputList
-   * @param duputList
    */
   public void getList(List<School> schools, List<School> dputList, List<School> duputList) {
     List<List<String>> reqs = new ArrayList<List<String>>();
@@ -95,10 +93,8 @@ public class SchoolToDgraph {
   }
 
 
-
   /**
    * 初始化实体
-   * @param filePath
    */
   public void init(String filePath) {
     List<String> dictLines = new ArrayList<String>();
@@ -112,8 +108,7 @@ public class SchoolToDgraph {
     List<School> schoolList = new ArrayList<School>();
     List<School> updateSchoolList = new ArrayList<School>();
     getList(schools, schoolList, updateSchoolList);
-    System.out.println("get separate list: :" + schoolList.size() +
-        ", " + updateSchoolList.size());
+    System.out.println("get separate list: :" + schoolList.size() + ", " + updateSchoolList.size());
     // insert
     Map<String, String> uidMaps = NodeUtil.insertEntity(dClient, schoolList);
     long endStart = System.currentTimeMillis();
@@ -122,7 +117,6 @@ public class SchoolToDgraph {
 
   /**
    * 初始化实体以json的方式
-   * @param filePath
    */
   public void initWithJson(String filePath, int needCheck) {
     String type = "学校";

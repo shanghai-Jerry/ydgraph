@@ -18,7 +18,6 @@ import org.apache.hadoop.util.Tool;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.Config;
@@ -32,10 +31,7 @@ import io.vertx.core.logging.LoggerFactory;
 
 
 /**
- * Created by Jerry on 2017/4/12.
- * 输入文件格式：（docId \t json)
- * 输出到dgraph
- * 如果数据量的时候schema的index先不设置，否则会很慢？？？
+ * Created by Jerry on 2017/4/12. 输入文件格式：（docId \t json) 输出到dgraph 如果数据量的时候schema的index先不设置，否则会很慢？？？
  */
 public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
 
@@ -92,7 +88,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
         if (!"".equals(qccUnique)) {
           Company company = new Company();
           company.setName(name);
-          company.setUnique_id(qccUnique);
+          company.setUnique_id(name);
           company.setLocation(location);
           company.setEstablish_at(establish_at);
           company.setLegal_person(legal_person);
@@ -139,6 +135,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     job.setMapOutputValueClass(Text.class);
     job.setNumReduceTasks(0);
   }
+
   @SuppressWarnings("RegexpSinglelineJava")
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
@@ -157,8 +154,8 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");
     UserGroupInformation.setConfiguration(conf);
     try {
-      UserGroupInformation.loginUserFromKeytab("mindcube@WGQ.HIGGS.COM",
-          confDir + "/krb5_mindcube.keytab");
+      UserGroupInformation.loginUserFromKeytab("mindcube@WGQ.HIGGS.COM", confDir +
+          "/krb5_mindcube.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }
@@ -170,11 +167,9 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
 
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
-    args = new String[]{
-        "/user/mindcube/company/test_data",
+    args = new String[]{"/user/mindcube/company/test_data",
         "/Users/devops/workspace/hbase-Demo/src/main/resources",
-        "/user/mindcube/test_out/test_data",
-    };
+        "/user/mindcube/test_out/test_data",};
     int exitCode = new CompanyEntityPutToDgraphMapred().run(args);
     System.exit(exitCode);
   }

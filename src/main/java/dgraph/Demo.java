@@ -1,25 +1,19 @@
 package dgraph;
 
 
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import client.dgrpah.DgraphClient;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
-import dgraph.node.People;
 import dgraph.node.Person;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import utils.FileUtils;
+import utils.util;
 
 /**
  * User: JerryYou
@@ -69,14 +63,17 @@ public class Demo {
   public void QueryDemo() {
 
     // Query
-    String query =
-        "query all($a: string) {\n" + " count(func: eq(type, $a)) {\n" + " number:count(uid)\n" +
-            "  }\n" + "}";
-    System.out.println("Query => \n" + query);
-    Map<String, String> vars = Collections.singletonMap("$a", "公司");
-    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().queryWithVars(query, vars);
+    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " ~has_label { " +
+        "count(uid) } \n" + "  }\n" + "}";
+    // System.out.println("Query => \n" + query);
+    Map<String, String> vars = Collections.singletonMap("$a", "0x118b");
+    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().queryWithVars(query,
+        vars);
     System.out.println("querying ....");
+    // 获取时间
+    // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
+    util.println("latency:", res.getLatency().toString());
     System.out.println("finished");
 
   }
@@ -98,6 +95,11 @@ public class Demo {
     System.out.println(value + ", 0x" + hexValue);
     dClient.dropSchema();
     dClient.alterSchema(Config.updateSchema);
+    initLeaseLabel();
+    initCompanyLabel();
+    initSchoolLabel();
+    initMajorLabel();
+    initIndustryLabel();
   }
 
   public void initIndustryLabel() {
@@ -144,17 +146,13 @@ public class Demo {
     FileUtils.saveFile("src/main/resources/lease_label_uid_map.txt", uid);
   }
 
-  public static  void main(String []arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+  public static void main(String[] arg) {
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.QueryDemo();
     // demo.edgeConnect();
-    demo.init();
-    demo.initLeaseLabel();
-    demo.initCompanyLabel();
-    demo.initSchoolLabel();
-    demo.initMajorLabel();
-    demo.initIndustryLabel();
+    // demo.init();
+    demo.QueryDemo();
     System.out.println("finished");
 
   }

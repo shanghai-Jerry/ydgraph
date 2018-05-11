@@ -20,22 +20,21 @@ import org.apache.hadoop.util.Tool;
 
 import java.io.IOException;
 
-// import client.CompanyNormalizationClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+// import client.CompanyNormalizationClient;
+
 /**
- * Created by Jerry on 2017/4/12.
- * 简历解析结果：originResumeContent 存入hbase
- * 输入文件格式：（docId \t resume_extractor_json）来源 去重后
- * 无输出文件格式
+ * Created by Jerry on 2017/4/12. 简历解析结果：originResumeContent 存入hbase 输入文件格式：（docId \t
+ * resume_extractor_json）来源 去重后 无输出文件格式
  */
 public class TestResumeOriginContentMapred extends Configured implements Tool {
 
   private static Logger logger = LoggerFactory.getLogger(TestResumeOriginContentMapred.class);
 
-  public static class Map extends Mapper<LongWritable,Text, NullWritable, Put> {
+  public static class Map extends Mapper<LongWritable, Text, NullWritable, Put> {
     private Counter skipperCounter;
     private Counter noFiledCounter;
     private Counter originSuccessCounter;
@@ -76,8 +75,8 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
             }
             infoObject.remove("originResumeContent");
             Put put = new Put(Bytes.toBytes(rowKey));
-            put.addColumn(Bytes.toBytes("data"), Bytes.toBytes("json"), Bytes
-                .toBytes(infoObject.toString()));
+            put.addColumn(Bytes.toBytes("data"), Bytes.toBytes("json"), Bytes.toBytes(infoObject
+                .toString()));
             context.write(NullWritable.get(), put);
             jsonSuccessCounter.increment(1L);
           } else {
@@ -92,7 +91,8 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
 
   public static class reducer extends TableReducer<Writable, Put, Writable> {
     @Override
-    protected void reduce(Writable key, Iterable<Put> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Writable key, Iterable<Put> values, Context context) throws
+        IOException, InterruptedException {
       int count = 0;
       while (values.iterator().hasNext()) {
         Put put = values.iterator().next();
@@ -103,14 +103,12 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
 
   public void configJob(Job job, String input, String tableName) throws Exception {
     job.setJarByClass(TestResumeOriginContentMapred.class);
-    job.setJobName("ResumeOriginContentMapred_auth-" + input.substring(input.lastIndexOf("/") +
-        1));
+    job.setJobName("ResumeOriginContentMapred_auth-" + input.substring(input.lastIndexOf("/") + 1));
     job.setMapperClass(Map.class);
     FileInputFormat.setInputPaths(job, input);
     job.setMapOutputKeyClass(NullWritable.class);
     job.setMapOutputValueClass(Put.class);
-    TableMapReduceUtil.initTableReducerJob(tableName, reducer
-        .class, job);
+    TableMapReduceUtil.initTableReducerJob(tableName, reducer.class, job);
 
   }
 
@@ -132,8 +130,7 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
     conf.set("mapreduce.reduce.shuffle.memory.limit.percent", "0.25");
     UserGroupInformation.setConfiguration(conf);
     try {
-      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM",
-          confDir + "/krb5.keytab");
+      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM", confDir + "/krb5.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }
@@ -145,11 +142,8 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
 
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
-    args = new String[] {
-        "resume/test/part-m-00371",
-        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources",
-        "idmg:resume_test",
-    };
+    args = new String[]{"resume/test/part-m-00371",
+        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources", "idmg:resume_test",};
     int exitCode = new TestResumeOriginContentMapred().run(args);
     System.exit(exitCode);
   }

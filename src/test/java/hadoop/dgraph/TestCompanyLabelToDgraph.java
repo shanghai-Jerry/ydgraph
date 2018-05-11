@@ -35,7 +35,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * <<licensetext>>
  */
-public class TestCompanyLabelToDgraph  extends Configured implements Tool {
+public class TestCompanyLabelToDgraph extends Configured implements Tool {
 
   private static Logger logger = LoggerFactory.getLogger(TestCompanyLabelToDgraph.class);
 
@@ -82,12 +82,12 @@ public class TestCompanyLabelToDgraph  extends Configured implements Tool {
           company.setUid(uid);
           company.setHas_label(label);
           companyList.add(company);
-          batch ++;
+          batch++;
         }
         if (batch >= 200) {
           NodeUtil.addEntityEdge(dClient, companyList);
           companyList.clear();
-          batch=0;
+          batch = 0;
         }
         jsonSuccessCounter.increment(1);
       }
@@ -102,8 +102,7 @@ public class TestCompanyLabelToDgraph  extends Configured implements Tool {
 
   public void configJob(Job job, String input, String output) throws Exception {
     job.setJarByClass(TestCompanyLabelToDgraph.class);
-    job.setJobName("TestCompanyLabelToDgraph -" + input.substring(input.lastIndexOf("/") +
-        1));
+    job.setJobName("TestCompanyLabelToDgraph -" + input.substring(input.lastIndexOf("/") + 1));
     job.setMapperClass(TestCompanyLabelToDgraph.Map.class);
     FileInputFormat.setInputPaths(job, input);
     FileSystem fs = FileSystem.get(job.getConfiguration());
@@ -114,6 +113,7 @@ public class TestCompanyLabelToDgraph  extends Configured implements Tool {
     job.setMapOutputValueClass(Text.class);
     job.setNumReduceTasks(0);
   }
+
   @SuppressWarnings("RegexpSinglelineJava")
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
@@ -132,8 +132,8 @@ public class TestCompanyLabelToDgraph  extends Configured implements Tool {
     System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");
     UserGroupInformation.setConfiguration(conf);
     try {
-      UserGroupInformation.loginUserFromKeytab("mindcube@WGQ.HIGGS.COM",
-          confDir + "/krb5_mindcube.keytab");
+      UserGroupInformation.loginUserFromKeytab("mindcube@WGQ.HIGGS.COM", confDir +
+          "/krb5_mindcube.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }
@@ -145,11 +145,9 @@ public class TestCompanyLabelToDgraph  extends Configured implements Tool {
 
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
-    args = new String[]{
-        "/user/mindcube/test_out/20180312/00",
+    args = new String[]{"/user/mindcube/test_out/20180312/00",
         "/Users/devops/workspace/hbase-Demo/src/main/resources",
-        "/user/mindcube/test_out/label/00",
-    };
+        "/user/mindcube/test_out/label/00",};
     int exitCode = new TestCompanyLabelToDgraph().run(args);
     System.exit(exitCode);
   }

@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import client.EntityIdClient;
-import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import utils.FileUtils;
+
 /**
  * User: JerryYou
  *
@@ -94,7 +94,7 @@ public class MajorToDgraph {
     if (update > 0) {
       NodeUtil.updateEntity(dClient, majors);
     } else {
-       uidMaps = NodeUtil.insertEntity(dClient, majors);
+      uidMaps = NodeUtil.insertEntity(dClient, majors);
       // entityIdClient.putFeedEntity(uidMaps,  "学校");
     }
     long endStart = System.currentTimeMillis();
@@ -104,7 +104,6 @@ public class MajorToDgraph {
 
   /**
    * this way is better and faster than NQuad, you'd better try this muc h more.
-   * @param dictPath
    */
   public void initWithJson(String dictPath, int needCheck) {
     String type = "专业";
@@ -117,7 +116,8 @@ public class MajorToDgraph {
         needCheck);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
   }
-  public static  void main(String []args) {
+
+  public static void main(String[] args) {
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     int needCheck = 0;

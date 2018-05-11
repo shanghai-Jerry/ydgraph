@@ -16,6 +16,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Tool;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -24,12 +25,10 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 /**
- * Created by Jerry on 2017/5/3.
- * hbase 简历更新数据获取, 用于检测最新变化的简历。
- * 如果有重复的docId简历，需要使用重复docId去hbase中更新数据
+ * Created by Jerry on 2017/5/3. hbase 简历更新数据获取, 用于检测最新变化的简历。 如果有重复的docId简历，需要使用重复docId去hbase中更新数据
  * 不可使用新的docId
  */
-public class DoExtractorFromHbase extends Configured implements  Tool {
+public class DoExtractorFromHbase extends Configured implements Tool {
 
   public static Logger logger = LoggerFactory.getLogger(DoExtractorFromHbase.class);
 
@@ -59,8 +58,8 @@ public class DoExtractorFromHbase extends Configured implements  Tool {
     }
 
     @Override
-    protected void map(ImmutableBytesWritable row, Result result, Context
-        context) throws IOException, InterruptedException {
+    protected void map(ImmutableBytesWritable row, Result result, Context context) throws
+        IOException, InterruptedException {
       number.increment(1);
       String rowKey = Bytes.toString(row.get());
       if (!"".equals(columnF) && !"".equals(qualify) && result != null) {
@@ -78,8 +77,8 @@ public class DoExtractorFromHbase extends Configured implements  Tool {
     }
   }
 
-  public void configJob(Job job, String mapTableName, String output, long min, long max)
-      throws IOException, ClassNotFoundException, InterruptedException {
+  public void configJob(Job job, String mapTableName, String output, long min, long max) throws
+      IOException, ClassNotFoundException, InterruptedException {
     job.setJarByClass(DoExtractorFromHbase.class);
     Path outPath = new Path(output);
     Path deletePath = new Path(output + "/data");
@@ -93,8 +92,8 @@ public class DoExtractorFromHbase extends Configured implements  Tool {
     scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
     scan.setCacheBlocks(false);  // don't set to true for MR jobs
     scan.setTimeRange(min, max);
-    TableMapReduceUtil.initTableMapperJob(mapTableName, scan, DoExtractorFromHbase.MyMapper.class,
-        Text.class, Text.class, job);
+    TableMapReduceUtil.initTableMapperJob(mapTableName, scan, DoExtractorFromHbase.MyMapper
+        .class, Text.class, Text.class, job);
     job.waitForCompletion(true);
   }
 
@@ -102,8 +101,8 @@ public class DoExtractorFromHbase extends Configured implements  Tool {
   public int run(String[] args) throws Exception {
     // TODO Auto-generated method stub
     if (args.length < 7) {
-      System.err.println("Usage: DoExtractorFromHbase <mapTableName>" +
-          "<map_columnFamily> <map_quality> <Output> <MinTime> <MaxTime> <ConfDir>");
+      System.err.println("Usage: DoExtractorFromHbase <mapTableName>" + "<map_columnFamily> " +
+          "<map_quality> <Output> <MinTime> <MaxTime> <ConfDir>");
       System.exit(1);
     }
     // 2018.4.8
@@ -112,7 +111,7 @@ public class DoExtractorFromHbase extends Configured implements  Tool {
     String mapColumnFamily = args[1];
     String mapQualify = args[2];
     String output = args[3];
-    String minTs= args[4];
+    String minTs = args[4];
     String maxTs = args[5];
     String confDir = args[6];
     // System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");

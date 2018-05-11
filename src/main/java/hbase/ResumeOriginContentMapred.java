@@ -25,16 +25,14 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 /**
- * Created by Jerry on 2017/4/12.
- * 简历解析结果：originResumeContent 存入hbase
- * 输入文件格式：（docId \t resume_extractor_json）来源 去重后
- * 无输出文件格式
+ * Created by Jerry on 2017/4/12. 简历解析结果：originResumeContent 存入hbase 输入文件格式：（docId \t
+ * resume_extractor_json）来源 去重后 无输出文件格式
  */
 public class ResumeOriginContentMapred extends Configured implements Tool {
 
   private static Logger logger = LoggerFactory.getLogger(ResumeOriginContentMapred.class);
 
-  public static class Map extends Mapper<LongWritable,Text, NullWritable, Put> {
+  public static class Map extends Mapper<LongWritable, Text, NullWritable, Put> {
     private Counter skipperCounter;
     private Counter noFiledCounter;
     private Counter originSuccessCounter;
@@ -74,8 +72,8 @@ public class ResumeOriginContentMapred extends Configured implements Tool {
             }
             infoObject.remove("originResumeContent");
             Put put = new Put(Bytes.toBytes(rowKey));
-            put.addColumn(Bytes.toBytes("data"), Bytes.toBytes("json"), Bytes
-                .toBytes(infoObject.toString()));
+            put.addColumn(Bytes.toBytes("data"), Bytes.toBytes("json"), Bytes.toBytes(infoObject
+                .toString()));
             context.write(NullWritable.get(), put);
             jsonSuccessCounter.increment(1L);
           } else {
@@ -90,7 +88,8 @@ public class ResumeOriginContentMapred extends Configured implements Tool {
 
   public static class reducer extends TableReducer<Writable, Put, Writable> {
     @Override
-    protected void reduce(Writable key, Iterable<Put> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Writable key, Iterable<Put> values, Context context) throws
+        IOException, InterruptedException {
       int count = 0;
       while (values.iterator().hasNext()) {
         Put put = values.iterator().next();
@@ -101,22 +100,19 @@ public class ResumeOriginContentMapred extends Configured implements Tool {
 
   public void configJob(Job job, String input, String tableName) throws Exception {
     job.setJarByClass(ResumeOriginContentMapred.class);
-    job.setJobName("ResumeOriginContentMapred_auth-" + input.substring(input.lastIndexOf("/") +
-        1));
+    job.setJobName("ResumeOriginContentMapred_auth-" + input.substring(input.lastIndexOf("/") + 1));
     job.setMapperClass(ResumeOriginContentMapred.Map.class);
     FileInputFormat.setInputPaths(job, input);
     job.setMapOutputKeyClass(NullWritable.class);
     job.setMapOutputValueClass(Put.class);
-    TableMapReduceUtil.initTableReducerJob(tableName, ResumeOriginContentMapred.reducer
-        .class, job);
+    TableMapReduceUtil.initTableReducerJob(tableName, ResumeOriginContentMapred.reducer.class, job);
 
   }
 
   @SuppressWarnings("RegexpSinglelineJava")
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.err
-          .println("Usage: ResumeOriginContentMapred <Input> <ConfDir> <tableName>");
+      System.err.println("Usage: ResumeOriginContentMapred <Input> <ConfDir> <tableName>");
       System.exit(1);
     }
     String input = args[0];

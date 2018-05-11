@@ -7,7 +7,8 @@ public class People {
   List<Person> isExist;
   List<Person> all;
 
-  public People() {}
+  public People() {
+  }
 
   public List<Person> getIsExist() {
     return isExist;

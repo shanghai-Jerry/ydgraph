@@ -1,4 +1,5 @@
 package dgraph.node;
+
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -18,11 +19,13 @@ public class Person {
   public Person() {
 
   }
+
   public Person(String id, String name, int age) {
     this.age = age;
     this.id = id;
     this.name = name;
   }
+
   public String getUid() {
     return uid;
   }

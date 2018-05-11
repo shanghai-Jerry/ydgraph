@@ -22,7 +22,7 @@ public class FileUtils {
       String line;
       line = reader.readLine();
       while (line != null) {
-        String [] lineSpilt = line.split("\t");
+        String[] lineSpilt = line.split("\t");
         if (lineSpilt.length == 2) {
           uidMap.put(lineSpilt[0], lineSpilt[1]);
         }
@@ -65,13 +65,13 @@ public class FileUtils {
   }
 
   public static void saveFile(String filePath, Map<String, String> map) {
-    PrintWriter printWriter  = null;
+    PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
-      Set<Map.Entry<String, String>> entrySet=  map.entrySet();
+      Set<Map.Entry<String, String>> entrySet = map.entrySet();
       Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
       int count = 0;
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         Map.Entry<String, String> entry = iterator.next();
         String key = entry.getKey();
         String value = entry.getValue();

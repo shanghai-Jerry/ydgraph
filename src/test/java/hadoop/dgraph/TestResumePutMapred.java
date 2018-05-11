@@ -28,16 +28,14 @@ import io.vertx.core.logging.LoggerFactory;
 // import client.CompanyNormalizationClient;
 
 /**
- * Created by Jerry on 2017/4/12.
- * 简历解析结果：originResumeContent 存入hbase
- * 输入文件格式：（docId \t resume_extractor_json）来源 去重后
- * 无输出文件格式
+ * Created by Jerry on 2017/4/12. 简历解析结果：originResumeContent 存入hbase 输入文件格式：（docId \t
+ * resume_extractor_json）来源 去重后 无输出文件格式
  */
 public class TestResumePutMapred extends Configured implements Tool {
 
   private static Logger logger = LoggerFactory.getLogger(TestResumePutMapred.class);
 
-  public static class Map extends Mapper<LongWritable,Text, NullWritable, Put> {
+  public static class Map extends Mapper<LongWritable, Text, NullWritable, Put> {
     private Counter skipperCounter;
     private Counter noFiledCounter;
     private Counter originSuccessCounter;
@@ -45,24 +43,15 @@ public class TestResumePutMapred extends Configured implements Tool {
     private DClient dClient;
     private final String TEST_HOSTNAME = "172.20.0.68";
     private final int TEST_PORT = 9080;
-    private  String schema =
-        "uid:int . \n" +
-            "chineseName:string @index(exact,term) . \n" +
-            "gender:int @index(int) . \n"  +
-            "currentJobTitle:string @index(exact,term) .\n" +
-            "industries: uid @reverse . \n" +
-            "code:int @index(int) . \n" +
-            "title:string @index(exact,term) . \n" +
-            "seniority:int @index(int) . \n" +
-            "salary:float @index(float) . \n" +
-            "educationDegree:int @index(int) . \n" +
-            "pastWorkExperiences:uid @reverse . \n" +
-            "org:uid @reverse . \n" +
-            "suggest:string @index(exact,term) .\n" +
-            "jobTitle: string @index(exact,term) .\n" +
-            "educationExperiences:uid @reverse . \n" +
-            "school:uid @reverse . \n" +
-            "age:int @index(int) . \n";
+    private String schema = "uid:int . \n" + "chineseName:string @index(exact,term) . \n" +
+        "gender:int @index(int) . \n" + "currentJobTitle:string @index(exact,term) .\n" +
+        "industries: uid @reverse . \n" + "code:int @index(int) . \n" + "title:string @index" +
+        "(exact,term) . \n" + "seniority:int @index(int) . \n" + "salary:float @index(float) . " +
+        "\n" + "educationDegree:int @index(int) . \n" + "pastWorkExperiences:uid @reverse . \n" +
+        "org:uid @reverse . \n" + "suggest:string @index(exact,term) .\n" + "jobTitle: string " +
+        "@index(exact,term) .\n" + "educationExperiences:uid @reverse . \n" + "school:uid " +
+        "@reverse . \n" + "age:int @index(int) . \n";
+
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
       super.setup(context);
@@ -71,7 +60,8 @@ public class TestResumePutMapred extends Configured implements Tool {
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
       dClient = new DClient(Config.TEST_HOSTNAME);
-      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/school_dict.txt");
+      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/school_dict
+      // .txt");
       dClient.alterSchema(schema);
     }
 
@@ -104,8 +94,7 @@ public class TestResumePutMapred extends Configured implements Tool {
 
   public void configJob(Job job, String input, String tableName) throws Exception {
     job.setJarByClass(TestResumePutMapred.class);
-    job.setJobName("hadoop.dgraph put -" + input.substring(input.lastIndexOf("/") +
-        1));
+    job.setJobName("hadoop.dgraph put -" + input.substring(input.lastIndexOf("/") + 1));
     job.setMapperClass(Map.class);
     FileInputFormat.setInputPaths(job, input);
     FileSystem fs = FileSystem.get(job.getConfiguration());
@@ -135,8 +124,7 @@ public class TestResumePutMapred extends Configured implements Tool {
     conf.set("mapreduce.reduce.shuffle.memory.limit.percent", "0.25");
     UserGroupInformation.setConfiguration(conf);
     try {
-      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM",
-          confDir + "/krb5.keytab");
+      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM", confDir + "/krb5.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }
@@ -148,11 +136,8 @@ public class TestResumePutMapred extends Configured implements Tool {
 
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
-    args = new String[] {
-        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources/part-m-00371",
-        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources",
-        "idmg:resume_test",
-    };
+    args = new String[]{"/Users/devops/workspace/hbase-Demo/src/StartMain/resources/part-m-00371" +
+        "", "/Users/devops/workspace/hbase-Demo/src/StartMain/resources", "idmg:resume_test",};
     int exitCode = new TestResumePutMapred().run(args);
     System.exit(exitCode);
   }

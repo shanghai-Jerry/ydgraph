@@ -1,12 +1,13 @@
 package dgraph;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import client.EntityIdClient;
-import com.google.gson.Gson;
 import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
@@ -43,8 +44,8 @@ public class IndustryToDgraph {
 
   public List<Industry> getParentIndustry(List<Industry> industries) {
     List<Industry> parents = new ArrayList<>();
-    for (Industry industry: industries) {
-      Industry parentIndustry  = industry.getParent_industry();
+    for (Industry industry : industries) {
+      Industry parentIndustry = industry.getParent_industry();
       parents.add(parentIndustry);
     }
     return parents;
@@ -54,8 +55,8 @@ public class IndustryToDgraph {
   public List<Industry> getDistinctParentIndustry(List<Industry> industries) {
     List<Industry> parents = new ArrayList<>();
     List<String> uniqueKey = new ArrayList<>();
-    for (Industry industry: industries) {
-      Industry parentIndustry  = industry.getParent_industry();
+    for (Industry industry : industries) {
+      Industry parentIndustry = industry.getParent_industry();
       String name = parentIndustry.getName();
       if (!uniqueKey.contains(name)) {
         parents.add(parentIndustry);
@@ -144,19 +145,19 @@ public class IndustryToDgraph {
     logger.info("industries size:" + industries.size());
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
-    Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient, parentsIndustry,
-        type, needCheck);
+    Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient,
+        parentsIndustry, type, needCheck);
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentUidMap);
     NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap);
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, industries,
-        type, needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, industries, type,
+        needCheck);
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
-  public static  void main(String []args) {
+  public static void main(String[] args) {
     String dict = "src/main/resources/industry_dump_dict.txt";
     int needCheck = 0;
     IndustryToDgraph industryToDgraph = new IndustryToDgraph();

@@ -15,11 +15,11 @@ import utils.FileUtils;
  */
 public class TestMajorToDgraph {
 
-  public static  void main(String []args) {
+  public static void main(String[] args) {
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph(new DClient(Config.TEST_VM_HOSTNAME));
-    int update = 1;
-    Map<String, String> uidMaps = majorToDgraph.init(dictPath,update);
+    int update = 0;
+    Map<String, String> uidMaps = majorToDgraph.init(dictPath, update);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMaps);
   }
 }
