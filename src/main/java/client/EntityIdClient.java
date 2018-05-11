@@ -142,7 +142,7 @@ public class EntityIdClient {
    * @param req
    * @return
    */
-  public BatchEntityIdResponse feedEntity(BatchEntityIdRequest req) {
+  private BatchEntityIdResponse feedEntity(BatchEntityIdRequest req) {
     BatchEntityIdResponse rep = null;
     try {
       rep = blockingStub.feedEntity(req);
@@ -157,7 +157,7 @@ public class EntityIdClient {
    * @param req
    * @return
    */
-  public BatchEntityIdResponse entityLinkSimple(BatchEntityIdRequest req) {
+  private BatchEntityIdResponse entityLinkSimple(BatchEntityIdRequest req) {
     BatchEntityIdResponse rep = null;
     try {
       rep = blockingStub.entityLinkSimple(req);

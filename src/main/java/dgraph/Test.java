@@ -1,5 +1,6 @@
 package dgraph;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -25,10 +26,11 @@ public class Test {
     Label label = new Label();
     label.setLabel_name("学校类型");
     label.setUid("0x118c");
-    school.setHas_label(label);
+    label.setUnique_id("学校类型");
+    // school.setHas_label(label);
     // school.getAttrValueMap(new ArrayList<String>(), new ArrayList<>());
     // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>(), "getUid");
-    // school.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>
+    // label.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>
     // (), new ArrayList<String>(), "getUid");
     // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>());
     Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(school));

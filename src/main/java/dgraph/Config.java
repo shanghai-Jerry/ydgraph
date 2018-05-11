@@ -21,21 +21,17 @@ public class Config {
 
   public static  String schema =
           "uid:int . \n" +
-          "name:string @index(term) . \n" +
+          "name:string  . \n" +
           "alias:string .\n" +
-          "code:string . \n" +
-          "english_name:string . \n";
+          "code:int . \n" +
+          "type:string .  \n" +
+          "eng_name:string . \n" +
+          "location:string  .\n" +
+          "legal_person:string .\n" +
+          "establish_at:string .\n" +
+          "has_label:uid .\n";
 
   public static String updateSchema =
-            "uid:int . \n" +
-            "name:string  . \n" +
-            "alias:string .\n" +
-            "code:int . \n" +
-            "type:string .  \n" +
-            "eng_name:string . \n" +
-            "location:string  .\n" +
-            "legal_person:string .\n" +
-            "establish_at:string .\n" +
             "has_label:uid @reverse @count .\n";
 
 }

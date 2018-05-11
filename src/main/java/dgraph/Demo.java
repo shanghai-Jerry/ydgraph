@@ -74,8 +74,6 @@ public class Demo {
     // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
     util.println("latency:", res.getLatency().toString());
-    System.out.println("finished");
-
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {
@@ -94,7 +92,7 @@ public class Demo {
     String hexValue = Long.toHexString(98951);
     System.out.println(value + ", 0x" + hexValue);
     dClient.dropSchema();
-    dClient.alterSchema(Config.updateSchema);
+    dClient.alterSchema(Config.schema);
     initLeaseLabel();
     initCompanyLabel();
     initSchoolLabel();
@@ -102,13 +100,18 @@ public class Demo {
     initIndustryLabel();
   }
 
+  public void alterSchema() {
+    dClient.alterSchema(Config.updateSchema);
+  }
+
+
   public void initIndustryLabel() {
     Label label = new Label();
     label.setLabel_name("行业类型");
     // 0x118e
     label.setUid("0x118e");
     Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
-    FileUtils.saveFile("src/main/resources/industry_abel_uid_map.txt", uid);
+    FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", uid);
   }
 
   public void initMajorLabel() {
@@ -117,7 +120,7 @@ public class Demo {
     // 0x118d
     label.setUid("0x118d");
     Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
-    FileUtils.saveFile("src/main/resources/major_abel_uid_map.txt", uid);
+    FileUtils.saveFile("src/main/resources/major_label_uid_map.txt", uid);
   }
 
   public void initSchoolLabel() {
@@ -147,12 +150,12 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.QueryDemo();
     // demo.edgeConnect();
-    // demo.init();
-    demo.QueryDemo();
+    demo.init();
+    // demo.alterSchema();
     System.out.println("finished");
 
   }

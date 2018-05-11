@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.util;
+
 /**
  * User: JerryYou
  *
@@ -118,13 +120,19 @@ public class EntityNode implements Serializable {
         Object value = field.get(object);
         if (value instanceof EntityNode) {
           if (!"".equals(methodName)) {
+            util.println("edge:", name);
             String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
+            util.println("uid:", uid);
+            util.println("value:", value);
             if (uid != null && !"".equals(uid)) {
               edges.add(name);
               ids.add(uid);
             }
           }
         } else {
+          if ("uid".equals(name)) {
+            continue;
+          }
           if (value != null) {
             pre.add(name);
             values.add(value);

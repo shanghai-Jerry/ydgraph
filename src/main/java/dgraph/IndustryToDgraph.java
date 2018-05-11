@@ -80,6 +80,7 @@ public class IndustryToDgraph {
       String name = lineSplits[2];
       String code = lineSplits[3];
       industry.setType(type);
+      industry.setUnique_id(name);
       industry.setCode(Integer.parseInt(code));
       industry.setName(name);
       Label has_label = new Label();
@@ -87,13 +88,14 @@ public class IndustryToDgraph {
       industry.setHas_label(has_label);
       partentIndustry.setName(pName);
       partentIndustry.setType(type);
+      partentIndustry.setUnique_id(pName);
       partentIndustry.setCode(Integer.parseInt(pCode));
       industry.setParent_industry(partentIndustry);
       industries.add(industry);
     }
   }
 
-  public void init(String dictPath) {
+  public void initIndustry(String dictPath) {
     List<String> dictLines = new ArrayList<>();
     FileUtils.readFiles(dictPath, dictLines);
     getIndustry(dictLines, industries);
@@ -111,7 +113,7 @@ public class IndustryToDgraph {
       }
     }
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
-    NodeUtil.addEntityEdge(dClient, industries);
+    // NodeUtil.addEntityEdge(dClient, industries);
   }
 
   public Map<String, String> initIndustry(Map<String, String> parentIndustry, int update) {
@@ -126,7 +128,7 @@ public class IndustryToDgraph {
 
   public Map<String, String> initParentIndustry(int update) {
     Map<String, String> uidMaps = new HashMap<String, String>();
-    logger.info("industries size:" + industries.size());
+    logger.info("parent industries size:" + industries.size());
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
     if (update > 0) {
       NodeUtil.updateEntity(dClient, parentsIndustry);
@@ -134,6 +136,26 @@ public class IndustryToDgraph {
       uidMaps = NodeUtil.insertEntity(dClient, parentsIndustry);
     }
     return uidMaps;
+  }
+  // need test
+  public void initWithRdf(String dictPath, int needCheck) {
+    initIndustry(dictPath);
+    // 入库parentIndstry
+    Map<String, String> parentMap = initParentIndustry(needCheck);
+    FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentMap);
+    NodeUtil.putEntityUid(getParentIndustry(industries), parentMap);
+    logger.info("industry:" + new Gson().toJson(industries.get(0)));
+    logger.info("industry:" + new Gson().toJson(industries.get(1)));
+    logger.info("industry:" + new Gson().toJson(industries.get(2)));
+    logger.info("industry:" + new Gson().toJson(industries.get(3)));
+    // 入库子industry 和 之前的关系
+    // Map<String, String> uidMap = initIndustry(parentMap, needCheck);
+    // FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
+    // link entity - add edge
+    // linkIndustry(parentMap, uidMap);
+    // logger.info("industry:" + new Gson().toJson(industries.get(0)));
+    Map<String, String> uidMap = NodeUtil.insertEntity(dClient, this.industries);
+    FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
   }
 
   public void initWithJson(String dictPath, int needCheck) {

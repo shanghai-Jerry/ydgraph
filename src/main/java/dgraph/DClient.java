@@ -116,8 +116,8 @@ public class DClient {
       if ("".equals(uid)) {
         continue;
       }
-      List<String> predicates = putList.get(j).getPredicates();
-      List<Object> values = putList.get(j).getValueObjects();
+      List<String> predicates = putList.get(j).getEdge_predicates();
+      List<String> values = putList.get(j).getObjectIds();
       int size = predicates.size();
       if (size != values.size()) {
         logger.fatal("add edge predicates length not equal values ");
@@ -164,12 +164,13 @@ public class DClient {
       if (size != values.size() || edge_pred.size() != objectIds.size()) {
         logger.fatal("entity inital predicates length not equal values ");
       }
-      // value feed
+      // value feed : value can not be uid in here
       for (int i = 0; i < size; i++) {
-        DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
-            .format("_:%s", uniqueId)).setPredicate(predicates.get(i));
-
+        String pred = predicates.get(i);
         Object value = values.get(i);
+        // logger.info("pred:" + pred + ", valueObject:" + value);
+        DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
+            .format("_:%s", uniqueId)).setPredicate(pred);
         if (value instanceof Integer || value instanceof Long) {
           builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value
               .toString())).build());
@@ -192,8 +193,12 @@ public class DClient {
       }
       // edge feed
       for (int k = 0; k < edge_pred.size(); k++) {
+        String edgePredicate = edge_pred.get(k);
+        String objectId = objectIds.get(k);
+        // logger.info("edge pred:" + edgePredicate + ", object id:" + objectId);
+        // 存在uid
         DgraphProto.NQuad quad = DgraphProto.NQuad.newBuilder().setSubject(String.format("_:%s",
-            uniqueId)).setPredicate(edge_pred.get(k)).setObjectId(objectIds.get(k)).build();
+            uniqueId)).setPredicate(edgePredicate).setObjectId(objectId).build();
         quads.add(quad);
       }
     }

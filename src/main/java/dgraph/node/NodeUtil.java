@@ -155,6 +155,7 @@ public class NodeUtil {
     int size = copyList.size();
     if (size > 0) {
       logger.info("entity json object :" + new Gson().toJson(copyList.get(0)));
+      // 返回没设置uid的实体id的map,已设置uid的不会返回uid
       DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
       if (assigned != null) {
         logger.info("get ret uids :" + assigned.getUidsMap().size());
@@ -218,7 +219,6 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段
-   *
    * @param <T> why this can now work ???
    */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
@@ -227,9 +227,7 @@ public class NodeUtil {
       String unique_id = entityNode.getUnique_id();
       if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
         entityNode.setUid(uidMap.get(unique_id));
-        break;
       }
-
     }
   }
 
