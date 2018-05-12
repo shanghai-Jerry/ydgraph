@@ -1,5 +1,7 @@
 package dgraph.node;
 
+import java.util.List;
+
 /**
  * User: JerryYou
  *
@@ -10,4 +12,15 @@ package dgraph.node;
  * <<licensetext>>
  */
 public class Label extends EntityNode {
+
+  List<School> school;
+
+
+  public List<School> getSchool() {
+    return school;
+  }
+
+  public void setSchool(List<School> school) {
+    this.school = school;
+  }
 }

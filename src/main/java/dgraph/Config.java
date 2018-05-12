@@ -32,6 +32,6 @@ public class Config {
           "has_label:uid .\n";
 
   public static String updateSchema =
-            "has_label:uid @reverse @count .\n";
+            "has_label:uid @reverse .\n";
 
 }

@@ -16,7 +16,10 @@ public class Test {
 
   DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
 
+  Demo demo = new Demo(dClient);
+
   public void test_one() {
+    demo.init();
     School school = new School();
     String name = "清华大学";
     String type = "学校";
@@ -27,13 +30,15 @@ public class Test {
     label.setLabel_name("学校类型");
     label.setUid("0x118c");
     label.setUnique_id("学校类型");
+    label.setSchool(Arrays.asList(school));
     // school.setHas_label(label);
     // school.getAttrValueMap(new ArrayList<String>(), new ArrayList<>());
-    // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>(), "getUid");
-    // label.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>
-    // (), new ArrayList<String>(), "getUid");
+    // label.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>(), "getUid");
+    // label.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>(),new ArrayList<String>(), "getUid");
+    Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, label.getSchool());
+    NodeUtil.putEntityUid(label.getSchool(), schoolEntityUidMap);
     // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>());
-    Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(school));
+    Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);
   }
 

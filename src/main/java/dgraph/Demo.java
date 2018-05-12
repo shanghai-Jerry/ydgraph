@@ -77,13 +77,13 @@ public class Demo {
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {
-    DgraphProto.Assigned assignedList = dClient.mutiplyEdgeMutation(entities);
+    DgraphProto.Assigned assignedList = dClient.mutiplyEdgesMutation(entities);
     return assignedList;
   }
 
   // pass test
   public void edgeConnect() {
-    String edgeConnect = "<0xd60> <friend> <0xd57> .";
+    String edgeConnect = "<0x118c> <friend> \"schoolType\" .";
     feedEntities(edgeConnect);
   }
 
@@ -150,12 +150,12 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
+    // demo.init();
     // demo.QueryDemo();
     // demo.edgeConnect();
-    demo.init();
-    // demo.alterSchema();
+    demo.alterSchema();
     System.out.println("finished");
 
   }

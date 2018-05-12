@@ -43,7 +43,7 @@ public class NodeUtil {
       dput.setObjectIds(values);
       updatePutList.add(dput);
     }
-    dClient.entityAddEdge(updatePutList);
+    dClient.entityAdd(updatePutList);
   }
 
   public static <T extends EntityNode> void updateEntity(DClient dClient, List<T> list) {
@@ -68,9 +68,10 @@ public class NodeUtil {
 
   public static <T extends EntityNode> Map<String, String> insertEntity(DClient dClient, List<T>
       list) {
+    Map<String, String> uidMap = new HashMap<>();
     // insert
-    List<Nodeput> dputList = new ArrayList<Nodeput>();
-    int batch = 0;
+    List<Nodeput> dputList = new ArrayList<>();
+    List<Nodeput>  newPutList = new ArrayList<>();
     for (T item : list) {
       List<String> pres = new ArrayList<String>();
       List<String> edge_pres = new ArrayList<String>();
@@ -79,16 +80,27 @@ public class NodeUtil {
       item.getAttrValueMap(pres, values);
       item.getEdgeValueMap(edge_pres, objectIds, "getUid");
       Nodeput dput = new Nodeput();
+      String uid = item.getUid();
       dput.setUniqueId(item.getUnique_id());
       dput.setPredicates(pres);
       dput.setValueObjects(values);
       dput.setEdge_predicates(edge_pres);
       dput.setObjectIds(objectIds);
-      dputList.add(dput);
+      if (uid != null && !"".equals(uid)) {
+        dput.setUid(uid);
+        newPutList.add(dput);
+      } else  {
+        dputList.add(dput);
+      }
     }
-    DgraphProto.Assigned ag = dClient.entityInitial(dputList);
-    // mapCombiner(ag.getUidsMap(), uidMaps);
-    return ag.getUidsMap();
+    if (newPutList.size() > 0) {
+      dClient.entityAdd(newPutList);
+    }
+    if (dputList.size() > 0) {
+      DgraphProto.Assigned ag = dClient.entityInitial(dputList);
+      return ag.getUidsMap();
+    }
+    return  uidMap;
   }
 
   /**
@@ -219,7 +231,8 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段
-   * @param <T> why this can now work ???
+   * 通过unique_id为key确定uidMap中的value
+   * @param <T>
    */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
       uidMap) {

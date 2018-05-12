@@ -109,6 +109,13 @@ public class EntityNode implements Serializable {
 
   /**
    * all fileld include sub EntityNode's uid
+   * @param object
+   * @param clazz
+   * @param pre
+   * @param values
+   * @param edges
+   * @param ids
+   * @param methodName
    */
   public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object>
       values, List<String> edges, List<String> ids, String methodName) {
@@ -118,7 +125,11 @@ public class EntityNode implements Serializable {
       try {
         String name = field.getName();
         Object value = field.get(object);
+        util.println("value:", value);
+        // .. todo , 如果实体之前的关系通过List<EntityNode>的方式存在，那么以rdf方式如何建立实体之前的关系
+        // .. todo, 以json object的方式写入只需要保证子实体的uid写回，无需进行获取uid进行绑定
         if (value instanceof EntityNode) {
+          // 绑定单个实体之间的关系
           if (!"".equals(methodName)) {
             util.println("edge:", name);
             String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
@@ -129,11 +140,26 @@ public class EntityNode implements Serializable {
               ids.add(uid);
             }
           }
+        } else if (value instanceof List) {
+          // 绑定多个实体之间的关系
+          List<EntityNode> entityNodes = (List<EntityNode>)value;
+          for (EntityNode entityNode: entityNodes) {
+            String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
+            util.println("list uid:", uid);
+            util.println("list value:", entityNode);
+            if (uid != null && !"".equals(uid)) {
+              edges.add(name);
+              ids.add(uid);
+            }
+          }
         } else {
+          // 一般属性值
           if ("uid".equals(name)) {
             continue;
           }
           if (value != null) {
+            util.println("name:", name);
+            util.println("att value:", value);
             pre.add(name);
             values.add(value);
           }

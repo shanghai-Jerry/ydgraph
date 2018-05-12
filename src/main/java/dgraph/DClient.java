@@ -85,7 +85,32 @@ public class DClient {
   /**
    * 批量<uid> <relation> <uid>的方式写入
    */
-  public DgraphProto.Assigned mutiplyEdgeMutation(String edges) {
+  public DgraphProto.Assigned mutiplyEdgesMutation(List<String> edges) {
+    List<ByteString> newEdges = new ArrayList<>();
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    for (String edge : edges) {
+      newEdges.add(ByteString.copyFromUtf8(edge));
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+    .setSetNquads(ByteString.copyFrom(newEdges)).build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+    } finally {
+      txn.discard();
+    }
+
+    return assigned;
+  }
+
+  /**
+   * 批量<uid> <relation> <uid>的方式写入
+   */
+  @Deprecated
+  public DgraphProto.Assigned mutiplyEdgesMutation(String edges) {
 
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
@@ -104,32 +129,49 @@ public class DClient {
   }
 
   private String edgeFormat(String src, String pred, String dest) {
-    return String.format("<%s> <%s> <%s> . ", src, pred, dest);
+    return String.format("<%s> <%s> <%s> . \n", src, pred, dest);
   }
 
-  public void entityAddEdge(List<Nodeput> putList) {
-    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+  private String attrFormat(String src, String pred, String dest) {
+    return String.format("<%s> <%s> \"%s\" . \n", src, pred, dest);
+  }
+  /**
+   * 形式: <uid> <> <>
+   * @param putList
+   */
+  public void entityAdd(List<Nodeput> putList) {
     int ids = putList.size();
     StringBuffer stringBuffer = new StringBuffer();
+    List<String> stringList = new ArrayList<>();
     for (int j = 0; j < ids; j++) {
-      String uid = putList.get(j).getUid();
-      if ("".equals(uid)) {
-        continue;
-      }
-      List<String> predicates = putList.get(j).getEdge_predicates();
-      List<String> values = putList.get(j).getObjectIds();
+      Nodeput nodeput = putList.get(j);
+      String uid = nodeput.getUid();
+      List<String> predicates = nodeput.getPredicates();
+      List<Object> values = nodeput.getValueObjects();
+      List<String> edge_pred = nodeput.getEdge_predicates();
+      List<String> objectIds = nodeput.getObjectIds();
       int size = predicates.size();
-      if (size != values.size()) {
-        logger.fatal("add edge predicates length not equal values ");
+      if (size != values.size() || edge_pred.size() != objectIds.size()) {
+        logger.fatal("entity add predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
         String value = String.valueOf(values.get(i).toString());
         String pred = predicates.get(i);
-        String result = edgeFormat(uid, pred, value);
-        stringBuffer.append(result + "\n");
+        String result = attrFormat(uid, pred, value);
+        stringBuffer.append(result);
+        stringList.add(result);
+      }
+      // edge feed
+      for (int k = 0; k < edge_pred.size(); k++) {
+        String edgePredicate = edge_pred.get(k);
+        String objectId = objectIds.get(k);
+        String result = edgeFormat(uid, edgePredicate, objectId);
+        stringBuffer.append(result);
+        stringList.add(result);
       }
     }
-    mutiplyEdgeMutation(stringBuffer.toString());
+    // mutiplyEdgesMutation(stringBuffer.toString());
+    mutiplyEdgesMutation(stringList);
   }
 
 
@@ -149,13 +191,18 @@ public class DClient {
     }
   }
 
+  /**
+   *  形式: <_:id> <> <>
+   * @param putList
+   * @return
+   */
   public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<>();
     for (int j = 0; j < ids; j++) {
+      Nodeput nodeput = putList.get(j);
       String uniqueId = putList.get(j).getUniqueId();
-      String uid = putList.get(j).getUid();
       List<String> predicates = putList.get(j).getPredicates();
       List<Object> values = putList.get(j).getValueObjects();
       List<String> edge_pred = putList.get(j).getEdge_predicates();
