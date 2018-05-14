@@ -143,7 +143,7 @@ public class IndustryToDgraph {
     // 入库parentIndstry
     Map<String, String> parentMap = initParentIndustry(needCheck);
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentMap);
-    NodeUtil.putEntityUid(getParentIndustry(industries), parentMap);
+    NodeUtil.putEntityUid(getParentIndustry(industries), parentMap, new ArrayList<Industry>());
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     logger.info("industry:" + new Gson().toJson(industries.get(1)));
     logger.info("industry:" + new Gson().toJson(industries.get(2)));
@@ -169,11 +169,13 @@ public class IndustryToDgraph {
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
     Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient,
         parentsIndustry, type, needCheck);
+    entityIdClient.putFeedEntity(parentUidMap, type);
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentUidMap);
-    NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap);
+    NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap, new ArrayList<Industry>());
     Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, industries, type,
         needCheck);
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
+    entityIdClient.putFeedEntity(uidMap, type);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");

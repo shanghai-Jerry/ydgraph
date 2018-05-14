@@ -99,6 +99,7 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+      assigned = null;
     } finally {
       txn.discard();
     }
@@ -121,6 +122,7 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+      assigned = null
     } finally {
       txn.discard();
     }
@@ -250,10 +252,13 @@ public class DClient {
       }
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addAllSet(quads).build();
-    DgraphProto.Assigned ag;
+    DgraphProto.Assigned ag = null;
     try {
       ag = txn.mutate(mu);
       txn.commit();
+    }  catch (Exception e) {
+      logger.info("[entityInitial Expection]:" + e.getMessage());
+      ag = null;
     } finally {
       txn.discard();
     }
@@ -264,7 +269,7 @@ public class DClient {
    * 批量对象json的方式写入，写入实体需继承EntityNode
    */
 
-  public <T extends EntityNode> DgraphProto.Assigned mutiplyMutationEntity(List<T> entities) {
+  public <T extends EntityNode> DgraphProto.Assigned multiplyMutationEntity(List<T> entities) {
     DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
     String text = "";
@@ -279,7 +284,8 @@ public class DClient {
         txnInner.commit();
       }
     } catch (Exception e) {
-      logger.info("[mutiplyMutationEntity Expection]:" + e.getMessage() + ", entity:" + text);
+      logger.info("[multiplyMutationEntity Expection]:" + e.getMessage() + ", entity:" + text);
+      assigned = null;
     } finally {
       txnInner.discard();
     }

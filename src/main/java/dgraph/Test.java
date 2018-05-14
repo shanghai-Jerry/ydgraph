@@ -36,7 +36,8 @@ public class Test {
     // label.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>(), "getUid");
     // label.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>(),new ArrayList<String>(), "getUid");
     Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, label.getSchool());
-    NodeUtil.putEntityUid(label.getSchool(), schoolEntityUidMap);
+    FileUtils.saveFile("src/main/resources/test_school_uid_map.txt", schoolEntityUidMap);
+    NodeUtil.putEntityUid(label.getSchool(), schoolEntityUidMap, new ArrayList<School>());
     // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>());
     Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);

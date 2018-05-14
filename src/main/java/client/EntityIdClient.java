@@ -172,8 +172,8 @@ public class EntityIdClient {
     try {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder().addName("清华大学")
-                .setType("学校").build())
+            .addEntityReq(EntityIdRequest.newBuilder().addName("上海戴窖建材经销服务部东吴分部")
+                .setType("公司").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);

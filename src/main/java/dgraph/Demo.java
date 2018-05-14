@@ -95,7 +95,7 @@ public class Demo {
     dClient.alterSchema(Config.schema);
     initLeaseLabel();
     initCompanyLabel();
-    initSchoolLabel();
+    // initSchoolLabel();
     initMajorLabel();
     initIndustryLabel();
   }

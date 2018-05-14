@@ -31,7 +31,7 @@ public class SchoolToDgraph {
   private List<School> schools = new ArrayList<>();
 
   public SchoolToDgraph() {
-    dClient = new DClient(Config.TEST_HOSTNAME);
+    dClient = new DClient(Config.addressList);
     entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
   }
 
@@ -128,6 +128,7 @@ public class SchoolToDgraph {
     Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, schools, type,
         needCheck);
     FileUtils.saveFile("src/main/resources/school_uid_map.txt", uidMap);
+    entityIdClient.putFeedEntity(uidMap, type);
   }
 
   public static void main(String[] args) {

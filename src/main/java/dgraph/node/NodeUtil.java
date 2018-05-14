@@ -1,14 +1,20 @@
 package dgraph.node;
 
-import java.io.*;
-import java.util.*;
-
-import client.EntityIdClient;
-import client.dgrpah.DgraphClient;
-
 import com.google.gson.Gson;
 
-import dgraph.Config;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import client.EntityIdClient;
 import dgraph.DClient;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
@@ -71,7 +77,7 @@ public class NodeUtil {
     Map<String, String> uidMap = new HashMap<>();
     // insert
     List<Nodeput> dputList = new ArrayList<>();
-    List<Nodeput>  newPutList = new ArrayList<>();
+    List<Nodeput> newPutList = new ArrayList<>();
     for (T item : list) {
       List<String> pres = new ArrayList<String>();
       List<String> edge_pres = new ArrayList<String>();
@@ -89,7 +95,7 @@ public class NodeUtil {
       if (uid != null && !"".equals(uid)) {
         dput.setUid(uid);
         newPutList.add(dput);
-      } else  {
+      } else {
         dputList.add(dput);
       }
     }
@@ -97,10 +103,14 @@ public class NodeUtil {
       dClient.entityAdd(newPutList);
     }
     if (dputList.size() > 0) {
-      DgraphProto.Assigned ag = dClient.entityInitial(dputList);
-      return ag.getUidsMap();
+      DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
+      if (assigned != null) {
+        return assigned.getUidsMap();
+      } else  {
+        return uidMap;
+      }
     }
-    return  uidMap;
+    return uidMap;
   }
 
   /**
@@ -133,13 +143,19 @@ public class NodeUtil {
     return dest;
   }
 
+  /**
+   * 将已有uid写入实体字段
+   *
+   * @param list       原始实体list
+   * @param resultList 没有uid的实体，新增的
+   */
   public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
-      list, String type) {
+      list, String type, List<T> resultList) {
     List<List<String>> reqs = new ArrayList<List<String>>();
     Map<String, String> existuidMap = new HashMap<String, String>();
     NodeUtil.getCheckNames(list, reqs);
     entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.putEntityUid(list, existuidMap);
+    NodeUtil.putEntityUid(list, existuidMap, resultList);
   }
 
 
@@ -148,15 +164,14 @@ public class NodeUtil {
                                                                          entityIdClient, List<T>
                                                                          list, String type, int
                                                                          needCheckUid) {
-    Map<String, String> existuidMap = new HashMap<String, String>();
     Map<String, String> newUidMap = new HashMap<String, String>();
     List<T> newPutList = new ArrayList<>();
     List<List<String>> reqs = new ArrayList<List<String>>();
     NodeUtil.getCheckNames(list, reqs);
     // 是否需要检查uid存在与否
     if (needCheckUid > 0) {
-      entityIdClient.checkEntityList(reqs, existuidMap, type);
-      NodeUtil.checkEntityUid(list, existuidMap, newPutList);
+      // 检查uid存在，填入对应实体的scope中
+      NodeUtil.setEntityUid(entityIdClient, list, type, newPutList);
     } else {
       // 浅拷贝，引用同一个地址空间下的对象，修改相互影响
       newPutList = list;
@@ -168,14 +183,13 @@ public class NodeUtil {
     if (size > 0) {
       logger.info("entity json object :" + new Gson().toJson(copyList.get(0)));
       // 返回没设置uid的实体id的map,已设置uid的不会返回uid
-      DgraphProto.Assigned assigned = dClient.mutiplyMutationEntity(copyList);
+      DgraphProto.Assigned assigned = dClient.multiplyMutationEntity(copyList);
       if (assigned != null) {
         logger.info("get ret uids :" + assigned.getUidsMap().size());
         NodeUtil.uidFlattenMapping(assigned.getUidsMap(), copyList, newUidMap);
       }
       long endStart = System.currentTimeMillis();
       logger.info("spend time:" + (endStart - startTime) + " ms");
-      // entityIdClient.putFeedEntity(newUidMap,  type);
       return newUidMap;
     }
     return newUidMap;
@@ -231,23 +245,10 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段
-   * 通过unique_id为key确定uidMap中的value
-   * @param <T>
+   *
+   * @param <T> why this can now work ???
    */
-  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
-      uidMap) {
-    for (T entityNode : entityNodes) {
-      String unique_id = entityNode.getUnique_id();
-      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
-        entityNode.setUid(uidMap.get(unique_id));
-      }
-    }
-  }
-
-  /**
-   * 将已有uid写入实体字段
-   */
-  public static <T extends EntityNode> void checkEntityUid(List<T> entityNodes, Map<String,
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
       String> uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
       String unique_id = entityNode.getUnique_id();

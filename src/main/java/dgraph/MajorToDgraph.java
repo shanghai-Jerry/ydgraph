@@ -115,6 +115,7 @@ public class MajorToDgraph {
     Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, majors, type,
         needCheck);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
+    entityIdClient.putFeedEntity(uidMap, type);
   }
 
   public static void main(String[] args) {
