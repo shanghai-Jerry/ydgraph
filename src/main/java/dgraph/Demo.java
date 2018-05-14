@@ -95,7 +95,7 @@ public class Demo {
     dClient.alterSchema(Config.schema);
     initLeaseLabel();
     initCompanyLabel();
-    // initSchoolLabel();
+    initSchoolLabel();
     initMajorLabel();
     initIndustryLabel();
   }
@@ -152,10 +152,10 @@ public class Demo {
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
-    // demo.init();
+    demo.init();
     // demo.QueryDemo();
     // demo.edgeConnect();
-    demo.alterSchema();
+    // demo.alterSchema();
     System.out.println("finished");
 
   }

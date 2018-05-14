@@ -29,5 +29,6 @@
     # 2018.5.12
          * 支持获取类似List<EntityNode>实体关系的解析
          * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
-         * 支持出现mutate exception时不能将retMap输入到entityId服务中，该uid无效
+         * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
+         (有待确认是否需要重置DgraphProto.Assigned)
 

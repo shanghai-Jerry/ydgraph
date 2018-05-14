@@ -122,7 +122,7 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = null
+      assigned = null;
     } finally {
       txn.discard();
     }
