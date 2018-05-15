@@ -97,12 +97,12 @@ public class DClient {
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
     .setSetNquads(ByteString.copyFrom(newEdges))
-        .setCommitNow(true)
         .build();
     try {
       assigned = txn.mutate(mu);
+      txn.commit();
     } catch (Exception e) {
-      logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
       assigned = null;
     } finally {
       txn.discard();
@@ -121,12 +121,12 @@ public class DClient {
     DgraphProto.Assigned assigned = null;
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString
         .copyFromUtf8(edges))
-        .setCommitNow(true)
         .build();
     try {
       assigned = txn.mutate(mu);
+      txn.commit();
     } catch (Exception e) {
-      logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
+      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
       assigned = null;
     } finally {
       txn.discard();
