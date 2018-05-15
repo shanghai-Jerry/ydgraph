@@ -31,6 +31,7 @@
          * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
          * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
          (已确认确认是需要重置DgraphProto.Assigned，该异常会丢失数据)
+         * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs
 
 
 3. 发现问题

@@ -182,7 +182,7 @@ public class DClient {
       }
     }
     if (stringList.size() > 0) {
-      // mutiplyEdgesMutation(stringBuffer.toString());
+      logger.info("mutiplyEdgesMutation =====> ");
       mutiplyEdgesMutation(stringList);
     }
   }

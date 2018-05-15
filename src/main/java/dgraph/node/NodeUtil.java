@@ -104,6 +104,7 @@ public class NodeUtil {
       }
     }
     if (newPutList.size() > 0) {
+      logger.info("entityAdd =====> ");
       dClient.entityAdd(newPutList);
     }
     if (dputList.size() > 0) {
