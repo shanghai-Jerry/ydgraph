@@ -83,9 +83,6 @@ public class IndustryToDgraph {
       industry.setUnique_id(name);
       industry.setCode(Integer.parseInt(code));
       industry.setName(name);
-      Label has_label = new Label();
-      has_label.setUid("0x118e");
-      industry.setHas_label(has_label);
       partentIndustry.setName(pName);
       partentIndustry.setType(type);
       partentIndustry.setUnique_id(pName);
@@ -158,6 +155,18 @@ public class IndustryToDgraph {
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
   }
 
+  public List<Label> getLabeledIndustry(List<Industry> industries) {
+    List<Label> labelList = new ArrayList<>();
+    for (Industry industry : industries) {
+      Label label = new Label();
+      label.setUid("0x118e");
+      label.setLabel_name("行业类型");
+      label.setIndustry(industry);
+      labelList.add(label);
+    }
+    return labelList;
+  }
+
   public void initWithJson(String dictPath, int needCheck) {
     String type = "行业";
     List<String> dictLines = new ArrayList<>();
@@ -177,7 +186,9 @@ public class IndustryToDgraph {
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
     entityIdClient.putFeedEntity(uidMap, type);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
+    NodeUtil.putEntity(dClient, entityIdClient, getLabeledIndustry(industries), type, needCheck);
     long endStart = System.currentTimeMillis();
+
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 

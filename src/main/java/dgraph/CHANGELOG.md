@@ -30,5 +30,13 @@
          * 支持获取类似List<EntityNode>实体关系的解析
          * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
          * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
-         (有待确认是否需要重置DgraphProto.Assigned)
+         (已确认确认是需要重置DgraphProto.Assigned，该异常会丢失数据)
+
+
+3. 发现问题
+
+    # 以rdf set { _:leia <name> "Princess Leia New" . } 的形式插入数据到dgraph，同一个批次下唯一一个unique_id返回对应的uid
+      不同批次下面的set对应同样一个unique_id其返回的uid是不同的，所以检查uid是否存在很重要， 不然就有重复的实体存在。
+
+      解决办法: 保存失败的批次数据，后面重新写该部分数据。 尝试更少的batch看超时的比例
 

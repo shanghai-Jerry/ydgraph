@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import dgraph.node.EntityNode;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.grpc.ManagedChannel;
@@ -76,6 +77,66 @@ public class EntityIdClient {
     if (batch > 0) {
       feedEntity(BatchEntityIdRequest.newBuilder()
           .addAllEntityReq(entityIdRequestList).build());
+    }
+  }
+
+  public <T extends EntityNode> void checkEntityListAndPutUid(List<T> entityReqs, String type) {
+    int outSize = entityReqs.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      T entityNode = entityReqs.get(i);
+      List<String> names = new ArrayList<>();
+      names.add(entityNode.getUnique_id());
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(names).setType(type).build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        // String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          // 写回uid
+          T entityNode = entityReqs.get(i);
+          entityNode.setUid(values);
+        }
+      }
+    }
+  }
+
+  public <T extends EntityNode> void checkEntityList(List<T> entityReqs, String type) {
+    int outSize = entityReqs.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      T entityNode = entityReqs.get(i);
+      List<String> names = new ArrayList<>();
+      names.add(entityNode.getUnique_id());
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(names).setType(type).build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        // String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          // 写回uid
+          T entityNode = entityReqs.get(i);
+          entityNode.setUid(values);
+        }
+      }
     }
   }
 

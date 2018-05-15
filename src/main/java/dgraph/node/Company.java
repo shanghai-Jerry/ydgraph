@@ -1,10 +1,13 @@
 package dgraph.node;
 
+import java.util.List;
+
 public class Company extends EntityNode {
 
   String location;
   String legal_person;
   String establish_at;
+  List<Industry> industry;
 
   public String getLocation() {
     return location;
@@ -30,4 +33,11 @@ public class Company extends EntityNode {
     this.establish_at = establish_at;
   }
 
+  public List<Industry> getIndustry() {
+    return industry;
+  }
+
+  public void setIndustry(List<Industry> industry) {
+    this.industry = industry;
+  }
 }

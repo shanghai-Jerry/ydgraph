@@ -48,6 +48,8 @@ public class DClient {
 
   private DgraphClient dgraphClient;
 
+  private static  int deadlineSecs = 60;
+
   public DClient(List<String> adressList) {
     List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
     for (String address : adressList) {
@@ -57,7 +59,7 @@ public class DClient {
       DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
       clients.add(blockingStub);
     }
-    dgraphClient = new DgraphClient(clients);
+    dgraphClient = new DgraphClient(clients, deadlineSecs);
   }
 
   public DClient(String[] adressList) {
@@ -69,7 +71,7 @@ public class DClient {
       DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
       clients.add(blockingStub);
     }
-    dgraphClient = new DgraphClient(clients);
+    dgraphClient = new DgraphClient(clients, deadlineSecs);
   }
 
   public void dropSchema() {

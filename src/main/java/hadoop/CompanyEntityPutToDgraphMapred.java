@@ -26,8 +26,10 @@ import java.util.Set;
 import client.EntityIdClient;
 import dgraph.DClient;
 import dgraph.node.Company;
+import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -104,7 +106,22 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
         String location = infoObject.getString("location", "");
         String establish_at = infoObject.getString("establish_at", "");
         String legal_person = infoObject.getString("legal_person", "");
+        JsonArray normed_industry_names = infoObject.getJsonArray("normed_industry_names", new
+            JsonArray());
+        JsonArray normed_industry_codes = infoObject.getJsonArray("normed_industry_codes", new
+            JsonArray());
         if (!"".equals(name)) {
+          int industrySize = normed_industry_names.size();
+          List<Industry> industryList = new ArrayList<>();
+          for (int j = 0; j < industrySize; j++) {
+            String industryName = normed_industry_names.getString(j);
+            String industryCode = normed_industry_codes.getString(j);
+            Industry industry = new Industry();
+            industry.setCode(Integer.parseInt(industryCode));
+            industry.setName(industryName);
+            industry.setUnique_id(industryName);
+            industryList.add(industry);
+          }
           Company company = new Company();
           company.setName(name);
           company.setUnique_id(name);
@@ -112,9 +129,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           company.setEstablish_at(establish_at);
           company.setLegal_person(legal_person);
           company.setType(type);
-          Label has_label = new Label();
-          has_label.setUid("0x118b");
-          company.setHas_label(has_label);
+          company.setIndustry(industryList);
           companyList.add(company);
           batch++;
         } else {
@@ -129,15 +144,19 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
             writeUidMap(context, ret);
           } else if (source == 2) {
             long startTime = System.currentTimeMillis();
-            Map<String, String> ret = NodeUtil.insertEntity(dClient, companyList);
+            List<Industry> checkIndustries = getIndustry(companyList);
+            entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+            Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
+            NodeUtil.putEntityUid(companyList, companyRet);
             long endStart = System.currentTimeMillis();
             // logger.info("insertEntity time:" + (endStart - startTime) + " ms");
             startTime = System.currentTimeMillis();
-            entityIdClient.putFeedEntity(ret, type);
+            entityIdClient.putFeedEntity(companyRet, type);
             endStart = System.currentTimeMillis();
             // logger.info("putFeedEntity time:" + (endStart - startTime) + " ms");
-            originSuccessCounter.increment(ret.size());
-            writeUidMap(context, ret);
+            originSuccessCounter.increment(companyRet.size());
+            Map<String, String> ret = NodeUtil.insertEntity(dClient, getLabeledIndustry(companyList));
+            writeUidMap(context, companyRet);
           }
           companyList.clear();
           batch = 0;
@@ -153,18 +172,42 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           writeUidMap(context, ret);
         } else if (source == 2) {
           long startTime = System.currentTimeMillis();
-          Map<String, String> ret = NodeUtil.insertEntity(dClient, companyList);
+          List<Industry> checkIndustries = getIndustry(companyList);
+          entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+          Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
+          NodeUtil.putEntityUid(companyList, companyRet);
           long endStart = System.currentTimeMillis();
           // logger.info("insertEntity time:" + (endStart - startTime) + " ms");
           startTime = System.currentTimeMillis();
-          entityIdClient.putFeedEntity(ret, type);
+          entityIdClient.putFeedEntity(companyRet, type);
           endStart = System.currentTimeMillis();
           // logger.info("putFeedEntity time:" + (endStart - startTime) + " ms");
-          originSuccessCounter.increment(ret.size());
-          writeUidMap(context, ret);
+          originSuccessCounter.increment(companyRet.size());
+          Map<String, String> ret = NodeUtil.insertEntity(dClient, getLabeledIndustry(companyList));
+          writeUidMap(context, companyRet);
         }
       }
       cleanup(context);
+    }
+
+    private List<Industry> getIndustry(List<Company> companies) {
+      List<Industry> industryList = new ArrayList<>();
+      for (Company company : companies) {
+        industryList.addAll(company.getIndustry());
+      }
+      return industryList;
+    }
+
+    private List<Label> getLabeledIndustry(List<Company> companies) {
+      List<Label> labelList = new ArrayList<>();
+      for (Company company : companies) {
+        Label label = new Label();
+        label.setUid("0x118b");
+        // label.setLabel_name("公司类型");
+        label.setCompany(company);
+        labelList.add(label);
+      }
+      return labelList;
     }
 
     private void writeUidMap(Context context, Map<String, String> uidMap) {

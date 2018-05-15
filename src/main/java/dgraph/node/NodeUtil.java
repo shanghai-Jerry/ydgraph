@@ -105,6 +105,8 @@ public class NodeUtil {
     if (dputList.size() > 0) {
       DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
       if (assigned != null) {
+        // 内部写回子实体的uid
+        // NodeUtil.putEntityUid(list, assigned.getUidsMap());
         return assigned.getUidsMap();
       } else  {
         return uidMap;
@@ -143,22 +145,6 @@ public class NodeUtil {
     return dest;
   }
 
-  /**
-   * 将已有uid写入实体字段
-   *
-   * @param list       原始实体list
-   * @param resultList 没有uid的实体，新增的
-   */
-  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
-      list, String type, List<T> resultList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> existuidMap = new HashMap<String, String>();
-    NodeUtil.getCheckNames(list, reqs);
-    entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.putEntityUid(list, existuidMap, resultList);
-  }
-
-
   public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient,
                                                                      EntityIdClient
                                                                          entityIdClient, List<T>
@@ -195,35 +181,6 @@ public class NodeUtil {
     return newUidMap;
   }
 
-  /**
-   * 泛型: 支持扩展
-   */
-  public static <T extends EntityNode> void getList(EntityIdClient entityIdClient, List<T>
-      entityNodes, List<T> insertList, List<T> updateList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> uidMap = new HashMap<String, String>();
-    String type = "";
-    for (T entityNode : entityNodes) {
-      if ("".equals(type)) {
-        type = entityNode.getType();
-      }
-      List<String> names = new ArrayList<String>();
-      names.add(entityNode.getName());
-      reqs.add(names);
-    }
-    // 暂时不检查entitid服务
-    // entityIdClient.checkEntityList(reqs, uidMap, type);
-    for (T entityNode : entityNodes) {
-      if (uidMap.containsKey(entityNode.getName())) {
-        entityNode.setUid(uidMap.get(entityNode.getName()));
-        updateList.add(entityNode);
-      } else {
-        insertList.add(entityNode);
-      }
-    }
-  }
-
-
   public static <T extends EntityNode> void getCheckNames(List<T> entityNodes, List<List<String>>
       reqs) {
     for (T entityNode : entityNodes) {
@@ -243,10 +200,68 @@ public class NodeUtil {
     }
   }
 
+
   /**
    * 将已有uid写入实体字段
-   *
-   * @param <T> why this can now work ???
+   * @param list       原始实体list
+   * @param resultList 没有uid的实体，新增的
+   */
+  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
+      list, String type, List<T> resultList) {
+    List<List<String>> reqs = new ArrayList<List<String>>();
+    Map<String, String> existuidMap = new HashMap<String, String>();
+    NodeUtil.getCheckNames(list, reqs);
+    entityIdClient.checkEntityList(reqs, existuidMap, type);
+    NodeUtil.putEntityUid(list, existuidMap, resultList);
+  }
+
+
+  /**
+   * 将已有uid写入实体字段
+   * @param entityIdClient
+   * @param list
+   * @param type
+   * @param havaUidList 存在uid的实体
+   * @param resultList  没有uid的实体，新增的
+   * @param <T>
+   */
+  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
+      list, String type,  List<T> havaUidList, List<T> resultList) {
+    List<List<String>> reqs = new ArrayList<List<String>>();
+    Map<String, String> existuidMap = new HashMap<String, String>();
+    NodeUtil.getCheckNames(list, reqs);
+    entityIdClient.checkEntityList(reqs, existuidMap, type);
+    NodeUtil.putEntityUid(list, existuidMap, havaUidList, resultList);
+  }
+
+
+  /**
+   * 将已有uid写入实体字段: 拆分数组成一个没有uid的list, 一个有uid的list
+   * @param entityNodes
+   * @param uidMap
+   * @param havaUidList
+   * @param resultList
+   * @param <T>
+   */
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
+      String> uidMap,  List<T> havaUidList, List<T> resultList) {
+    for (T entityNode : entityNodes) {
+      String unique_id = entityNode.getUnique_id();
+      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+        entityNode.setUid(uidMap.get(unique_id));
+        havaUidList.add(entityNode);
+      } else {
+        resultList.add(entityNode);
+      }
+    }
+  }
+
+  /**
+   * 将已有uid写入实体字段: 拆分数组成一个没有uid的list
+   * @param entityNodes
+   * @param uidMap
+   * @param resultList
+   * @param <T>
    */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
       String> uidMap, List<T> resultList) {
@@ -256,6 +271,16 @@ public class NodeUtil {
         entityNode.setUid(uidMap.get(unique_id));
       } else {
         resultList.add(entityNode);
+      }
+    }
+  }
+
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
+      String> uidMap) {
+    for (T entityNode : entityNodes) {
+      String unique_id = entityNode.getUnique_id();
+      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+        entityNode.setUid(uidMap.get(unique_id));
       }
     }
   }
@@ -330,5 +355,36 @@ public class NodeUtil {
       resultMap.put(key.get(i), value.get(i));
     }
   }
+
+
+  /**
+   * 泛型: 支持扩展
+   */
+  public static <T extends EntityNode> void getList(EntityIdClient entityIdClient, List<T>
+      entityNodes, List<T> insertList, List<T> updateList) {
+    List<List<String>> reqs = new ArrayList<List<String>>();
+    Map<String, String> uidMap = new HashMap<String, String>();
+    String type = "";
+    for (T entityNode : entityNodes) {
+      if ("".equals(type)) {
+        type = entityNode.getType();
+      }
+      List<String> names = new ArrayList<String>();
+      names.add(entityNode.getName());
+      reqs.add(names);
+    }
+    // 暂时不检查entitid服务
+    // entityIdClient.checkEntityList(reqs, uidMap, type);
+    for (T entityNode : entityNodes) {
+      if (uidMap.containsKey(entityNode.getName())) {
+        entityNode.setUid(uidMap.get(entityNode.getName()));
+        updateList.add(entityNode);
+      } else {
+        insertList.add(entityNode);
+      }
+    }
+  }
+
+
 
 }
