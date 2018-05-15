@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import client.EntityIdClient;
+import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.Major;
 import dgraph.node.NodeUtil;
@@ -52,9 +53,6 @@ public class MajorToDgraph {
         major.setCode(Integer.parseInt(code));
         major.setType("专业");
         names.add(name);
-        Label has_label = new Label();
-        has_label.setUid("0x118d");
-        major.setHas_label(has_label);
         majors.add(major);
       }
     }
@@ -102,6 +100,17 @@ public class MajorToDgraph {
     return uidMaps;
   }
 
+  public List<Label> getLabeledMajor(List<Major> majors) {
+    List<Label> labelList = new ArrayList<>();
+    for (Major major : majors) {
+      Label label = new Label();
+      label.setUid("0x118d");
+      label.setMajor(major);
+      labelList.add(label);
+    }
+    return labelList;
+  }
+
   /**
    * this way is better and faster than NQuad, you'd better try this muc h more.
    */
@@ -112,10 +121,10 @@ public class MajorToDgraph {
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
     System.out.println("get all majors :" + majors.size());
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, majors, type,
-        needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
     entityIdClient.putFeedEntity(uidMap, type);
+    NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 
   public static void main(String[] args) {

@@ -72,9 +72,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       String[] dServers = dgraphServer.split(",");
       String[] enServers = entityServer.split(":");
       logger.info("Server:" + dgraphServer + " , server:" + entityServer + ", batch:" + setBatch);
-
       dClient = new DClient(dServers);
-
       entityIdClient = new EntityIdClient(enServers[0],Integer.parseInt(enServers[1]));
     }
 
@@ -138,7 +136,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
         if (batch >= setBatch) {
           if (source == 1) {
             // json object
-            Map<String, String> ret = NodeUtil.putEntity(dClient, entityIdClient, companyList, type, checkUid);
+            Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
             entityIdClient.putFeedEntity(ret,  type);
             originSuccessCounter.increment(ret.size());
             writeUidMap(context, ret);
@@ -166,7 +164,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       if (batch > 0) {
         if (source == 1) {
           // json object
-          Map<String, String> ret = NodeUtil.putEntity(dClient, entityIdClient, companyList, type, checkUid);
+          Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
           entityIdClient.putFeedEntity(ret,  type);
           originSuccessCounter.increment(ret.size());
           writeUidMap(context, ret);

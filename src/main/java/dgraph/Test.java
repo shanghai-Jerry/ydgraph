@@ -31,14 +31,14 @@ public class Test {
     label.setLabel_name("学校类型");
     label.setUid("0x118c");
     label.setUnique_id("学校类型");
-    label.setSchool(Arrays.asList(school));
+    label.setSchool(school);
     // school.setHas_label(label);
     // school.getAttrValueMap(new ArrayList<String>(), new ArrayList<>());
     // label.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>(), "getUid");
     // label.getValueMap(new ArrayList<String>(), new ArrayList<Object>(), new ArrayList<String>(),new ArrayList<String>(), "getUid");
-    Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, label.getSchool());
+    Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getSchool()));
     FileUtils.saveFile("src/main/resources/test_school_uid_map.txt", schoolEntityUidMap);
-    NodeUtil.putEntityUid(label.getSchool(), schoolEntityUidMap, new ArrayList<School>());
+    NodeUtil.putEntityUid(Arrays.asList(label.getSchool()), schoolEntityUidMap, new ArrayList<School>());
     // school.getEdgeValueMap(new ArrayList<String>(), new ArrayList<String>());
     Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);
@@ -74,11 +74,12 @@ public class Test {
     label.setCompany(company);
     Map<String, String> industryEntityUidMap = NodeUtil.insertEntity(dClient, label.getCompany().getIndustry());
     FileUtils.saveFile("src/main/resources/test_industry_uid_map.txt", industryEntityUidMap);
+    // 子行业实体uid放回
     NodeUtil.putEntityUid(label.getCompany().getIndustry(), industryEntityUidMap);
     Map<String, String> companyEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getCompany()));
+    // 子公司实体uid放回
     NodeUtil.putEntityUid(Arrays.asList(label.getCompany()), companyEntityUidMap);
     FileUtils.saveFile("src/main/resources/test_company_uid_map.txt", companyEntityUidMap);
-    NodeUtil.putEntityUid(Arrays.asList(label.getCompany()), companyEntityUidMap);
     Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", uid);
   }

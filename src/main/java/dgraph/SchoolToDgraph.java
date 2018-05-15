@@ -7,6 +7,7 @@ import java.util.Map;
 
 import client.EntityIdClient;
 import dgraph.node.Label;
+import dgraph.node.Major;
 import dgraph.node.NodeUtil;
 import dgraph.node.School;
 import io.vertx.core.logging.Logger;
@@ -55,9 +56,6 @@ public class SchoolToDgraph {
         school.setEng_name(lineSplits[4]);
         school.setAlias(alias);
         school.setType("学校");
-        Label has_label = new Label();
-        has_label.setUid("0x118c");
-        school.setHas_label(has_label);
         schools.add(school);
       } else {
         logger.info("dup school name:" + name);
@@ -115,6 +113,17 @@ public class SchoolToDgraph {
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
+  public List<Label> getLabeledSchool(List<School> schools) {
+    List<Label> labelList = new ArrayList<>();
+    for (School school : schools) {
+      Label label = new Label();
+      label.setUid("0x118c");
+      label.setSchool(school);
+      labelList.add(label);
+    }
+    return labelList;
+  }
+
   /**
    * 初始化实体以json的方式
    */
@@ -125,10 +134,10 @@ public class SchoolToDgraph {
     FileUtils.readFiles(filePath, dictLines);
     getSchool(dictLines, schools);
     System.out.println("get all schools :" + schools.size());
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, schools, type,
-        needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, schools);
     FileUtils.saveFile("src/main/resources/school_uid_map.txt", uidMap);
     entityIdClient.putFeedEntity(uidMap, type);
+    NodeUtil.putEntity(dClient, getLabeledSchool(schools));
   }
 
   public static void main(String[] args) {

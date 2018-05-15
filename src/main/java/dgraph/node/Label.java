@@ -13,17 +13,37 @@ import java.util.List;
  */
 public class Label extends EntityNode {
 
-  List<School> school;
+  School school;
 
   Company company;
 
-  Industry industry;
+  Industry industry;  // 已测试通过，可建对应边
 
-  public List<School> getSchool() {
+  Major major;
+
+  List<School> schools; // 已测试通过，可建对应边
+
+  public List<School> getSchools() {
+    return schools;
+  }
+
+  public void setSchools(List<School> schools) {
+    this.schools = schools;
+  }
+
+  public Major getMajor() {
+    return major;
+  }
+
+  public void setMajor(Major major) {
+    this.major = major;
+  }
+
+  public School getSchool() {
     return school;
   }
 
-  public void setSchool(List<School> school) {
+  public void setSchool(School school) {
     this.school = school;
   }
 

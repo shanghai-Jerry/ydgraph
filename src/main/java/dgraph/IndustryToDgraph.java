@@ -176,17 +176,15 @@ public class IndustryToDgraph {
     logger.info("industries size:" + industries.size());
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
-    Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, entityIdClient,
-        parentsIndustry, type, needCheck);
+    Map<String, String> parentUidMap = NodeUtil.putEntity(dClient, parentsIndustry);
     entityIdClient.putFeedEntity(parentUidMap, type);
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentUidMap);
     NodeUtil.putEntityUid(getParentIndustry(industries), parentUidMap, new ArrayList<Industry>());
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, entityIdClient, industries, type,
-        needCheck);
+    Map<String, String> uidMap = NodeUtil.putEntity(dClient, industries);
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
     entityIdClient.putFeedEntity(uidMap, type);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
-    NodeUtil.putEntity(dClient, entityIdClient, getLabeledIndustry(industries), type, needCheck);
+    NodeUtil.putEntity(dClient, getLabeledIndustry(industries));
     long endStart = System.currentTimeMillis();
 
     System.out.println("spend time:" + (endStart - startTime) + " ms");

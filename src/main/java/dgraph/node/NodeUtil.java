@@ -145,24 +145,9 @@ public class NodeUtil {
     return dest;
   }
 
-  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient,
-                                                                     EntityIdClient
-                                                                         entityIdClient, List<T>
-                                                                         list, String type, int
-                                                                         needCheckUid) {
+  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient, List<T> list) {
     Map<String, String> newUidMap = new HashMap<String, String>();
-    List<T> newPutList = new ArrayList<>();
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    NodeUtil.getCheckNames(list, reqs);
-    // 是否需要检查uid存在与否
-    if (needCheckUid > 0) {
-      // 检查uid存在，填入对应实体的scope中
-      NodeUtil.setEntityUid(entityIdClient, list, type, newPutList);
-    } else {
-      // 浅拷贝，引用同一个地址空间下的对象，修改相互影响
-      newPutList = list;
-    }
-    List<T> copyList = deepCopy(newPutList);
+    List<T> copyList = deepCopy(list);
     long startTime = System.currentTimeMillis();
     // NodeUtil.removUniqueId(copyList);
     int size = copyList.size();
@@ -384,7 +369,5 @@ public class NodeUtil {
       }
     }
   }
-
-
 
 }

@@ -110,7 +110,7 @@ public class Demo {
     label.setLabel_name("行业类型");
     // 0x118e
     label.setUid("0x118e");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", uid);
   }
 
@@ -119,7 +119,7 @@ public class Demo {
     label.setLabel_name("专业类型");
     // 0x118d
     label.setUid("0x118d");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/major_label_uid_map.txt", uid);
   }
 
@@ -128,7 +128,7 @@ public class Demo {
     label.setLabel_name("学校类型");
     // 0x118c
     label.setUid("0x118c");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/school_abel_uid_map.txt", uid);
   }
 
@@ -137,7 +137,7 @@ public class Demo {
     label.setLabel_name("公司类型");
     // "公司类型": "0x118b"
     label.setUid("0x118b");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(label), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/company_label_uid_map.txt", uid);
   }
 
@@ -145,7 +145,7 @@ public class Demo {
     Label labellease = new Label();
     labellease.setLabel_name("lease类型");
     labellease.setUid("0x00");
-    Map<String, String> uid = NodeUtil.putEntity(dClient, null, Arrays.asList(labellease), "", 0);
+    Map<String, String> uid = NodeUtil.putEntity(dClient, Arrays.asList(labellease));
     FileUtils.saveFile("src/main/resources/lease_label_uid_map.txt", uid);
   }
 
