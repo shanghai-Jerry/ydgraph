@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import dgraph.node.Company;
 import dgraph.node.Industry;
@@ -94,9 +97,7 @@ public class Test {
     FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", uid);
   }
 
-
-  private void test_four() {
-
+  private void getLabels(List<Label> labelList) {
     List<Label> labels = new ArrayList<>();
     Label label = new Label();
     label.setLabel_name("公司类型");
@@ -136,12 +137,29 @@ public class Test {
     label2.setCompany(company2);
     labels.add(label);
     labels.add(label2);
-    Map<String, String> companyRet = NodeUtil.putEntity(dClient,  getCompany(labels));
-    FileUtils.saveFile("src/main/resources/test_company_uid_map.txt", companyRet);
-    NodeUtil.putEntityUid(Arrays.asList(label.getCompany(), label2.getCompany()), companyRet, new ArrayList<Company>());
-    Map<String, String> ret = NodeUtil.putEntity(dClient,  Arrays.asList(label, label2));
-    System.out.println("ret size :" + ret.size());
-    FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", ret);
+    labelList.add(label);
+    // labelList.add(label2);
+  }
+
+  private void test_five() {
+    List<Label> labelList = new ArrayList<>();
+    getLabels(labelList);
+    Map<String, String> companyEntityUidMap = NodeUtil.insertEntity(dClient,getCompany(labelList));
+    // 子公司实体uid放回
+    NodeUtil.putEntityUid(getCompany(labelList), companyEntityUidMap);
+    FileUtils.saveFile("src/main/resources/test_company_uid_map.txt", companyEntityUidMap);
+    ExecutorService ex = Executors.newFixedThreadPool(5);
+    for (Label label : labelList) {
+      for (int i = 0; i < 5; i++) {
+        ex.execute(new TestRunnable(dClient, label));
+      }
+    }
+    try {
+      ex.awaitTermination(5, TimeUnit.MINUTES);
+      ex.shutdown();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
   private List<Company> getCompany(List<Label> labels) {
     List<Company> companyList = new ArrayList<>();
@@ -154,10 +172,10 @@ public class Test {
   public static void main(String[] arg) {
     Test test = new Test();
     // test.demo.init();
-    test.test_one();
+    // test.test_one();
     // test.test_two();
     // test.test_tree();
-    // test.test_four();
+    test.test_five();
 
   }
 

@@ -29,7 +29,7 @@ public class Config {
           "location:string  .\n" +
           "legal_person:string .\n" +
           "establish_at:string .\n" +
-          "company:uid @upsert\n" +
+          "company:uid .\n" +
           "industry:uid .\n" +
           "parent_industry:uid .\n";
 

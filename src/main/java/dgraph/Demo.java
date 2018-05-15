@@ -150,7 +150,7 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
     demo.init();
     demo.QueryDemo();
