@@ -29,7 +29,9 @@ public class Config {
           "location:string  .\n" +
           "legal_person:string .\n" +
           "establish_at:string .\n" +
-          "has_label:uid .\n";
+          "company:uid .\n" +
+          "industry:uid .\n" +
+          "parent_industry:uid .\n";
 
   public static String updateSchema =
             "has_label:uid @reverse .\n";

@@ -17,6 +17,7 @@
     </pluginRepositories>
 
     <repositories>
+
         <repository>
             <id>scala-tools.org</id>
             <name>Scala-Tools Maven2 Repository</name>
@@ -333,7 +334,6 @@
             <artifactId>murmur</artifactId>
             <version>1.0.0</version>
         </dependency>
-
 
     </dependencies>
 

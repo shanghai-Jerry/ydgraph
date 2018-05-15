@@ -83,19 +83,23 @@ public class NodeUtil {
       List<String> edge_pres = new ArrayList<String>();
       List<String> objectIds = new ArrayList<String>();
       List<Object> values = new ArrayList<>();
-      item.getAttrValueMap(pres, values);
-      item.getEdgeValueMap(edge_pres, objectIds, "getUid");
       Nodeput dput = new Nodeput();
       String uid = item.getUid();
-      dput.setUniqueId(item.getUnique_id());
-      dput.setPredicates(pres);
-      dput.setValueObjects(values);
-      dput.setEdge_predicates(edge_pres);
-      dput.setObjectIds(objectIds);
       if (uid != null && !"".equals(uid)) {
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
         dput.setUid(uid);
         newPutList.add(dput);
       } else {
+        item.getAttrValueMap(pres, values);
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setPredicates(pres);
+        dput.setValueObjects(values);
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
         dputList.add(dput);
       }
     }

@@ -184,7 +184,8 @@ public class IndustryToDgraph {
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
     entityIdClient.putFeedEntity(uidMap, type);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
-    NodeUtil.putEntity(dClient, getLabeledIndustry(industries));
+    Map<String, String> labelMap = NodeUtil.putEntity(dClient, getLabeledIndustry(industries));
+    FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", labelMap);
     long endStart = System.currentTimeMillis();
 
     System.out.println("spend time:" + (endStart - startTime) + " ms");

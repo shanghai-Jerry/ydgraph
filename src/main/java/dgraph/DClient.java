@@ -65,7 +65,7 @@ public class DClient {
   public DClient(String[] adressList) {
     List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
     for (String address : adressList) {
-      String[] hosts = address.split(",");
+      String[] hosts = address.split(":");
       ManagedChannel channel = ManagedChannelBuilder.forAddress(hosts[0], Integer.parseInt
           (hosts[1])).usePlaintext(true).build();
       DgraphGrpc.DgraphBlockingStub blockingStub = DgraphGrpc.newBlockingStub(channel);
@@ -92,13 +92,15 @@ public class DClient {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
     for (String edge : edges) {
+      logger.info("edge ===> " + edge);
       newEdges.add(ByteString.copyFromUtf8(edge));
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-    .setSetNquads(ByteString.copyFrom(newEdges)).build();
+    .setSetNquads(ByteString.copyFrom(newEdges))
+        .setCommitNow(true)
+        .build();
     try {
       assigned = txn.mutate(mu);
-      txn.commit();
     } catch (Exception e) {
       logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
       assigned = null;
@@ -118,10 +120,11 @@ public class DClient {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString
-        .copyFromUtf8(edges)).build();
+        .copyFromUtf8(edges))
+        .setCommitNow(true)
+        .build();
     try {
       assigned = txn.mutate(mu);
-      txn.commit();
     } catch (Exception e) {
       logger.info("[mutiplyEdgeMutation Exception] =>" + e.getMessage());
       assigned = null;
@@ -154,8 +157,11 @@ public class DClient {
       List<Object> values = nodeput.getValueObjects();
       List<String> edge_pred = nodeput.getEdge_predicates();
       List<String> objectIds = nodeput.getObjectIds();
-      int size = predicates.size();
-      if (size != values.size() || edge_pred.size() != objectIds.size()) {
+      if ( edge_pred.size() != objectIds.size()) {
+        logger.fatal("entity add predicates length not equal values ");
+      }
+      /*int size = predicates.size();
+      if (size != values.size()) {
         logger.fatal("entity add predicates length not equal values ");
       }
       for (int i = 0; i < size; i++) {
@@ -165,6 +171,7 @@ public class DClient {
         stringBuffer.append(result);
         stringList.add(result);
       }
+      */
       // edge feed
       for (int k = 0; k < edge_pred.size(); k++) {
         String edgePredicate = edge_pred.get(k);
@@ -174,8 +181,10 @@ public class DClient {
         stringList.add(result);
       }
     }
-    // mutiplyEdgesMutation(stringBuffer.toString());
-    mutiplyEdgesMutation(stringList);
+    if (stringList.size() > 0) {
+      // mutiplyEdgesMutation(stringBuffer.toString());
+      mutiplyEdgesMutation(stringList);
+    }
   }
 
 
@@ -280,6 +289,7 @@ public class DClient {
       if (size > 0) {
         Gson gson = new Gson();
         text = gson.toJson(entities);
+        logger.info("text:" + text);
         DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
             .copyFromUtf8(text)).build();
         assigned = txnInner.mutate(mu);

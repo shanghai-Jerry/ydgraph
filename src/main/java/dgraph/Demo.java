@@ -63,13 +63,13 @@ public class Demo {
   public void QueryDemo() {
 
     // Query
-    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " ~has_label { " +
+    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " company { " +
         "count(uid) } \n" + "  }\n" + "}";
     // System.out.println("Query => \n" + query);
+    System.out.println("querying ....");
     Map<String, String> vars = Collections.singletonMap("$a", "0x118b");
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction().queryWithVars(query,
         vars);
-    System.out.println("querying ....");
     // 获取时间
     // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
@@ -153,7 +153,7 @@ public class Demo {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     demo.init();
-    // demo.QueryDemo();
+    demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();
     System.out.println("finished");
