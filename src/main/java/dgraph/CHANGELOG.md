@@ -30,8 +30,10 @@
          * 支持获取类似List<EntityNode>实体关系的解析
          * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
          * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
-         (已确认确认是需要重置DgraphProto.Assigned，该异常会丢失数据)
-         * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs
+            (已确认确认是需要重置DgraphProto.Assigned，该异常会丢失数据, 可相应减少batch数和map的数量，and retry mutation)
+
+         * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs,
+            but this attr must be index tokenizer
 
 
 3. 发现问题

@@ -77,7 +77,7 @@ public class Demo {
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {
-    DgraphProto.Assigned assignedList = dClient.mutiplyEdgesMutation(entities);
+    DgraphProto.Assigned assignedList = dClient.multiplyEdgesMutation(entities);
     return assignedList;
   }
 
@@ -150,7 +150,7 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     demo.init();
     demo.QueryDemo();

@@ -14,6 +14,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Tool;
@@ -95,6 +96,11 @@ public class ResumeOriginContentMapred extends Configured implements Tool {
         Put put = values.iterator().next();
         context.write(key, put);
       }
+    }
+
+    @Override
+    public void run(Context context) throws IOException, InterruptedException {
+      super.run(context);
     }
   }
 

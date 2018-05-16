@@ -8,11 +8,12 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 
@@ -36,9 +37,7 @@ import io.vertx.core.logging.LoggerFactory;
 
 
 /**
- * Created by Jerry on 2017/4/12.
- * 输入文件格式：（docId \t json)
- * 输出到dgraph
+ * Created by Jerry on 2017/4/12. 输入文件格式：（docId \t json) 输出到dgraph
  */
 public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
 
@@ -55,11 +54,15 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     private int setBatch = 0;
     private int checkUid = 0;
     private int source = 0;
+    private Counter timeOutErrorCounter;
+    private MultipleOutputs<Text, Text> mos;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
       super.setup(context);
+      mos = new MultipleOutputs<>(context);
       skipperCounter = context.getCounter("runner", "skipperCounter");
+      timeOutErrorCounter = context.getCounter("runner", "timeOutErrorCounter");
       errorCounter = context.getCounter("runner", "errorCounter");
       noFiledCounter = context.getCounter("runner", "noFiledCounter");
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
@@ -73,7 +76,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       String[] enServers = entityServer.split(":");
       logger.info("Server:" + dgraphServer + " , server:" + entityServer + ", batch:" + setBatch);
       dClient = new DClient(dServers);
-      entityIdClient = new EntityIdClient(enServers[0],Integer.parseInt(enServers[1]));
+      entityIdClient = new EntityIdClient(enServers[0], Integer.parseInt(enServers[1]));
     }
 
     @Override
@@ -85,11 +88,13 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     public void run(Context context) throws IOException, InterruptedException {
       setup(context);
       List<Company> companyList = new ArrayList<Company>();
+      List<String> originContent = new ArrayList<>();
       String type = "公司";
       int batch = 0;
       while (context.nextKeyValue()) {
         JsonObject infoObject = new JsonObject();
         String info = context.getCurrentValue().toString().trim();
+        originContent.add(info);
         int index = info.indexOf("\t");
         String json = info.substring(index + "\t".length());
         try {
@@ -137,94 +142,248 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           if (source == 1) {
             // json object
             Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
-            entityIdClient.putFeedEntity(ret,  type);
+            entityIdClient.putFeedEntity(ret, type);
             originSuccessCounter.increment(ret.size());
-            writeUidMap(context, ret);
+            writeUidMap(mos, ret);
           } else if (source == 2) {
-            long startTime = System.currentTimeMillis();
+            // past test into dgraph
             List<Industry> checkIndustries = getIndustry(companyList);
             entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
             Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
             NodeUtil.putEntityUid(companyList, companyRet);
-            long endStart = System.currentTimeMillis();
-            // logger.info("insertEntity time:" + (endStart - startTime) + " ms");
-            startTime = System.currentTimeMillis();
+            // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
+            // getLabeledCompany(companyList), type, checkUid);
             entityIdClient.putFeedEntity(companyRet, type);
-            endStart = System.currentTimeMillis();
-            // logger.info("putFeedEntity time:" + (endStart - startTime) + " ms");
+            if (companyRet.size() == 0) {
+              writeOriginContentMap(mos, originContent);
+              timeOutErrorCounter.increment(1L);
+            }
             originSuccessCounter.increment(companyRet.size());
-            Map<String, String> ret = NodeUtil.insertEntity(dClient, getLabeledIndustry(companyList));
-            writeUidMap(context, companyRet);
+            writeUidMap(mos, companyRet);
           }
           companyList.clear();
+          originContent.clear();
           batch = 0;
         }
         jsonSuccessCounter.increment(1L);
       }
       if (batch > 0) {
         if (source == 1) {
-          // json object
+          // json object : need test
           Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
-          entityIdClient.putFeedEntity(ret,  type);
+          entityIdClient.putFeedEntity(ret, type);
           originSuccessCounter.increment(ret.size());
-          writeUidMap(context, ret);
+          writeUidMap(mos, ret);
         } else if (source == 2) {
-          long startTime = System.currentTimeMillis();
           List<Industry> checkIndustries = getIndustry(companyList);
           entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
           Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
           NodeUtil.putEntityUid(companyList, companyRet);
-          long endStart = System.currentTimeMillis();
-          // logger.info("insertEntity time:" + (endStart - startTime) + " ms");
-          startTime = System.currentTimeMillis();
+          // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
+          // getLabeledCompany(companyList), type, checkUid);
           entityIdClient.putFeedEntity(companyRet, type);
-          endStart = System.currentTimeMillis();
-          // logger.info("putFeedEntity time:" + (endStart - startTime) + " ms");
+          if (companyRet.size() == 0) {
+            writeOriginContentMap(mos, originContent);
+            timeOutErrorCounter.increment(1L);
+          }
           originSuccessCounter.increment(companyRet.size());
-          Map<String, String> ret = NodeUtil.insertEntity(dClient, getLabeledIndustry(companyList));
-          writeUidMap(context, companyRet);
+          writeUidMap(mos, companyRet);
         }
       }
       cleanup(context);
     }
+  }
 
-    private List<Industry> getIndustry(List<Company> companies) {
-      List<Industry> industryList = new ArrayList<>();
-      for (Company company : companies) {
-        industryList.addAll(company.getIndustry());
-      }
-      return industryList;
+  private static List<Label> getLabeledCompany(List<Company> companies) {
+    List<Label> labelList = new ArrayList<>();
+    for (Company company : companies) {
+      Label label = new Label();
+      label.setUid("0x118b");
+      // label.setLabel_name("公司类型");
+      label.setCompany(company);
+      labelList.add(label);
     }
+    return labelList;
+  }
 
-    private List<Label> getLabeledIndustry(List<Company> companies) {
-      List<Label> labelList = new ArrayList<>();
-      for (Company company : companies) {
-        Label label = new Label();
-        label.setUid("0x118b");
-        // label.setLabel_name("公司类型");
-        label.setCompany(company);
-        labelList.add(label);
-      }
-      return labelList;
+  private static List<Industry> getIndustry(List<Company> companies) {
+    List<Industry> industryList = new ArrayList<>();
+    for (Company company : companies) {
+      industryList.addAll(company.getIndustry());
     }
+    return industryList;
+  }
 
-    private void writeUidMap(Context context, Map<String, String> uidMap) {
-      Set<Map.Entry<String, String>> entrySet=  uidMap.entrySet();
-      Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-      while(iterator.hasNext()) {
-        Map.Entry<String, String> entry = iterator.next();
-        String key = entry.getKey();
-        String value = entry.getValue();
-        try {
-          context.write(new Text(key), new Text(value));
-        } catch (IOException e) {
-          e.printStackTrace();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+  private static void writeUidMap(MultipleOutputs<Text, Text> mos, Map<String, String> uidMap) {
+    String dir = "uidmap";
+    Set<Map.Entry<String, String>> entrySet = uidMap.entrySet();
+    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      String key = entry.getKey();
+      String value = entry.getValue();
+      try {
+        mos.write(dir, new Text(key), new Text(value), dir + "/part");
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
     }
   }
+
+  private static void writeOriginContentMap(MultipleOutputs<Text, Text> mos, List<String>
+      contents) {
+    String dir = "origincontent";
+    for (String info : contents) {
+      int index = info.indexOf("\t");
+      String key = info.substring(0, index);
+      String value = info.substring(index + "\t".length());
+      try {
+        mos.write(dir, new Text(key), new Text(value), dir + "/part");
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public static class Reduce extends Reducer<Text, Text, Text, Text> {
+
+    private Counter counterReducer;
+    private MultipleOutputs<Text, Text> mos;
+    private Counter errorCounter;
+    private DClient dClient;
+    private EntityIdClient entityIdClient;
+    private int setBatch = 0;
+    private int checkUid = 0;
+    private int source = 0;
+    private Counter originSuccessCounter;
+    private Counter jsonSuccessCounter;
+    private Counter timeOutErrorCounter;
+    private Counter skipperCounter;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+      super.setup(context);
+      mos = new MultipleOutputs<>(context);
+      counterReducer = context.getCounter("reduce", "counterReducer");
+      errorCounter = context.getCounter("reduce", "errorCounter");
+      originSuccessCounter = context.getCounter("reduce", "originSuccessCounter");
+      jsonSuccessCounter = context.getCounter("reduce", "jsonSuccessCounter");
+      timeOutErrorCounter = context.getCounter("reduce", "timeOutErrorCounter");
+      skipperCounter = context.getCounter("reduce", "skipperCounter");
+      setBatch = context.getConfiguration().getInt("batch", 100);
+      checkUid = context.getConfiguration().getInt("checkUid", 0);
+      source = context.getConfiguration().getInt("source", 0);
+      String dgraphServer = context.getConfiguration().get("DgraphServer", "");
+      String entityServer = context.getConfiguration().get("EntityServer", "");
+      String[] dServers = dgraphServer.split(",");
+      String[] enServers = entityServer.split(":");
+      logger.info("Server:" + dgraphServer + " , server:" + entityServer + ", batch:" + setBatch);
+      dClient = new DClient(dServers);
+      entityIdClient = new EntityIdClient(enServers[0], Integer.parseInt(enServers[1]));
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+      super.cleanup(context);
+    }
+
+    @Override
+    public void run(Context context) throws IOException, InterruptedException {
+      setup(context);
+      int batch = 0;
+      String type = "公司";
+      List<Company> companyList = new ArrayList<>();
+      List<String> originContent = new ArrayList<>();
+      while (context.nextKey()) {
+        String key = context.getCurrentKey().toString();
+        Iterable<Text> iterable = context.getValues();
+        for (Text json : iterable) {
+          JsonObject infoObject = new JsonObject();
+          originContent.add(key + "\t" + json.toString());
+          try {
+            infoObject = new JsonObject(json.toString());
+          } catch (Exception e) {
+            errorCounter.increment(1);
+            e.printStackTrace();
+          }
+          String qccUnique = infoObject.getString("qcc_unique", "");
+          String name = infoObject.getString("name", "");
+          String location = infoObject.getString("location", "");
+          String establish_at = infoObject.getString("establish_at", "");
+          String legal_person = infoObject.getString("legal_person", "");
+          JsonArray normed_industry_names = infoObject.getJsonArray("normed_industry_names", new
+              JsonArray());
+          JsonArray normed_industry_codes = infoObject.getJsonArray("normed_industry_codes", new
+              JsonArray());
+          Label label = new Label();
+          label.setLabel_name("公司类型");
+          // "公司类型": "0x118b"
+          label.setUid("0x118b");
+
+          if (!"".equals(name)) {
+            int industrySize = normed_industry_names.size();
+            List<Industry> industryList = new ArrayList<>();
+            for (int j = 0; j < industrySize; j++) {
+              String industryName = normed_industry_names.getString(j);
+              int industryCode = normed_industry_codes.getInteger(j);
+              Industry industry = new Industry();
+              industry.setCode(industryCode);
+              industry.setName(industryName);
+              industry.setUnique_id(industryName);
+              industryList.add(industry);
+            }
+            Company company = new Company();
+            company.setName(name);
+            company.setUnique_id(name);
+            company.setLocation(location);
+            company.setEstablish_at(establish_at);
+            company.setLegal_person(legal_person);
+            company.setType(type);
+            company.setIndustry(industryList);
+            company.setHas_label(label);
+            companyList.add(company);
+            batch++;
+          } else {
+            // skip ...
+            skipperCounter.increment(1L);
+          }
+          if (batch >= setBatch) {
+            List<Industry> checkIndustries = getIndustry(companyList);
+            entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+            Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
+            NodeUtil.putEntityUid(companyList, companyRet);
+            // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
+            // getLabeledCompany(companyList), type, checkUid);
+            entityIdClient.putFeedEntity(companyRet, type);
+            if (companyRet.size() == 0) {
+              writeOriginContentMap(mos, originContent);
+              timeOutErrorCounter.increment(1L);
+            }
+            originSuccessCounter.increment(companyRet.size());
+            writeUidMap(mos, companyRet);
+            companyList.clear();
+            batch = 0;
+            originContent.clear();
+          }
+          jsonSuccessCounter.increment(1L);
+          // for values
+        }
+        // while
+      }
+      cleanup(context);
+    }
+
+    @Override
+    protected void reduce(Text text, Iterable<Text> iterable, Context context) throws
+        IOException, InterruptedException {
+      super.reduce(text, iterable, context);
+    }
+  }
+
 
   public void configJob(Job job, String input, String output) throws Exception {
     job.setJarByClass(CompanyEntityPutToDgraphMapred.class);
@@ -240,8 +399,12 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     job.setOutputFormatClass(TextOutputFormat.class);
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(Text.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(Text.class);
+    job.setReducerClass(Reduce.class);
     job.setNumReduceTasks(0);
   }
+
   @SuppressWarnings("RegexpSinglelineJava")
   public int run(String[] args) throws Exception {
     if (args.length < 8) {
@@ -258,6 +421,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     conf.setInt("batch", Integer.valueOf(args[5]));
     conf.setInt("checkUid", Integer.valueOf(args[6]));
     conf.setInt("source", Integer.valueOf(args[7]));
+    conf.setInt("reduceNum", Integer.valueOf(args[7]));
     conf.addResource(confDir + "/core-site.xml");
     conf.addResource(confDir + "/hdfs-site.xml");
     conf.addResource(confDir + "/hbase-site.xml");

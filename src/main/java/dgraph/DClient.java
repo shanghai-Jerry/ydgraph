@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import client.dgrpah.DgraphClient;
 import dgraph.node.EntityNode;
@@ -24,6 +25,7 @@ import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -49,6 +51,11 @@ public class DClient {
   private DgraphClient dgraphClient;
 
   private static  int deadlineSecs = 60;
+  private int retryCompensation = 100;
+  // deadline exceed retry max number default 5
+  private int retryMaxNumber = 5;
+
+  private AtomicInteger retryCounter = new AtomicInteger(0);
 
   public DClient(List<String> adressList) {
     List<DgraphGrpc.DgraphBlockingStub> clients = new ArrayList<>();
@@ -87,7 +94,7 @@ public class DClient {
   /**
    * 批量<uid> <relation> <uid>的方式写入
    */
-  public DgraphProto.Assigned mutiplyEdgesMutation(List<String> edges) {
+  public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges) {
     List<ByteString> newEdges = new ArrayList<>();
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
@@ -103,7 +110,7 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = null;
+      assigned = mutateRetry(mu);
     } finally {
       txn.discard();
     }
@@ -115,7 +122,7 @@ public class DClient {
    * 批量<uid> <relation> <uid>的方式写入
    */
   @Deprecated
-  public DgraphProto.Assigned mutiplyEdgesMutation(String edges) {
+  public DgraphProto.Assigned multiplyEdgesMutation(String edges) {
 
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
@@ -182,8 +189,8 @@ public class DClient {
       }
     }
     if (stringList.size() > 0) {
-      logger.info("mutiplyEdgesMutation =====> ");
-      mutiplyEdgesMutation(stringList);
+      logger.info("multiplyEdgesMutation =====> ");
+      multiplyEdgesMutation(stringList);
     }
   }
 
@@ -269,13 +276,54 @@ public class DClient {
       txn.commit();
     }  catch (Exception e) {
       logger.info("[entityInitial Expection]:" + e.getMessage());
-      ag = null;
+      ag = mutateRetry(mu);
     } finally {
       txn.discard();
     }
     return ag;
   }
 
+  /**
+   * 批量<uid> <relation> <uid>的方式写入
+   * exception retry  mutate once
+   */
+  public DgraphProto.Assigned mutateRetry(DgraphProto.Mutation mu, Exception exception) {
+    // retry multiply times as possible
+    DgraphProto.Assigned assigned = null;
+    //  exception:io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state
+    //  exception: io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED
+    if (exception instanceof StatusRuntimeException) {
+      logger.info("[StatusRuntimeException code value]:" + ((StatusRuntimeException) exception)
+          .getStatus().getCode().value());
+      String message = exception.getMessage();
+      if (!"DEADLINE_EXCEEDED".equals(message)) {
+        return assigned;
+      }
+    } else {
+      logger.info("[OtherException ]:" + exception);
+      return assigned;
+    }
+    while(retryCounter.get() <= this.retryMaxNumber) {
+      try {
+        Thread.sleep(retryCompensation * retryCounter.incrementAndGet());
+      } catch (InterruptedException e) {
+        logger.info("[Sleep error Exception]:" + e.getMessage());
+      }
+      DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+      try {
+        assigned = txn.mutate(mu);
+        txn.commit();
+      } catch (Exception e) {
+        logger.info("[multiplyEdgeMutation Retry Exception] => " + e.getMessage() +
+            ", retry times:" + retryCounter.get());
+        assigned = null;
+      } finally {
+        txn.discard();
+      }
+    }
+    retryCounter.set(0);
+    return assigned;
+  }
   /**
    * 批量对象json的方式写入，写入实体需继承EntityNode
    */
@@ -284,20 +332,21 @@ public class DClient {
     DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
     String text = "";
+    int size = entities.size();
+    if (size <= 0) {
+      return assigned;
+    }
+    Gson gson = new Gson();
+    text = gson.toJson(entities);
+    logger.info("text:" + text);
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
+        .copyFromUtf8(text)).build();
     try {
-      int size = entities.size();
-      if (size > 0) {
-        Gson gson = new Gson();
-        text = gson.toJson(entities);
-        logger.info("text:" + text);
-        DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
-            .copyFromUtf8(text)).build();
-        assigned = txnInner.mutate(mu);
-        txnInner.commit();
-      }
+      assigned = txnInner.mutate(mu);
+      txnInner.commit();
     } catch (Exception e) {
-      logger.info("[multiplyMutationEntity Expection]:" + e.getMessage() + ", entity:" + text);
-      assigned = null;
+      logger.info("[multiplyMutationEntity Exception]:" + e.getMessage());
+      assigned = mutateRetry(mu);
     } finally {
       txnInner.discard();
     }
