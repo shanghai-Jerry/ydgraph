@@ -4,11 +4,10 @@ import java.util.List;
 
 public class People {
 
-  List<Person> isExist;
-  List<Person> all;
+  private List<Person> isExist;
+  private List<Person> all;
 
-  public People() {
-  }
+  public People() {}
 
   public List<Person> getIsExist() {
     return isExist;

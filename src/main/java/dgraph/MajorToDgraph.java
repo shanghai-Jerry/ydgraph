@@ -58,29 +58,6 @@ public class MajorToDgraph {
     }
   }
 
-  public void getList(List<Major> majors, List<Major> insertList, List<Major> updateList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> uidMap = new HashMap<String, String>();
-    String type = "";
-    for (Major entityNode : majors) {
-      if ("".equals(type)) {
-        type = entityNode.getType();
-      }
-      List<String> names = new ArrayList<String>();
-      names.add(entityNode.getName());
-      reqs.add(names);
-    }
-    entityIdClient.checkEntityList(reqs, uidMap, type);
-    for (Major entityNode : majors) {
-      if (uidMap.containsKey(entityNode.getName())) {
-        entityNode.setUid(uidMap.get(entityNode.getName()));
-        updateList.add(entityNode);
-      } else {
-        insertList.add(entityNode);
-      }
-    }
-  }
-
   public Map<String,  List<String>> init(String dictPath, int update) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();

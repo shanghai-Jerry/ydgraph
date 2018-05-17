@@ -53,6 +53,7 @@ public class DClient {
   private static  int deadlineSecs = 60;
   private int retryCompensation = 100;
   // deadline exceed retry max number default 5
+  @Deprecated
   private int retryMaxNumber = 5;
 
   private AtomicInteger retryCounter = new AtomicInteger(0);
@@ -81,11 +82,18 @@ public class DClient {
     dgraphClient = new DgraphClient(clients, deadlineSecs);
   }
 
+  /**
+   * 删除schema
+   */
   public void dropSchema() {
     // Initialize
     dgraphClient.alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
   }
 
+  /**
+   * 修改schema
+   * @param schema schema
+   */
   public void alterSchema(String schema) {
     DgraphProto.Operation op = DgraphProto.Operation.newBuilder().setSchema(schema).build();
     dgraphClient.alter(op);
@@ -93,6 +101,8 @@ public class DClient {
 
   /**
    * 批量<uid> <relation> <uid>的方式写入
+   * @param edges 属性数组
+   * @return uid assigned
    */
   public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges) {
     List<ByteString> newEdges = new ArrayList<>();
@@ -120,6 +130,8 @@ public class DClient {
 
   /**
    * 批量<uid> <relation> <uid>的方式写入
+   * @param edges 熟悉
+   * @return uid assigned
    */
   @Deprecated
   public DgraphProto.Assigned multiplyEdgesMutation(String edges) {
@@ -142,32 +154,79 @@ public class DClient {
     return assigned;
   }
 
+  /**
+   * 批量<uid> <relation> <uid>的方式format
+   * @param src start uid
+   * @param pred relation
+   * @param dest end uid
+   * @return format string
+   */
   private String edgeFormat(String src, String pred, String dest) {
     return String.format("<%s> <%s> <%s> . \n", src, pred, dest);
   }
 
+  /**
+   * 批量<uid> <relation> "attribute"的方式format
+   * @param src start uid
+   * @param pred relation
+   * @param dest end uid
+   * @return format string
+   */
   private String attrFormat(String src, String pred, String dest) {
     return String.format("<%s> <%s> \"%s\" . \n", src, pred, dest);
   }
+
   /**
    * 形式: <uid> <> <>
-   * @param putList
+   * @param putList node 属性的上一层抽象
    */
-  public void entityAdd(List<Nodeput> putList) {
-    int ids = putList.size();
-    StringBuffer stringBuffer = new StringBuffer();
+  public void entityAddAttr(List<Nodeput> putList) {
+    StringBuilder stringBuffer = new StringBuilder();
     List<String> stringList = new ArrayList<>();
-    for (int j = 0; j < ids; j++) {
-      Nodeput nodeput = putList.get(j);
+    for (Nodeput nodeput : putList) {
       String uid = nodeput.getUid();
       List<String> predicates = nodeput.getPredicates();
       List<Object> values = nodeput.getValueObjects();
-      List<String> edge_pred = nodeput.getEdge_predicates();
-      List<String> objectIds = nodeput.getObjectIds();
-      if ( edge_pred.size() != objectIds.size()) {
+      if (predicates.size() != values.size()) {
         logger.fatal("entity add predicates length not equal values ");
       }
-      /*int size = predicates.size();
+      // 属性值添加
+      int size = predicates.size();
+      if (size != values.size()) {
+        logger.fatal("entity add predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        String value = String.valueOf(values.get(i).toString());
+        String pred = predicates.get(i);
+        String result = attrFormat(uid, pred, value);
+        stringBuffer.append(result);
+        stringList.add(result);
+      }
+    }
+    if (stringList.size() > 0) {
+      logger.info("multiplyEdgesMutation =====> ");
+      multiplyEdgesMutation(stringList);
+    }
+  }
+  /**
+   * 形式: <uid> <> <>
+   * @param putList  node 属性的上一层抽象
+   */
+  public void entityAdd(List<Nodeput> putList) {
+    StringBuffer stringBuffer = new StringBuffer();
+    List<String> stringList = new ArrayList<>();
+    for (Nodeput nodeput : putList) {
+      String uid = nodeput.getUid();
+      // List<String> predicates = nodeput.getPredicates();
+      // List<Object> values = nodeput.getValueObjects();
+      List<String> edge_pred = nodeput.getEdge_predicates();
+      List<String> objectIds = nodeput.getObjectIds();
+      if (edge_pred.size() != objectIds.size()) {
+        logger.fatal("entity add predicates length not equal values ");
+      }
+      /*
+      // 属性值不重新添加
+      int size = predicates.size();
       if (size != values.size()) {
         logger.fatal("entity add predicates length not equal values ");
       }
@@ -194,7 +253,12 @@ public class DClient {
     }
   }
 
-
+  /**
+   *
+   * @param src  start uid
+   * @param predicate relation
+   * @param uid end uid
+   */
   public void entityAddAttrTest(String src, String predicate, String uid) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
@@ -212,21 +276,20 @@ public class DClient {
   }
 
   /**
-   *  形式: <_:id> <> <>
-   * @param putList
-   * @return
+   * 形式: <_:id> <> <>
+   * rdf 格式
+   * @param putList node 属性的上一层抽象
+   * @return rdf 形式的实体插入
    */
   public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    int ids = putList.size();
     List<DgraphProto.NQuad> quads = new ArrayList<>();
-    for (int j = 0; j < ids; j++) {
-      Nodeput nodeput = putList.get(j);
-      String uniqueId = putList.get(j).getUniqueId();
-      List<String> predicates = putList.get(j).getPredicates();
-      List<Object> values = putList.get(j).getValueObjects();
-      List<String> edge_pred = putList.get(j).getEdge_predicates();
-      List<String> objectIds = putList.get(j).getObjectIds();
+    for (Nodeput nodeput : putList) {
+      String uniqueId = nodeput.getUniqueId();
+      List<String> predicates = nodeput.getPredicates();
+      List<Object> values = nodeput.getValueObjects();
+      List<String> edge_pred = nodeput.getEdge_predicates();
+      List<String> objectIds = nodeput.getObjectIds();
       int size = predicates.size();
       if (size != values.size() || edge_pred.size() != objectIds.size()) {
         logger.fatal("entity inital predicates length not equal values ");
@@ -270,7 +333,7 @@ public class DClient {
       }
     }
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addAllSet(quads).build();
-    DgraphProto.Assigned ag = null;
+    DgraphProto.Assigned ag;
     try {
       ag = txn.mutate(mu);
       txn.commit();
@@ -285,9 +348,12 @@ public class DClient {
 
   /**
    * 批量<uid> <relation> <uid>的方式写入
-   * exception retry  mutate once
+   * exception retry mutate
+   * @param mu mutation
+   * @param exception exception
+   * @return uid assigned
    */
-  public DgraphProto.Assigned mutateRetry(DgraphProto.Mutation mu, Exception exception) {
+  private DgraphProto.Assigned mutateRetry(DgraphProto.Mutation mu, Exception exception) {
     // retry multiply times as possible
     DgraphProto.Assigned assigned = null;
     //  exception:io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state
@@ -297,11 +363,11 @@ public class DClient {
           .getStatus().getCode().value());
       String message = exception.getMessage();
       if (!"DEADLINE_EXCEEDED".equals(message)) {
-        return assigned;
+        return null;
       }
     } else {
       logger.info("[OtherException ]:" + exception);
-      return assigned;
+      return null;
     }
     while(retryCounter.get() <= this.retryMaxNumber) {
       try {
@@ -324,17 +390,20 @@ public class DClient {
     retryCounter.set(0);
     return assigned;
   }
+
   /**
    * 批量对象json的方式写入，写入实体需继承EntityNode
+   * @param entities 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   * @return uid assigned
    */
-
   public <T extends EntityNode> DgraphProto.Assigned multiplyMutationEntity(List<T> entities) {
     DgraphClient.Transaction txnInner = this.dgraphClient.newTransaction();
-    DgraphProto.Assigned assigned = null;
-    String text = "";
+    DgraphProto.Assigned assigned;
+    String text;
     int size = entities.size();
     if (size <= 0) {
-      return assigned;
+      return null;
     }
     Gson gson = new Gson();
     text = gson.toJson(entities);
@@ -355,24 +424,33 @@ public class DClient {
 
   /**
    * 单个string json对象写入
+   * @param json 单个string json写入dgraph
+   * @return uid assigned
    */
   public DgraphProto.Assigned mutation(String json) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetJson(ByteString
-        .copyFromUtf8(json.toString())).build();
+        .copyFromUtf8(json)).build();
     DgraphProto.Assigned assigned = txn.mutate(mu);
     txn.commit();
     txn.discard();
     return assigned;
   }
 
-  public String QueryById(String did, String className, String methodName) {
+  /**
+   * dgraph的查询
+   * @param did 查询id
+   * @param className 实体对象类名
+   * @param methodName 获取实体的哪个方法名
+   * @return uid
+   */
+  public String QueryById(String did, String className, String methodName){
     String query = "query did($a: string){\n" + "isExist(func: eq(id, $a)) {\n" + "uid\n" + "  "
         + "}\n" + "}";
     Map<String, String> vars = Collections.singletonMap("$a", did);
     DgraphProto.Response res = dgraphClient.newTransaction().queryWithVars(query, vars);
-    Class classNameClass = null;
-    Object people = null;
+    Class classNameClass;
+    Object people;
     String ret = "";
     try {
       classNameClass = Class.forName(className);
@@ -388,37 +466,15 @@ public class DClient {
           return (String) result;
         }
       }
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (ClassNotFoundException e) {
+    } catch (IllegalAccessException | ClassNotFoundException e) {
       e.printStackTrace();
     } catch (InvocationTargetException e) {
-      e.printStackTrace();
+
     }
     return ret;
 
   }
-
-
-  private void readFile(String path, HashMap<String, Integer> map) {
-    File file = new File(path);
-    BufferedReader reader = null;
-    try {
-      reader = new BufferedReader(new FileReader(file));
-      String tempString = null;
-      int line = 0;
-      // 一次读入一行，直到读入null为文件结束
-      while ((tempString = reader.readLine()) != null) {
-        String[] split = tempString.split("\t");
-        map.put(split[2], Integer.valueOf(split[0].trim()));
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
   public static void main(final String[] args) {
+    // ...todo
   }
 }

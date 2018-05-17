@@ -27,22 +27,21 @@ import utils.util;
  */
 public class EntityNode implements Serializable {
 
-  String uid;
+  private String uid;
+  private List<String> unique_ids;
   // _:uniqueId <name> value
   // 检查是否存在实体的唯一标识
-  List<String> unique_ids;
-  String unique_id;
-
+  private String unique_id;
   // 实体名称
-  String name;
+  private String name;
   // 实体类型
-  String type;
+  private String type;
   // 实体类别
-  Label has_label;
+  private Label has_label;
 
-  String label_name;
+  private String label_name;
 
-  public String getUnique_id() {
+  String getUnique_id() {
     return unique_id;
   }
 
@@ -98,7 +97,14 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
-  public String getDeclaredEdgeUid(Object object, Class clazz, String methodName) {
+  /**
+   * 通过反射的形式获取uid
+   * @param object 对象
+   * @param clazz  对象运行时的class
+   * @param methodName 获取uid的方法名
+   * @return 返回uid
+   */
+  private String getDeclaredEdgeUid(Object object, Class clazz, String methodName) {
     String ret = "";
     try {
       Method[] methods = clazz.getMethods();
@@ -108,9 +114,7 @@ public class EntityNode implements Serializable {
           return (String) result;
         }
       }
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (InvocationTargetException e) {
+    } catch (IllegalAccessException | InvocationTargetException e) {
       e.printStackTrace();
     }
     return ret;
@@ -119,15 +123,15 @@ public class EntityNode implements Serializable {
 
   /**
    * all fileld include sub EntityNode's uid
-   * @param object
-   * @param clazz
-   * @param pre
-   * @param values
-   * @param edges
-   * @param ids
-   * @param methodName
+   * @param object 对象
+   * @param clazz 对象运行时的class
+   * @param pre 属性名
+   * @param values 属性值
+   * @param edges 子实体属性名
+   * @param ids 子实体uid值
+   * @param methodName 获取子实体的uid方法名
    */
-  public void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object>
+  private void getDeclaredFields(Object object, Class clazz, List<String> pre, List<Object>
       values, List<String> edges, List<String> ids, String methodName) {
     Field[] fields = clazz.getDeclaredFields();
     Field.setAccessible(fields, true);
@@ -154,7 +158,7 @@ public class EntityNode implements Serializable {
         } else if (value instanceof List) {
           if (((List) value).size() > 0) {
             if (((List) value).get(0) instanceof String) {
-              continue;
+              // ..todo
             } else if (((List) value).get(0) instanceof  EntityNode ){
               // 绑定多个实体之间的关系
               List<EntityNode> entityNodes = (List<EntityNode>)value;
@@ -183,15 +187,17 @@ public class EntityNode implements Serializable {
           }
         }
       } catch (IllegalAccessException e) {
+        System.out.println("##### Exception :" + e.getMessage());
       }
     }
   }
 
   /**
-   * @param pre
-   * @param values
-   * @param edges
-   * @param ids
+   * 获取属性，子实体属性
+   * @param pre 属性名
+   * @param values 属性值
+   * @param edges 子实体属性名
+   * @param ids 子实体uid
    */
   public void getValueMap(List<String> pre, List<Object> values, List<String> edges, List<String>
       ids, String methodName) {
@@ -200,6 +206,11 @@ public class EntityNode implements Serializable {
 
   }
 
+  /**
+   * 获取属性值
+   * @param pre 属性名
+   * @param values 属性值
+   */
   @Deprecated
   public void getAttrValueMap(List<String> pre, List<Object> values) {
     getDeclaredFields(this, this.getClass(), pre, values, new ArrayList<String>(), new
@@ -208,6 +219,12 @@ public class EntityNode implements Serializable {
         , new ArrayList<String>(), "");
   }
 
+  /**
+   * 获取子实体属性
+   * @param edges 子实体属性
+   * @param ids 子实体uid
+   * @param methodName 获取uid的方法名
+   */
   @Deprecated
   public void getEdgeValueMap(List<String> edges, List<String> ids, String methodName) {
     getDeclaredFields(this, this.getClass(), new ArrayList<String>(), new ArrayList<Object>(),

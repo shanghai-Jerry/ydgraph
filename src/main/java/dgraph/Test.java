@@ -27,20 +27,18 @@ public class Test {
   public void test_one() {
     School school = new School();
     String name = "清华大学";
+    String alias = "清华";
     String type = "学校";
     school.setName(name);
     school.setType(type);
+    school.setAlias(alias);
     school.setUnique_ids(Arrays.asList(name));
     Label label = new Label();
     label.setLabel_name("学校类型");
     label.setUid("0x118c");
     label.setUnique_ids(Arrays.asList("学校类型"));
     label.setSchool(school);
-    /*Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getSchool()));
-    FileUtils.saveFile("src/main/resources/test_school_uid_map.txt", schoolEntityUidMap);
-    NodeUtil.putEntityUid(Arrays.asList(label.getSchool()), schoolEntityUidMap, new ArrayList<School>());*/
-    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
-    FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);
+    school.getAttrValueMap(new ArrayList<String>(), new ArrayList<>());
   }
 
   private void test_two() {
@@ -175,10 +173,10 @@ public class Test {
   public static void main(String[] arg) {
     Test test = new Test();
     // test.demo.init();
-    // test.test_one();
+    test.test_one();
     // test.test_two();
     // test.test_tree();
-    test.test_five();
+    // test.test_five();
 
   }
 

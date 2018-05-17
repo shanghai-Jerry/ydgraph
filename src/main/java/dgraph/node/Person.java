@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+/**
+ * 测试实体类
+ */
 public class Person {
   String uid;
   String id;

@@ -2,9 +2,9 @@ package dgraph.node;
 
 public class Industry extends EntityNode {
 
-  int code;
+  private int code;
 
-  Industry parent_industry;
+  private Industry parent_industry;
 
   public int getCode() {
     return code;

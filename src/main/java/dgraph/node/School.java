@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 
 public class School extends EntityNode {
 
-  int code;
-  String alias;
-  String eng_name;
+  private  int code;
+  private String alias;
+  private  String eng_name;
 
   public int getCode() {
     return code;

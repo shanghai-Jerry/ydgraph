@@ -13,15 +13,15 @@ import java.util.List;
  */
 public class Label extends EntityNode {
 
-  School school;
+  private School school;
 
-  Company company;
+  private Company company;
 
-  Industry industry;  // 已测试通过，可建对应边
+  private Industry industry;  // 已测试通过，可建对应边
 
-  Major major;
+  private Major major;
 
-  List<School> schools; // 已测试通过，可建对应边
+  private List<School> schools; // 已测试通过，可建对应边
 
   public List<School> getSchools() {
     return schools;

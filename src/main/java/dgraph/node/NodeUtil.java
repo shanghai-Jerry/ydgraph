@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import client.EntityIdClient;
 import dgraph.DClient;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
@@ -34,10 +33,17 @@ public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
+  /**
+   * 添加实体的子实体属性
+   * @param dClient dgraph client
+   * @param list 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   */
+  @Deprecated
   public static <T extends EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
-    List<Nodeput> updatePutList = new ArrayList<Nodeput>();
+    List<Nodeput> updatePutList = new ArrayList<>();
     for (T entityNode : list) {
-      List<String> pres = new ArrayList<String>();
+      List<String> pres = new ArrayList<>();
       List<String> values = new ArrayList<>();
       entityNode.getEdgeValueMap(pres, values, "getUid");
       Nodeput dput = new Nodeput();
@@ -52,11 +58,18 @@ public class NodeUtil {
     dClient.entityAdd(updatePutList);
   }
 
+  /**
+   * 更新实体的属性
+   * @param dClient dgraph cllient
+   * @param list 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   */
+  @Deprecated
   public static <T extends EntityNode> void updateEntity(DClient dClient, List<T> list) {
-    List<Nodeput> updatePutList = new ArrayList<Nodeput>();
+    List<Nodeput> updatePutList = new ArrayList<>();
     for (T school : list) {
-      List<String> pres = new ArrayList<String>();
-      List<Object> values = new ArrayList<Object>();
+      List<String> pres = new ArrayList<>();
+      List<Object> values = new ArrayList<>();
       school.getAttrValueMap(pres, values);
       Nodeput dput = new Nodeput();
       if ("".equals(school.getUid())) {
@@ -67,10 +80,16 @@ public class NodeUtil {
       dput.setValueObjects(values);
       updatePutList.add(dput);
     }
-    // dClient.entityAddAttr(updatePutList);
+    dClient.entityAddAttr(updatePutList);
   }
 
-
+  /**
+   * 插入新增实体属性，与子实体属性等
+   * @param dClient dgraph client
+   * @param list 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   * @return 实体对应uid和unique_ids的映射
+   */
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
                                                                               List<T> list) {
     Map<String, List<String>> uidMap = new HashMap<>();
@@ -121,13 +140,13 @@ public class NodeUtil {
   }
 
   /**
-   *
-   * @param src
-   * @param <T>
-   * @return
+   * 深拷贝， 引用对象独立，互不影响
+   * @param src 源数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   * @return 目标数组
    */
   public static <T> List<T> deepCopy(List<T> src) {
-    // 深拷贝， 引用对象独立，互不影响
+
     ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
     ObjectOutputStream out = null;
     try {
@@ -150,6 +169,13 @@ public class NodeUtil {
     return dest;
   }
 
+  /**
+   * json object形式插入实体
+   * @param dClient dgraph client
+   * @param list 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
+   * @return 实体对应uid和unique_ids的映射
+   */
   public static <T extends EntityNode> Map<String, List<String>> putEntity(DClient dClient, List<T>
       list) {
     Map<String, List<String>> newUidMap = new HashMap<>();
@@ -180,9 +206,10 @@ public class NodeUtil {
     }
   }
 
-
   /**
    * 不需要进入dgraph的属性
+   * @param entityNodes 实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
    */
   public static <T extends EntityNode> void removUniqueId(List<T> entityNodes) {
     for (T entityNode : entityNodes) {
@@ -192,6 +219,11 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段: 拆分数组成一个没有uid的list, 一个有uid的list
+   * @param entityNodes 实体实体数组
+   * @param uidMap uidMap
+   * @param havaUidList 存在uid的实体数组
+   * @param resultList 不存在uid的实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
    */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
       uidMap, List<T> havaUidList, List<T> resultList) {
@@ -214,6 +246,10 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段: 拆分数组成一个没有uid的list
+   * @param entityNodes 实体数组
+   * @param uidMap uidMap
+   * @param resultList 没有uid的实体数组
+   * @param <T> 支持实体泛型，继承自EntityNode
    */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
       uidMap, List<T> resultList) {
@@ -233,6 +269,12 @@ public class NodeUtil {
     }
   }
 
+  /**
+   * 将已有uid写入实体字段: 不拆分数组
+   * @param entityNodes 实体数组
+   * @param uidMap uidmAP
+   * @param <T> 支持实体泛型，继承自EntityNode
+   */
   public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
       uidMap) {
     for (T entityNode : entityNodes) {
@@ -246,6 +288,12 @@ public class NodeUtil {
     }
   }
 
+  /**
+   * 多个names值映射uid下的uid写回
+   * @param entityNodes 实体数组
+   * @param uidMap uidMap uid -> names
+   * @param <T> 支持实体泛型，继承自EntityNode
+   */
   public static <T extends EntityNode> void putEntityUidWithNames(List<T> entityNodes, Map<String,
       List<String>> uidMap) {
     for (T entityNode : entityNodes) {
@@ -268,11 +316,11 @@ public class NodeUtil {
   }
 
   /**
-   *
-   * @param
-   * @param list
-   * @param uidMap
-   * @param <T>
+   * uid重新映射到names
+   * @param keyUidMap key -> uid
+   * @param list 实体数组
+   * @param uidMap uid -> names
+   * @param <T> 支持实体泛型，继承自EntityNode
    */
 
   public static <T extends EntityNode> void uidReMapping(Map<String, String> keyUidMap, List<T>
@@ -292,6 +340,10 @@ public class NodeUtil {
 
   /**
    * blank-id mapping uniqueName to uid
+   * @param blankUid blank-id -> uid
+   * @param list 实体数组
+   * @param uidMap uid -> names
+   * @param <T> 支持实体泛型，继承自EntityNode
    */
   public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid,
                                                               List<T> list, Map<String,
@@ -316,37 +368,20 @@ public class NodeUtil {
     }
   }
 
-  public static Map<String, String> getNewUidMap(Map<String, String> existUidMap, Map<String,
-      String> retUidMap) {
-    Map<String, String> newUidMap = new HashMap<String, String>();
-    Set<Map.Entry<String, String>> entrySet = retUidMap.entrySet();
-    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    while (iterator.hasNext()) {
-      Map.Entry<String, String> entry = iterator.next();
-      String key = entry.getKey();
-      String value = entry.getValue();
-      if (!existUidMap.containsKey(key)) {
-        newUidMap.put(key, value);
-      }
-    }
-    return newUidMap;
-  }
-
-  public static void mapCombiner(Map<String, String> map, Map<String, String> resultMap) {
-    Set<Map.Entry<String, String>> entrySet = map.entrySet();
-    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
-    while (iterator.hasNext()) {
-      Map.Entry<String, String> entry = iterator.next();
-      String key = entry.getKey();
-      String value = entry.getValue();
-      resultMap.put(key, value);
-    }
-  }
-
+  /**
+   * long -> hex
+   * @param i long
+   * @return hex start with 0x..
+   */
   public static String longToHex(long i) {
-    return Long.toHexString(i);
+    return "0x" + Long.toHexString(i);
   }
 
+  /**
+   * hex -> long
+   * @param str hex string start with 0x.. or not with 0x
+   * @return long
+   */
   public static long hexToLong(String str) {
     if (str.startsWith("0x")) {
       return Long.parseLong(str.substring(2), 16);
@@ -354,45 +389,4 @@ public class NodeUtil {
       return Long.parseLong(str, 16);
     }
   }
-
-  public static void getUidMap(List<String> key, List<String> value, Map<String, String>
-      resultMap) {
-    int size = key.size();
-    if (size != value.size()) {
-      return;
-    }
-    for (int i = 0; i < size; i++) {
-      resultMap.put(key.get(i), value.get(i));
-    }
-  }
-
-
-  /**
-   * 泛型: 支持扩展
-   */
-  public static <T extends EntityNode> void getList(EntityIdClient entityIdClient, List<T>
-      entityNodes, List<T> insertList, List<T> updateList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> uidMap = new HashMap<String, String>();
-    String type = "";
-    for (T entityNode : entityNodes) {
-      if ("".equals(type)) {
-        type = entityNode.getType();
-      }
-      List<String> names = new ArrayList<String>();
-      names.add(entityNode.getName());
-      reqs.add(names);
-    }
-    // 暂时不检查entitid服务
-    // entityIdClient.checkEntityList(reqs, uidMap, type);
-    for (T entityNode : entityNodes) {
-      if (uidMap.containsKey(entityNode.getName())) {
-        entityNode.setUid(uidMap.get(entityNode.getName()));
-        updateList.add(entityNode);
-      } else {
-        insertList.add(entityNode);
-      }
-    }
-  }
-
 }

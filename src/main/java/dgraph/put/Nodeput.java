@@ -5,16 +5,15 @@ import java.util.List;
 
 public class Nodeput {
 
-  String uid;
-
+  private String uid;
   // List<String> uniqueIds;
-  String uniqueId;
+  private String uniqueId;
   // predicate is scalar
-  List<String> predicates;
-  List<Object> valueObjects;
+  private List<String> predicates;
+  private List<Object> valueObjects;
   // predicate is uid
-  List<String> edge_predicates;
-  List<String> objectIds;
+  private List<String> edge_predicates;
+  private List<String> objectIds;
 
   public String getUniqueId() {
     return uniqueId;

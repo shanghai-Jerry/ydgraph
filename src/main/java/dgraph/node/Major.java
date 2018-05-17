@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 
 public class Major extends EntityNode {
 
-  int code;
+  private int code;
 
   public int getCode() {
     return code;

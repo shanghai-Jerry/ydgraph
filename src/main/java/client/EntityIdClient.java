@@ -85,6 +85,7 @@ public class EntityIdClient {
    * 写入实体id服务，only with single name
    * @param map
    */
+  @Deprecated
   public void putFeedEntity(Map<String, String> map, String type) {
     Set<Map.Entry<String, String>> entrySet=  map.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
@@ -140,92 +141,6 @@ public class EntityIdClient {
         }
       }
     }
-  }
-
-  public <T extends EntityNode> void checkEntityList(List<T> entityReqs, String type) {
-    int outSize = entityReqs.size();
-    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
-    for (int i = 0; i < outSize; i++) {
-      T entityNode = entityReqs.get(i);
-      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(entityNode.getUnique_ids()).setType(type).build());
-    }
-    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
-        .addAllEntityReq(entityIdRequestList).build();
-    BatchEntityIdResponse rep = entityLinkSimple(req);
-    if (rep != null) {
-      for (int i = 0; i < outSize; i++) {
-        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
-        long id = entityIdResponse.getId();
-        boolean ok = entityIdResponse.getOk();
-        String msg = entityIdResponse.getMsg();
-        // 如果服务直接返回了matched_name,可直接使用
-        // String matchedName = entityIdResponse.getMatchedName();
-        if (ok) {
-          String values = "0x" + Long.toHexString(id);
-          // 写回uid
-          T entityNode = entityReqs.get(i);
-          entityNode.setUid(values);
-        }
-      }
-    }
-  }
-
-  public void checkEntityList(List<List<String>> entityReqs, Map<String, String> uidMap, String
-      type) {
-    int outSize = entityReqs.size();
-    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
-    for (int i = 0; i < outSize; i++) {
-      List<String> names = entityReqs.get(i);
-      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(names)
-          .setType(type)
-          .build());
-    }
-    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
-        .addAllEntityReq(entityIdRequestList).build();
-    BatchEntityIdResponse rep = entityLinkSimple(req);
-    if (rep != null) {
-      for (int i = 0; i < outSize; i++) {
-        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
-        long id = entityIdResponse.getId();
-        boolean ok = entityIdResponse.getOk();
-        String msg = entityIdResponse.getMsg();
-        // 如果服务直接返回了matched_name,可直接使用
-        // String matchedName = entityIdResponse.getMatchedName();
-        if (ok) {
-          String values = "0x" + Long.toHexString(id);
-          // 使用names中第一个非空的name和uid做一个映射
-          List<String> names = entityReqs.get(i);
-          for (int j = 0; j < names.size(); j++) {
-            String name = names.get(j);
-            if (!"".equals(name)) {
-              uidMap.put(name, values);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  public String findUid(String name, String type) {
-    BatchEntityIdResponse rep = entityLinkSimple(BatchEntityIdRequest.newBuilder()
-        .addEntityReq(EntityIdRequest.newBuilder().addName(name)
-            .setType(type).build())
-        .build());
-    if (rep == null) {
-        return "";
-    }
-    if (rep != null) {
-      EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
-      long id = entityIdResponse.getId();
-      boolean ok = entityIdResponse.getOk();
-      String msg = entityIdResponse.getMsg();
-      if (ok) {
-        return Long.toHexString(id);
-      } else {
-        return  "";
-      }
-    }
-    return "";
   }
 
   /**

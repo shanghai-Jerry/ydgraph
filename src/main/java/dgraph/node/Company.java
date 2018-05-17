@@ -4,10 +4,10 @@ import java.util.List;
 
 public class Company extends EntityNode {
 
-  String location;
-  String legal_person;
-  String establish_at;
-  List<Industry> industry;
+  private String location;
+  private String legal_person;
+  private String establish_at;
+  private List<Industry> industry;
 
   public String getLocation() {
     return location;

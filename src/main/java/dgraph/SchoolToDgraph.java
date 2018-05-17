@@ -64,32 +64,6 @@ public class SchoolToDgraph {
     }
   }
 
-  /**
-   * 分别获取是新增实体list还是需更新的实体list
-   */
-  public void getList(List<School> schools, List<School> dputList, List<School> duputList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> uidMap = new HashMap<String, String>();
-    String type = "";
-    for (School school : schools) {
-      if ("".equals(type)) {
-        type = school.getType();
-      }
-      List<String> names = new ArrayList<String>();
-      names.add(school.getName());
-      reqs.add(names);
-    }
-    entityIdClient.checkEntityList(reqs, uidMap, type);
-    for (School school : schools) {
-      if (uidMap.containsKey(school.getName())) {
-        school.setUid(uidMap.get(school.getName()));
-        duputList.add(school);
-      } else {
-        dputList.add(school);
-      }
-    }
-  }
-
 
   /**
    * 初始化实体
@@ -101,16 +75,7 @@ public class SchoolToDgraph {
   }
 
   public void initWithRDFMode() {
-    long startTime = System.currentTimeMillis();
-    System.out.println("get all schools :" + schools.size());
-    List<School> schoolList = new ArrayList<School>();
-    List<School> updateSchoolList = new ArrayList<School>();
-    getList(schools, schoolList, updateSchoolList);
-    System.out.println("get separate list: :" + schoolList.size() + ", " + updateSchoolList.size());
-    // insert
-    Map<String,  List<String>> uidMaps = NodeUtil.insertEntity(dClient, schoolList);
-    long endStart = System.currentTimeMillis();
-    System.out.println("spend time:" + (endStart - startTime) + " ms");
+
   }
 
   public List<Label> getLabeledSchool(List<School> schools) {
