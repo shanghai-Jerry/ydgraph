@@ -30,16 +30,16 @@ public class Test {
     String type = "学校";
     school.setName(name);
     school.setType(type);
-    school.setUnique_id(name);
+    school.setUnique_ids(Arrays.asList(name));
     Label label = new Label();
     label.setLabel_name("学校类型");
     label.setUid("0x118c");
-    label.setUnique_id("学校类型");
+    label.setUnique_ids(Arrays.asList("学校类型"));
     label.setSchool(school);
     /*Map<String, String> schoolEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getSchool()));
     FileUtils.saveFile("src/main/resources/test_school_uid_map.txt", schoolEntityUidMap);
     NodeUtil.putEntityUid(Arrays.asList(label.getSchool()), schoolEntityUidMap, new ArrayList<School>());*/
-    Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/test_uid_map.txt", uid);
   }
 
@@ -62,7 +62,7 @@ public class Test {
     String industryCode = "8001";
     industry.setType(industryType);
     industry.setUid("0x13");
-    industry.setUnique_id(industryName);
+    industry.setUnique_ids(Arrays.asList(industryName));
     industry.setCode(Integer.parseInt(industryCode));
     industry.setName(industryName);
     Company company = new Company();
@@ -70,7 +70,7 @@ public class Test {
     String location = "深圳";
     String type = "公司";
     company.setName(name);
-    company.setUnique_id(name);
+    company.setUnique_ids(Arrays.asList(name));
     company.setLocation(location);
     company.setType(type);
     company.setIndustry(Arrays.asList(industry));
@@ -80,20 +80,22 @@ public class Test {
     String location2 = "北京";
     String type2 = "公司";
     company2.setName(name2);
-    company2.setUnique_id(name2);
+    company2.setUnique_ids(Arrays.asList(name2));
     company2.setLocation(location2);
     company2.setType(type2);
     company2.setIndustry(Arrays.asList(industry));
     label2.setCompany(company2);
-    Map<String, String> industryEntityUidMap = NodeUtil.insertEntity(dClient, label.getCompany().getIndustry());
+    Map<String,  List<String>> industryEntityUidMap = NodeUtil.insertEntity(dClient, label.getCompany().getIndustry());
     FileUtils.saveFile("src/main/resources/test_industry_uid_map.txt", industryEntityUidMap);
     // 子行业实体uid放回
-    NodeUtil.putEntityUid(label.getCompany().getIndustry(), industryEntityUidMap);
-    Map<String, String> companyEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getCompany()));
+    // 内部已写入
+    // NodeUtil.putEntityUid(label.getCompany().getIndustry(), industryEntityUidMap);
+    Map<String,  List<String>> companyEntityUidMap = NodeUtil.insertEntity(dClient, Arrays.asList(label.getCompany()));
     // 子公司实体uid放回
-    NodeUtil.putEntityUid(Arrays.asList(label.getCompany()), companyEntityUidMap);
+    // 内部已写入
+    // NodeUtil.putEntityUid(Arrays.asList(label.getCompany()), companyEntityUidMap);
     FileUtils.saveFile("src/main/resources/test_company_uid_map.txt", companyEntityUidMap);
-    Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label, label2));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label, label2));
     FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", uid);
   }
 
@@ -112,7 +114,7 @@ public class Test {
     String industryName = "互联网";
     String industryCode = "8001";
     industry.setType(industryType);
-    industry.setUnique_id(industryName);
+    industry.setUnique_ids(Arrays.asList(industryName));
     industry.setCode(Integer.parseInt(industryCode));
     industry.setName(industryName);
     Company company = new Company();
@@ -120,7 +122,7 @@ public class Test {
     String location = "深圳";
     String type = "公司";
     company.setName(name);
-    company.setUnique_id(name);
+    company.setUnique_ids(Arrays.asList(name));
     company.setLocation(location);
     company.setType(type);
     company.setIndustry(Arrays.asList(industry));
@@ -130,7 +132,7 @@ public class Test {
     String location2 = "北京";
     String type2 = "公司";
     company2.setName(name2);
-    company2.setUnique_id(name2);
+    company2.setUnique_ids(Arrays.asList(name2));
     company2.setLocation(location2);
     company2.setType(type2);
     company2.setIndustry(Arrays.asList(industry));
@@ -144,9 +146,10 @@ public class Test {
   private void test_five() {
     List<Label> labelList = new ArrayList<>();
     getLabels(labelList);
-    Map<String, String> companyEntityUidMap = NodeUtil.insertEntity(dClient,getCompany(labelList));
-    // 子公司实体uid放回
-    NodeUtil.putEntityUid(getCompany(labelList), companyEntityUidMap);
+    Map<String, List<String>> companyEntityUidMap = NodeUtil.insertEntity(dClient,getCompany
+        (labelList));
+    // 子公司实体uid放回: 内部已写回
+    // NodeUtil.putEntityUid(getCompany(labelList), companyEntityUidMap);
     FileUtils.saveFile("src/main/resources/test_company_uid_map.txt", companyEntityUidMap);
     ExecutorService ex = Executors.newFixedThreadPool(5);
     for (Label label : labelList) {

@@ -1,5 +1,6 @@
 package dgraph;
 
+import java.util.List;
 import java.util.Map;
 
 import utils.FileUtils;
@@ -19,7 +20,7 @@ public class TestMajorToDgraph {
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph(new DClient(Config.TEST_VM_HOSTNAME));
     int update = 0;
-    Map<String, String> uidMaps = majorToDgraph.init(dictPath, update);
+    Map<String, List<String>> uidMaps = majorToDgraph.init(dictPath, update);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMaps);
   }
 }

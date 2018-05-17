@@ -21,7 +21,7 @@ public class TestIndustryToDgraph {
   IndustryToDgraph industryToDgraph = new IndustryToDgraph(new DClient(Config.TEST_VM_HOSTNAME));
 
   public void test_one(String dict, int needCheck) {
-    industryToDgraph.initWithRdf(dict, needCheck);
+    industryToDgraph.initWithRdf(dict);
   }
 
   public void test_two(int needCheck) {

@@ -1,6 +1,7 @@
 package dgraph;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import dgraph.node.Label;
@@ -21,7 +22,7 @@ public class TestRunnable implements Runnable {
   @Override
   public void run() {
 
-    Map<String, String> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
+    Map<String, List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     util.println("finished:", uid.size());
     // FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", uid);
 

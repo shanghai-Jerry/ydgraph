@@ -19,6 +19,7 @@ import org.apache.hadoop.util.Tool;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -122,12 +123,12 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
             Industry industry = new Industry();
             industry.setCode(Integer.parseInt(industryCode));
             industry.setName(industryName);
-            industry.setUnique_id(industryName);
+            industry.setUnique_ids(Arrays.asList(industryCode, industryName));
             industryList.add(industry);
           }
           Company company = new Company();
           company.setName(name);
-          company.setUnique_id(name);
+          company.setUnique_ids(Arrays.asList(name));
           company.setLocation(location);
           company.setEstablish_at(establish_at);
           company.setLegal_person(legal_person);
@@ -141,19 +142,18 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
         if (batch >= setBatch) {
           if (source == 1) {
             // json object
-            Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
-            entityIdClient.putFeedEntity(ret, type);
+            Map<String, List<String>> ret = NodeUtil.putEntity(dClient, companyList);
+            entityIdClient.putFeedEntityWithNames(ret, type);
             originSuccessCounter.increment(ret.size());
             writeUidMap(mos, ret);
           } else if (source == 2) {
             // past test into dgraph
             List<Industry> checkIndustries = getIndustry(companyList);
             entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
-            Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
-            NodeUtil.putEntityUid(companyList, companyRet);
+            Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
             // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
             // getLabeledCompany(companyList), type, checkUid);
-            entityIdClient.putFeedEntity(companyRet, type);
+            entityIdClient.putFeedEntityWithNames(companyRet, type);
             if (companyRet.size() == 0) {
               writeOriginContentMap(mos, originContent);
               timeOutErrorCounter.increment(1L);
@@ -170,18 +170,18 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
       if (batch > 0) {
         if (source == 1) {
           // json object : need test
-          Map<String, String> ret = NodeUtil.putEntity(dClient, companyList);
-          entityIdClient.putFeedEntity(ret, type);
+          Map<String, List<String>> ret = NodeUtil.putEntity(dClient, companyList);
+          entityIdClient.putFeedEntityWithNames(ret, type);
           originSuccessCounter.increment(ret.size());
           writeUidMap(mos, ret);
         } else if (source == 2) {
           List<Industry> checkIndustries = getIndustry(companyList);
           entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
-          Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
-          NodeUtil.putEntityUid(companyList, companyRet);
+          Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
+          // NodeUtil.putEntityUid(companyList, companyRet);
           // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
           // getLabeledCompany(companyList), type, checkUid);
-          entityIdClient.putFeedEntity(companyRet, type);
+          entityIdClient.putFeedEntityWithNames(companyRet, type);
           if (companyRet.size() == 0) {
             writeOriginContentMap(mos, originContent);
             timeOutErrorCounter.increment(1L);
@@ -214,16 +214,20 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     return industryList;
   }
 
-  private static void writeUidMap(MultipleOutputs<Text, Text> mos, Map<String, String> uidMap) {
+  private static void writeUidMap(MultipleOutputs<Text, Text> mos, Map<String, List<String>> uidMap) {
     String dir = "uidmap";
-    Set<Map.Entry<String, String>> entrySet = uidMap.entrySet();
-    Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+    Set<Map.Entry<String, List<String>>> entrySet = uidMap.entrySet();
+    Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
     while (iterator.hasNext()) {
-      Map.Entry<String, String> entry = iterator.next();
+      Map.Entry<String, List<String>> entry = iterator.next();
       String key = entry.getKey();
-      String value = entry.getValue();
+      List<String> values= entry.getValue();
+      StringBuffer sb = new StringBuffer();
+      for (String value : values) {
+        sb.append(value + ",");
+      }
       try {
-        mos.write(dir, new Text(key), new Text(value), dir + "/part");
+        mos.write(dir, new Text(sb.toString()), new Text(key), dir + "/part");
       } catch (IOException e) {
         e.printStackTrace();
       } catch (InterruptedException e) {
@@ -333,12 +337,12 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
               Industry industry = new Industry();
               industry.setCode(industryCode);
               industry.setName(industryName);
-              industry.setUnique_id(industryName);
+              industry.setUnique_ids(Arrays.asList(industryName, String.valueOf(industryCode)));
               industryList.add(industry);
             }
             Company company = new Company();
             company.setName(name);
-            company.setUnique_id(name);
+            company.setUnique_ids(Arrays.asList(name));
             company.setLocation(location);
             company.setEstablish_at(establish_at);
             company.setLegal_person(legal_person);
@@ -354,11 +358,10 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           if (batch >= setBatch) {
             List<Industry> checkIndustries = getIndustry(companyList);
             entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
-            Map<String, String> companyRet = NodeUtil.insertEntity(dClient, companyList);
-            NodeUtil.putEntityUid(companyList, companyRet);
+            Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
             // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
             // getLabeledCompany(companyList), type, checkUid);
-            entityIdClient.putFeedEntity(companyRet, type);
+            entityIdClient.putFeedEntityWithNames(companyRet, type);
             if (companyRet.size() == 0) {
               writeOriginContentMap(mos, originContent);
               timeOutErrorCounter.increment(1L);

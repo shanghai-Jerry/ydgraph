@@ -108,7 +108,7 @@ public class SchoolToDgraph {
     getList(schools, schoolList, updateSchoolList);
     System.out.println("get separate list: :" + schoolList.size() + ", " + updateSchoolList.size());
     // insert
-    Map<String, String> uidMaps = NodeUtil.insertEntity(dClient, schoolList);
+    Map<String,  List<String>> uidMaps = NodeUtil.insertEntity(dClient, schoolList);
     long endStart = System.currentTimeMillis();
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
@@ -134,9 +134,9 @@ public class SchoolToDgraph {
     FileUtils.readFiles(filePath, dictLines);
     getSchool(dictLines, schools);
     System.out.println("get all schools :" + schools.size());
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, schools);
+    Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, schools);
     FileUtils.saveFile("src/main/resources/school_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntity(uidMap, type);
+    entityIdClient.putFeedEntityWithNames(uidMap, type);
     NodeUtil.putEntity(dClient, getLabeledSchool(schools));
   }
 

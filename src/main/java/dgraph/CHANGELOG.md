@@ -35,6 +35,11 @@
          * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs,
             but this attr must be index tokenizer
 
+    # 2018.5.17
+         * 子实体的uid在返回uidMap之前,就已经写回到实体中。
+
+         * 支持: 多个unique_ids写入到id服务器
+
 
 3. 发现问题
 

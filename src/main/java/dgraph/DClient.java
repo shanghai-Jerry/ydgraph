@@ -110,7 +110,7 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = mutateRetry(mu);
+      assigned = mutateRetry(mu, e);
     } finally {
       txn.discard();
     }
@@ -235,7 +235,7 @@ public class DClient {
       for (int i = 0; i < size; i++) {
         String pred = predicates.get(i);
         Object value = values.get(i);
-        // logger.info("pred:" + pred + ", valueObject:" + value);
+        // logger.info("uniqueId:" + uniqueId+ ", pred:" + pred + ", valueObject:" + value);
         DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
             .format("_:%s", uniqueId)).setPredicate(pred);
         if (value instanceof Integer || value instanceof Long) {
@@ -276,7 +276,7 @@ public class DClient {
       txn.commit();
     }  catch (Exception e) {
       logger.info("[entityInitial Expection]:" + e.getMessage());
-      ag = mutateRetry(mu);
+      ag = mutateRetry(mu, e);
     } finally {
       txn.discard();
     }
@@ -346,7 +346,7 @@ public class DClient {
       txnInner.commit();
     } catch (Exception e) {
       logger.info("[multiplyMutationEntity Exception]:" + e.getMessage());
-      assigned = mutateRetry(mu);
+      assigned = mutateRetry(mu, e);
     } finally {
       txnInner.discard();
     }

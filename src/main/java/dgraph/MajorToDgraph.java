@@ -81,12 +81,12 @@ public class MajorToDgraph {
     }
   }
 
-  public Map<String, String> init(String dictPath, int update) {
+  public Map<String,  List<String>> init(String dictPath, int update) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
-    Map<String, String> uidMaps = new HashMap<String, String>();
+    Map<String,  List<String>> uidMaps = new HashMap<>();
     long startTime = System.currentTimeMillis();
     System.out.println("get all majors :" + majors.size());
     if (update > 0) {
@@ -121,9 +121,9 @@ public class MajorToDgraph {
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, majors);
     System.out.println("get all majors :" + majors.size());
-    Map<String, String> uidMap = NodeUtil.putEntity(dClient, majors);
+    Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntity(uidMap, type);
+    entityIdClient.putFeedEntityWithNames(uidMap, type);
     NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 

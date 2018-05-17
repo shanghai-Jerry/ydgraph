@@ -7,8 +7,8 @@ public class Nodeput {
 
   String uid;
 
+  // List<String> uniqueIds;
   String uniqueId;
-
   // predicate is scalar
   List<String> predicates;
   List<Object> valueObjects;
@@ -16,6 +16,13 @@ public class Nodeput {
   List<String> edge_predicates;
   List<String> objectIds;
 
+  public String getUniqueId() {
+    return uniqueId;
+  }
+
+  public void setUniqueId(String uniqueId) {
+    this.uniqueId = uniqueId;
+  }
 
   public List<Object> getValueObjects() {
     return valueObjects;
@@ -49,13 +56,6 @@ public class Nodeput {
     this.predicates = predicates;
   }
 
-  public String getUniqueId() {
-    return uniqueId;
-  }
-
-  public void setUniqueId(String uniqueId) {
-    this.uniqueId = uniqueId;
-  }
 
   public String getUid() {
     return uid;

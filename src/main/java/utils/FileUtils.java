@@ -64,18 +64,22 @@ public class FileUtils {
     }
   }
 
-  public static void saveFile(String filePath, Map<String, String> map) {
+  public static void saveFile(String filePath, Map<String, List<String>> map) {
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
-      Set<Map.Entry<String, String>> entrySet = map.entrySet();
-      Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+      Set<Map.Entry<String, List<String>>> entrySet = map.entrySet();
+      Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
       int count = 0;
       while (iterator.hasNext()) {
-        Map.Entry<String, String> entry = iterator.next();
+        Map.Entry<String, List<String>> entry = iterator.next();
         String key = entry.getKey();
-        String value = entry.getValue();
-        printWriter.write(key + "\t" + value);
+        List<String> values= entry.getValue();
+        StringBuffer sb = new StringBuffer();
+        for (String value : values) {
+          sb.append(value + ",");
+        }
+        printWriter.write(sb.toString() + "\t" + key );
         printWriter.write("\n");
         count++;
         if (count >= 200) {

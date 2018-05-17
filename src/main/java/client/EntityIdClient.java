@@ -48,7 +48,41 @@ public class EntityIdClient {
   }
 
   /**
-   * 写入实体id服务
+   * 写入实体id服务,支持多个names
+   * @param map
+   */
+  public void putFeedEntityWithNames(Map<String, List<String>> map, String type) {
+    Set<Map.Entry<String, List<String>>> entrySet=  map.entrySet();
+    Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
+    int batch = 0;
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    while(iterator.hasNext()) {
+      Map.Entry<String, List<String>> entry = iterator.next();
+      String key = entry.getKey();
+      List<String> value = entry.getValue();
+      entityIdRequestList.add(EntityIdRequest.newBuilder()
+          .addAllName(value)
+          .setType(type)
+          .setId(Long.parseLong(key.substring(2), 16)).build());
+      batch++;
+      if (batch > 200) {
+        batch = 0;
+        BatchEntityIdResponse rep = feedEntity(BatchEntityIdRequest.newBuilder()
+            .addAllEntityReq(entityIdRequestList).build());
+        if (rep == null) {
+          break;
+        }
+        entityIdRequestList.clear();
+      }
+    }
+    if (batch > 0) {
+      feedEntity(BatchEntityIdRequest.newBuilder()
+          .addAllEntityReq(entityIdRequestList).build());
+    }
+  }
+
+  /**
+   * 写入实体id服务，only with single name
    * @param map
    */
   public void putFeedEntity(Map<String, String> map, String type) {
@@ -85,9 +119,7 @@ public class EntityIdClient {
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
     for (int i = 0; i < outSize; i++) {
       T entityNode = entityReqs.get(i);
-      List<String> names = new ArrayList<>();
-      names.add(entityNode.getUnique_id());
-      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(names).setType(type).build());
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(entityNode.getUnique_ids()).setType(type).build());
     }
     BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
         .addAllEntityReq(entityIdRequestList).build();
@@ -115,9 +147,7 @@ public class EntityIdClient {
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
     for (int i = 0; i < outSize; i++) {
       T entityNode = entityReqs.get(i);
-      List<String> names = new ArrayList<>();
-      names.add(entityNode.getUnique_id());
-      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(names).setType(type).build());
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(entityNode.getUnique_ids()).setType(type).build());
     }
     BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
         .addAllEntityReq(entityIdRequestList).build();
@@ -233,8 +263,8 @@ public class EntityIdClient {
     try {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder().addName("上海戴窖建材经销服务部东吴分部")
-                .setType("公司").build())
+            .addEntityReq(EntityIdRequest.newBuilder().addName("15000")
+                .setType("行业").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);

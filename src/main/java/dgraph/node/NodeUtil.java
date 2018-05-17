@@ -63,7 +63,6 @@ public class NodeUtil {
         continue;
       }
       dput.setUid(school.getUid());
-      dput.setUniqueId(school.getName());
       dput.setPredicates(pres);
       dput.setValueObjects(values);
       updatePutList.add(dput);
@@ -72,9 +71,9 @@ public class NodeUtil {
   }
 
 
-  public static <T extends EntityNode> Map<String, String> insertEntity(DClient dClient, List<T>
-      list) {
-    Map<String, String> uidMap = new HashMap<>();
+  public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
+                                                                              List<T> list) {
+    Map<String, List<String>> uidMap = new HashMap<>();
     // insert
     List<Nodeput> dputList = new ArrayList<>();
     List<Nodeput> newPutList = new ArrayList<>();
@@ -110,10 +109,11 @@ public class NodeUtil {
     if (dputList.size() > 0) {
       DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
       if (assigned != null) {
-        // 内部写回子实体的uid
-        // NodeUtil.putEntityUid(list, assigned.getUidsMap());
-        return assigned.getUidsMap();
-      } else  {
+        // 写回uid到实体中
+        NodeUtil.putEntityUid(list, assigned.getUidsMap());
+        NodeUtil.uidReMapping(assigned.getUidsMap(), list, uidMap);
+        return uidMap;
+      } else {
         return uidMap;
       }
     }
@@ -150,8 +150,9 @@ public class NodeUtil {
     return dest;
   }
 
-  public static <T extends EntityNode> Map<String, String> putEntity(DClient dClient, List<T> list) {
-    Map<String, String> newUidMap = new HashMap<String, String>();
+  public static <T extends EntityNode> Map<String, List<String>> putEntity(DClient dClient, List<T>
+      list) {
+    Map<String, List<String>> newUidMap = new HashMap<>();
     List<T> copyList = deepCopy(list);
     long startTime = System.currentTimeMillis();
     // NodeUtil.removUniqueId(copyList);
@@ -175,8 +176,7 @@ public class NodeUtil {
       reqs) {
     for (T entityNode : entityNodes) {
       List<String> names = new ArrayList<>();
-      names.add(entityNode.getUnique_id());
-      reqs.add(names);
+      reqs.add(entityNode.getUnique_ids());
     }
   }
 
@@ -186,61 +186,27 @@ public class NodeUtil {
    */
   public static <T extends EntityNode> void removUniqueId(List<T> entityNodes) {
     for (T entityNode : entityNodes) {
-      entityNode.setUnique_id("");
+      entityNode.setUnique_ids(new ArrayList<String>());
     }
   }
 
-
-  /**
-   * 将已有uid写入实体字段
-   * @param list       原始实体list
-   * @param resultList 没有uid的实体，新增的
-   */
-  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
-      list, String type, List<T> resultList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> existuidMap = new HashMap<String, String>();
-    NodeUtil.getCheckNames(list, reqs);
-    entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.putEntityUid(list, existuidMap, resultList);
-  }
-
-
-  /**
-   * 将已有uid写入实体字段
-   * @param entityIdClient
-   * @param list
-   * @param type
-   * @param havaUidList 存在uid的实体
-   * @param resultList  没有uid的实体，新增的
-   * @param <T>
-   */
-  public static <T extends EntityNode> void setEntityUid(EntityIdClient entityIdClient, List<T>
-      list, String type,  List<T> havaUidList, List<T> resultList) {
-    List<List<String>> reqs = new ArrayList<List<String>>();
-    Map<String, String> existuidMap = new HashMap<String, String>();
-    NodeUtil.getCheckNames(list, reqs);
-    entityIdClient.checkEntityList(reqs, existuidMap, type);
-    NodeUtil.putEntityUid(list, existuidMap, havaUidList, resultList);
-  }
-
-
   /**
    * 将已有uid写入实体字段: 拆分数组成一个没有uid的list, 一个有uid的list
-   * @param entityNodes
-   * @param uidMap
-   * @param havaUidList
-   * @param resultList
-   * @param <T>
    */
-  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap,  List<T> havaUidList, List<T> resultList) {
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
+      uidMap, List<T> havaUidList, List<T> resultList) {
     for (T entityNode : entityNodes) {
-      String unique_id = entityNode.getUnique_id();
-      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
-        entityNode.setUid(uidMap.get(unique_id));
-        havaUidList.add(entityNode);
-      } else {
+      boolean isNewEntity = true;
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      for (String unique_id : uniqueIdList) {
+        if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+          entityNode.setUid(uidMap.get(unique_id));
+          havaUidList.add(entityNode);
+          isNewEntity = false;
+          break;
+        }
+      }
+      if (isNewEntity) {
         resultList.add(entityNode);
       }
     }
@@ -248,51 +214,105 @@ public class NodeUtil {
 
   /**
    * 将已有uid写入实体字段: 拆分数组成一个没有uid的list
-   * @param entityNodes
-   * @param uidMap
-   * @param resultList
-   * @param <T>
    */
-  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap, List<T> resultList) {
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
+      uidMap, List<T> resultList) {
     for (T entityNode : entityNodes) {
-      String unique_id = entityNode.getUnique_id();
-      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
-        entityNode.setUid(uidMap.get(unique_id));
-      } else {
+      boolean isNewEntity = true;
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      for (String unique_id : uniqueIdList) {
+        if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+          entityNode.setUid(uidMap.get(unique_id));
+          isNewEntity = false;
+          break;
+        }
+      }
+      if (isNewEntity) {
         resultList.add(entityNode);
       }
     }
   }
 
-  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String,
-      String> uidMap) {
+  public static <T extends EntityNode> void putEntityUid(List<T> entityNodes, Map<String, String>
+      uidMap) {
     for (T entityNode : entityNodes) {
-      String unique_id = entityNode.getUnique_id();
-      if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
-        entityNode.setUid(uidMap.get(unique_id));
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      for (String unique_id : uniqueIdList) {
+        if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
+          entityNode.setUid(uidMap.get(unique_id));
+          break;
+        }
+      }
+    }
+  }
+
+  public static <T extends EntityNode> void putEntityUidWithNames(List<T> entityNodes, Map<String,
+      List<String>> uidMap) {
+    for (T entityNode : entityNodes) {
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      Set<Map.Entry<String, List<String>>> entrySet = uidMap.entrySet();
+      for (String unique_id : uniqueIdList) {
+        Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
+        while (iterator.hasNext()) {
+          Map.Entry<String, List<String>> entry = iterator.next();
+          String key = entry.getKey();
+          List<String> values = entry.getValue();
+          if (!"".equals(unique_id) && values.contains(unique_id)) {
+            entityNode.setUid(key);
+            break;
+          }
+        }
+        break;
       }
     }
   }
 
   /**
+   *
+   * @param
+   * @param list
+   * @param uidMap
+   * @param <T>
+   */
+
+  public static <T extends EntityNode> void uidReMapping(Map<String, String> keyUidMap, List<T>
+      list, Map<String, List<String>> uidMap) {
+    for (T entityNode : list) {
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      for (String uniqueId : uniqueIdList) {
+        if (keyUidMap.containsKey(uniqueId)) {
+          String uid = keyUidMap.get(uniqueId);
+          uidMap.put(uid, entityNode.getUnique_ids());
+          break;
+        }
+      }
+    }
+  }
+
+
+  /**
    * blank-id mapping uniqueName to uid
    */
   public static <T extends EntityNode> void uidFlattenMapping(Map<String, String> blankUid,
-                                                              List<T> list, Map<String, String>
-                                                                  uidMap) {
+                                                              List<T> list, Map<String,
+      List<String>> uidMap) {
     Set<Map.Entry<String, String>> entrySet = blankUid.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
     while (iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
+      logger.info("uidFlattenMapping key: " + key + ", value: " + value);
       int index = Integer.parseInt(key.substring(6));
       if (index >= list.size()) {
-        logger.info("uidFlattenMapping error blankUid size not equal list size");
+        logger.fatal("uidFlattenMapping error blankUid size:" + blankUid.size() + " not equal " +
+            "list " + "size:" + list.size());
         continue;
       }
-      uidMap.put(list.get(index).getName(), value);
+      T entityNode = list.get(index);
+      List<String> uniqueIdList = entityNode.getUnique_ids();
+      entityNode.setUid(value);
+      uidMap.put(value, uniqueIdList);
     }
   }
 
