@@ -146,7 +146,7 @@ public class TestCompanyLabelToDgraph extends Configured implements Tool {
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
     args = new String[]{"/user/mindcube/test_out/20180312/00",
-        "/Users/devops/workspace/hbase-Demo/src/main/resources",
+        "/Users/devops/workspace/hbase-TestDemo/src/main/resources",
         "/user/mindcube/test_out/label/00",};
     int exitCode = new TestCompanyLabelToDgraph().run(args);
     System.exit(exitCode);

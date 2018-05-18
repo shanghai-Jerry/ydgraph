@@ -30,6 +30,8 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * Copyright (c) 2018 devops
  *
+ * 基于DgraphClient上的另一个逻辑实现
+ *
  * <<licensetext>>
  */
 public class DClient {

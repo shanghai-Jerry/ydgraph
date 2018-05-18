@@ -60,7 +60,7 @@ public class TestResumePutMapred extends Configured implements Tool {
       originSuccessCounter = context.getCounter("runner", "originSuccessCounter");
       jsonSuccessCounter = context.getCounter("runner", "jsonSuccessCounter");
       dClient = new DClient(Config.TEST_HOSTNAME);
-      // dClient.InitDict("/Users/devops/workspace/hbase-Demo/src/StartMain/resources/school_dict
+      // dClient.InitDict("/Users/devops/workspace/hbase-TestDemo/src/StartMain/resources/school_dict
       // .txt");
       dClient.alterSchema(schema);
     }
@@ -136,8 +136,8 @@ public class TestResumePutMapred extends Configured implements Tool {
 
   @SuppressWarnings("RegexpSinglelineJava")
   public static void main(String[] args) throws Exception {
-    args = new String[]{"/Users/devops/workspace/hbase-Demo/src/StartMain/resources/part-m-00371" +
-        "", "/Users/devops/workspace/hbase-Demo/src/StartMain/resources", "idmg:resume_test",};
+    args = new String[]{"/Users/devops/workspace/hbase-TestDemo/src/StartMain/resources/part-m-00371" +
+        "", "/Users/devops/workspace/hbase-TestDemo/src/StartMain/resources", "idmg:resume_test",};
     int exitCode = new TestResumePutMapred().run(args);
     System.exit(exitCode);
   }

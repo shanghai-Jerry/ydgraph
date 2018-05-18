@@ -296,9 +296,11 @@ public class NodeUtil {
    */
   public static <T extends EntityNode> void putEntityUidWithNames(List<T> entityNodes, Map<String,
       List<String>> uidMap) {
+    List<T> needRemoveNodes = new ArrayList<>();
     for (T entityNode : entityNodes) {
       List<String> uniqueIdList = entityNode.getUnique_ids();
       Set<Map.Entry<String, List<String>>> entrySet = uidMap.entrySet();
+      boolean  flag = true;
       for (String unique_id : uniqueIdList) {
         Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
         while (iterator.hasNext()) {
@@ -307,11 +309,21 @@ public class NodeUtil {
           List<String> values = entry.getValue();
           if (!"".equals(unique_id) && values.contains(unique_id)) {
             entityNode.setUid(key);
+            flag = false;
             break;
           }
         }
-        break;
+        if (!flag) {
+          break;
+        }
       }
+      if (flag) {
+        logger.info("remove don't hava uid entity!");
+        needRemoveNodes.add(entityNode);
+      }
+    }
+    for (T entityNode : needRemoveNodes) {
+      entityNodes.remove(entityNode);
     }
   }
 

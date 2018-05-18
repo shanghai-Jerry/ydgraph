@@ -49,10 +49,14 @@ public class MajorToDgraph {
       String name = lineSplits[1];
       String code = lineSplits[0];
       if (!names.contains(name)) {
+        int codeInt = Integer.parseInt(code);
         major.setName(name);
-        major.setCode(Integer.parseInt(code));
+        major.setCode(codeInt);
         major.setType("专业");
         names.add(name);
+        if (codeInt == 0) {
+          continue;
+        }
         majors.add(major);
       }
     }
@@ -105,7 +109,7 @@ public class MajorToDgraph {
     Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
     entityIdClient.putFeedEntityWithNames(uidMap, type);
-    NodeUtil.putEntity(dClient, getLabeledMajor(majors));
+    // NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 
   public static void main(String[] args) {

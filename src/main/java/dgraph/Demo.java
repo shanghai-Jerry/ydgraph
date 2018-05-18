@@ -163,6 +163,5 @@ public class Demo {
     // demo.edgeConnect();
     // demo.alterSchema();
     System.out.println("finished");
-
   }
 }

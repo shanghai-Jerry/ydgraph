@@ -140,7 +140,7 @@ public class TestDoExtractorFromHbase extends Configured implements Tool {
 
     args = new String[]{"idmg:resume_test", "data", "json", "resume/resume_update/test_04_11",
         "1523376000910", "1523462399915",
-        "/Users/devops/workspace/hbase-Demo/src/StartMain/resources"};
+        "/Users/devops/workspace/hbase-TestDemo/src/StartMain/resources"};
 
     int exitCode = new TestDoExtractorFromHbase().run(args);
     System.exit(exitCode);

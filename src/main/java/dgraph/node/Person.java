@@ -7,50 +7,73 @@ import java.util.List;
 /**
  * 测试实体类
  */
-public class Person {
-  String uid;
+public class Person  extends  EntityNode {
   String id;
-  String name;
-  List<Person> friend;
+  String location;
+  List<Person> friends;
   List<Person> isExist;
+  List<School> schools;
   int gender;
+  boolean married;
 
   int age;
   // ...
   String otherAttri;
 
-  public Person() {
+  public Person() { }
 
+  public List<School> getSchools() {
+    return schools;
+  }
+
+  public void setSchools(List<School> schools) {
+    this.schools = schools;
+  }
+
+  public boolean isMarried() {
+    return married;
+  }
+
+  public void setMarried(boolean married) {
+    this.married = married;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getOtherAttri() {
+    return otherAttri;
+  }
+
+  public int getAge() {
+    return age;
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
+
+  public void setOtherAttri(String otherAttri) {
+    this.otherAttri = otherAttri;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
   }
 
   public Person(String id, String name, int age) {
-    this.age = age;
-    this.id = id;
-    this.name = name;
+    this.setAge(age);
+    this.setId(id);
+    this.setName(name);
   }
 
-  public String getUid() {
-    return uid;
+  public List<Person> getFriends() {
+    return friends;
   }
 
-  public List<Person> getFriend() {
-    return friend;
-  }
-
-  public void setFriend(List<Person> friend) {
-    this.friend = friend;
-  }
-
-  public void setUid(String uid) {
-    this.uid = uid;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
+  public void setFriends(List<Person> friend) {
+    this.friends = friend;
   }
 
   public String getId() {

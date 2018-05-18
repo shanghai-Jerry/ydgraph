@@ -28,7 +28,7 @@ import utils.util;
 public class EntityNode implements Serializable {
 
   private String uid;
-  private List<String> unique_ids;
+  private List<String> unique_ids = new ArrayList<>();
   // _:uniqueId <name> value
   // 检查是否存在实体的唯一标识
   private String unique_id;
