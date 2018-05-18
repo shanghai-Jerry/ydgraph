@@ -63,7 +63,7 @@ public class Demo {
   public void QueryDemo() {
 
     // Query
-    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " company { " +
+    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " ~has_label { " +
         "count(uid) } \n" + "  }\n" + "}";
     // System.out.println("Query => \n" + query);
     System.out.println("querying ....");
@@ -101,6 +101,7 @@ public class Demo {
   }
 
   public void alterSchema() {
+    logger.info("alter schema ... ");
     dClient.alterSchema(Config.updateSchema);
   }
 
@@ -157,7 +158,7 @@ public class Demo {
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
-    demo.init();
+    // demo.init();
     demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();

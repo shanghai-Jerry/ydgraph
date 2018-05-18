@@ -74,8 +74,8 @@ public class SchoolToDgraph {
     getSchool(dictLines, schools);
   }
 
-  public void initWithRDFMode() {
-
+  public void initWithRdf() {
+    // .. todo
   }
 
   public List<Label> getLabeledSchool(List<School> schools) {

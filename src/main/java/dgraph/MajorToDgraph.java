@@ -88,6 +88,10 @@ public class MajorToDgraph {
     return labelList;
   }
 
+  public void initWithRdf() {
+    // .. todo
+  }
+
   /**
    * this way is better and faster than NQuad, you'd better try this muc h more.
    */

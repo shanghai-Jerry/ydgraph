@@ -4,16 +4,10 @@ import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.JsonFormat;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -355,21 +349,24 @@ public class DClient {
    */
   private DgraphProto.Assigned mutateRetry(DgraphProto.Mutation mu, Exception exception) {
     // retry multiply times as possible
+    // io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state code: 14
+    // io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED code: 4
+    // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
-    //  exception:io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state
-    //  exception: io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED
+    String message;
+    int code;
     if (exception instanceof StatusRuntimeException) {
-      logger.info("[StatusRuntimeException code value]:" + ((StatusRuntimeException) exception)
-          .getStatus().getCode().value());
-      String message = exception.getMessage();
-      if (!"DEADLINE_EXCEEDED".equals(message)) {
-        return null;
-      }
+      code = ((StatusRuntimeException) exception).getStatus().getCode().value();
+      message = exception.getMessage();
+      logger.info("[StatusRuntimeException code value]:" + code);
     } else {
-      logger.info("[OtherException ]:" + exception);
-      return null;
+      logger.info("[OtherException]:" + exception);
+      return assigned;
     }
-    while(retryCounter.get() <= this.retryMaxNumber) {
+    // 重试直到非该exception为止
+    while("DEADLINE_EXCEEDED".equals(message) && code == 4) {
+      message = "";
+      code = 0;
       try {
         Thread.sleep(retryCompensation * retryCounter.incrementAndGet());
       } catch (InterruptedException e) {
@@ -382,6 +379,10 @@ public class DClient {
       } catch (Exception e) {
         logger.info("[multiplyEdgeMutation Retry Exception] => " + e.getMessage() +
             ", retry times:" + retryCounter.get());
+        message = e.getMessage();
+        if (e instanceof StatusRuntimeException) {
+          code = ((StatusRuntimeException) exception).getStatus().getCode().value();
+        }
         assigned = null;
       } finally {
         txn.discard();
