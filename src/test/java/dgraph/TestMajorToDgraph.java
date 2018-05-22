@@ -20,8 +20,8 @@ public class TestMajorToDgraph {
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph(new DClient(Config.TEST_VM_HOSTNAME));
     int update = 0;
-    Map<String, List<String>> uidMaps = majorToDgraph.init(dictPath, update);
-    FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMaps);
+    majorToDgraph.init(dictPath);
+    // FileUtils.saveFile("src/main/resources/final_major_uid_map.txt", uidMaps);
   }
 }
 

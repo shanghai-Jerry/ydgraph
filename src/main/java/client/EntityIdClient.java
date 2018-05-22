@@ -1,6 +1,10 @@
 package client;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,7 @@ import kb.rpc.BatchEntityIdResponse;
 import kb.rpc.EntityIdRequest;
 import kb.rpc.EntityIdResponse;
 import kb.rpc.EntityIdServiceGrpc;
+import utils.FileUtils;
 
 
 /**
@@ -115,6 +120,37 @@ public class EntityIdClient {
     }
   }
 
+  public <T extends EntityNode> List<String> checkEntityList(List<T> entityReqs, String type) {
+    List<String> uids = new ArrayList<>();
+    int outSize = entityReqs.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      T entityNode = entityReqs.get(i);
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(entityNode.getUnique_ids()).setType(type)
+          .build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        // String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          uids.add(values);
+        } else {
+          uids.add("");
+        }
+      }
+    }
+    return uids;
+  }
+
   public <T extends EntityNode> void checkEntityListAndPutUid(List<T> entityReqs, String type) {
     int outSize = entityReqs.size();
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
@@ -173,13 +209,22 @@ public class EntityIdClient {
     return rep;
   }
 
+  private Map<String, List<String>> reMappingName(String uidMapDict) {
+    Map<String, List<String>> uidMap = new HashMap<>();
+    FileUtils.readUidMapDict(uidMapDict, uidMap);
+    this.putFeedEntityWithNames(uidMap, "候选人");
+    return uidMap;
+  }
+
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
+    // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder().addName("佛山市杰宁电器有限公司")
-                .setType("公司").build())
+            .addEntityReq(EntityIdRequest.newBuilder().addAllName(Arrays.asList
+                ("llb00000000000000000000000020901"))
+                .setType("候选人").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
@@ -187,12 +232,15 @@ public class EntityIdClient {
         String values = "0x" + Long.toHexString(id);
         boolean ok = entityIdResponse.getOk();
         String msg = entityIdResponse.getMsg();
-        System.out.println("id/value:" + id + "," + values + ",ok:" + ok + ",msg:" + msg);
+        String matchName = entityIdResponse.getMatchedName();
+        System.out.println("id/value:" + id + "," + values + ",ok:" + ok + ",msg:" + msg + "," +
+            "matchName:" + matchName);
       }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
       client.shutdown();
     }
+
   }
 }

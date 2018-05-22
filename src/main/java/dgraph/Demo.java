@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import client.dgrpah.DgraphClient;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import dgraph.node.Person;
@@ -81,6 +82,7 @@ public class Demo {
     return assignedList;
   }
 
+
   // pass test
   public void edgeConnect() {
     String edgeConnect = "<0x118c> <friend> \"schoolType\" .";
@@ -111,7 +113,7 @@ public class Demo {
     label.setLabel_name("行业类型");
     label.setUnique_ids(Arrays.asList("行业类型"));
     // 0x118e
-    label.setUid("0x118e");
+    label.setUid("0x04");
     Map<String,  List<String>> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", uid);
   }
@@ -121,7 +123,7 @@ public class Demo {
     label.setLabel_name("专业类型");
     label.setUnique_ids(Arrays.asList("专业类型"));
     // 0x118d
-    label.setUid("0x118d");
+    label.setUid("0x03");
     Map<String,  List<String>> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/major_label_uid_map.txt", uid);
   }
@@ -131,7 +133,7 @@ public class Demo {
     label.setLabel_name("学校类型");
     label.setUnique_ids(Arrays.asList("学校类型"));
     // 0x118c
-    label.setUid("0x118c");
+    label.setUid("0x02");
     Map<String,  List<String>> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/school_abel_uid_map.txt", uid);
   }
@@ -141,9 +143,16 @@ public class Demo {
     label.setLabel_name("公司类型");
     label.setUnique_ids(Arrays.asList("公司类型"));
     // "公司类型": "0x118b"
-    label.setUid("0x118b");
+    label.setUid("0x01");
     Map<String,  List<String>> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/company_label_uid_map.txt", uid);
+  }
+
+  public void deleteEdge() {
+    DgraphClient.Transaction txn = dClient.getDgraphClient().newTransaction();
+    txn.mutate(DgraphClient.deleteEdges(DgraphProto.Mutation.newBuilder().setCommitNow(true).build()
+        , "0x118e", "label_name"));
+
   }
 
   public void initLeaseLabel() {
@@ -159,7 +168,8 @@ public class Demo {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.init();
-    demo.QueryDemo();
+    demo.deleteEdge();
+    // demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();
     System.out.println("finished");

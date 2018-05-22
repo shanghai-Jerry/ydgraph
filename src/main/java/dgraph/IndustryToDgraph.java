@@ -149,7 +149,7 @@ public class IndustryToDgraph {
     return labelList;
   }
 
-  public void initWithJson(String dictPath, int needCheck) {
+  public void initWithJson(String dictPath) {
     String type = "行业";
     List<String> dictLines = new ArrayList<>();
     List<Industry> industries = new ArrayList<>();

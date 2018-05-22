@@ -33,12 +33,13 @@ public class Test {
     school.setType(type);
     school.setAlias(alias);
     school.setUnique_ids(Arrays.asList(name));
+    school.setUnique_id(name);
     Label label = new Label();
     label.setLabel_name("学校类型");
-    label.setUid("0x118c");
-    label.setUnique_ids(Arrays.asList("学校类型"));
-    label.setSchool(school);
-    school.getAttrValueMap(new ArrayList<String>(), new ArrayList<>());
+    label.setUid("0x02");
+    school.setHas_label(label);
+    Map<String, List<String>> uidMap = NodeUtil.insertEntity(dClient, Arrays.asList(school));
+    FileUtils.saveFile("src/main/resources/test_school_uid_map.txt", uidMap);
   }
 
   private void test_two() {
@@ -48,11 +49,9 @@ public class Test {
   private void test_tree() {
     Label label = new Label();
     label.setLabel_name("公司类型");
-    // "公司类型": "0x118b"
     label.setUid("0x15");
     Label label2 = new Label();
     label2.setLabel_name("公司类型");
-    // "公司类型": "0x118b"
     label2.setUid("0x15");
     Industry industry = new Industry();
     String industryType = "行业";
@@ -101,11 +100,9 @@ public class Test {
     List<Label> labels = new ArrayList<>();
     Label label = new Label();
     label.setLabel_name("公司类型");
-    // "公司类型": "0x118b"
     label.setUid("0x15");
     Label label2 = new Label();
     label2.setLabel_name("公司类型");
-    // "公司类型": "0x118b"
     label2.setUid("0x15");
     Industry industry = new Industry();
     String industryType = "行业";
@@ -172,7 +169,7 @@ public class Test {
   }
   public static void main(String[] arg) {
     Test test = new Test();
-    // test.demo.init();
+    test.demo.init();
     test.test_one();
     // test.test_two();
     // test.test_tree();

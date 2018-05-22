@@ -8,12 +8,41 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class FileUtils {
+
+  public static void readUidMapDict(String filePath, Map<String, List<String>> uidMap) {
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "utf-8"));
+      String line;
+      line = reader.readLine();
+      while (line != null) {
+        String[] lineSpilt = line.split(",");
+        if (lineSpilt.length == 2) {
+          uidMap.put(lineSpilt[1].trim(), Arrays.asList(lineSpilt[0].trim()));
+        } else {
+          System.out.println("length error !!");
+        }
+        line = reader.readLine();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
   public static void readDict(String filePath, Map<String, String> uidMap) {
     BufferedReader reader = null;

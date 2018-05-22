@@ -126,6 +126,7 @@ public class NodeUtil {
       dClient.entityAdd(newPutList);
     }
     if (dputList.size() > 0) {
+      logger.info("entityInitial =====> ");
       DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
       if (assigned != null) {
         // 写回uid到实体中
@@ -366,7 +367,7 @@ public class NodeUtil {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
-      logger.info("uidFlattenMapping key: " + key + ", value: " + value);
+      // logger.info("uidFlattenMapping key: " + key + ", value: " + value);
       int index = Integer.parseInt(key.substring(6));
       if (index >= list.size()) {
         logger.fatal("uidFlattenMapping error blankUid size:" + blankUid.size() + " not equal " +

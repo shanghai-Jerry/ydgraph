@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import client.dgrpah.DgraphClient;
 import dgraph.node.EntityNode;
+import dgraph.put.EdgeFacetsPut;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
@@ -173,6 +174,50 @@ public class DClient {
   }
 
   /**
+   * 增加边的facets
+   * @param src start uid
+   * @param pred relation
+   * @param dest end uid
+   * @param facets 边的属性集合
+   * @return Nquad string
+   */
+  private String edgeFacetsFormat(String src, String pred, String dest, List<String> facets) {
+    StringBuilder stringBuilder = new StringBuilder();
+    int facetSize = facets.size();
+    for (int i = 0; i < facetSize; i ++) {
+      if (i == 0) {
+        stringBuilder.append(facets.get(i));
+      } else {
+        stringBuilder.append("," + facets.get(i));
+      }
+    }
+    return String.format("<%s> <%s> <%s> (%s). \n", src, pred, dest, stringBuilder.toString());
+  }
+
+  public void entityAddFacets(List<EdgeFacetsPut> edgeFacetsPutList) {
+    List<String> stringList = new ArrayList<>();
+    for (EdgeFacetsPut edgeFacetsPut : edgeFacetsPutList) {
+      List<String> srcs = edgeFacetsPut.getSrcs();
+      List<String> dsts = edgeFacetsPut.getDst();
+      List<String> predicates = edgeFacetsPut.getPredicates();
+      List<List<String>> facets = edgeFacetsPut.getFacets();
+      int size = srcs.size();
+      for (int i = 0; i < size; i++) {
+        String src = srcs.get(i);
+        String dst = dsts.get(i);
+        String predicate = predicates.get(i);
+        List<String> facet = facets.get(i);
+        String result = edgeFacetsFormat(src, predicate, dst, facet);
+        stringList.add(result);
+      }
+    }
+    if (stringList.size() > 0) {
+      logger.info("entityAddFacets multiplyEdgesMutation =====> ");
+      multiplyEdgesMutation(stringList);
+    }
+  }
+
+  /**
    * 形式: <uid> <> <>
    * @param putList node 属性的上一层抽象
    */
@@ -244,7 +289,7 @@ public class DClient {
       }
     }
     if (stringList.size() > 0) {
-      logger.info("multiplyEdgesMutation =====> ");
+      logger.info("entityAdd multiplyEdgesMutation =====> ");
       multiplyEdgesMutation(stringList);
     }
   }
