@@ -258,18 +258,17 @@ public class DClient {
     List<String> stringList = new ArrayList<>();
     for (Nodeput nodeput : putList) {
       String uid = nodeput.getUid();
-      // List<String> predicates = nodeput.getPredicates();
-      // List<Object> values = nodeput.getValueObjects();
+      List<String> predicates = nodeput.getPredicates();
+      List<Object> values = nodeput.getValueObjects();
       List<String> edge_pred = nodeput.getEdge_predicates();
       List<String> objectIds = nodeput.getObjectIds();
       if (edge_pred.size() != objectIds.size()) {
-        logger.fatal("entity add predicates length not equal values ");
+        logger.fatal("entity add predicates edge length not equal values ");
       }
-      /*
-      // 属性值不重新添加
+      // 属性值重新修改
       int size = predicates.size();
       if (size != values.size()) {
-        logger.fatal("entity add predicates length not equal values ");
+        logger.fatal("entity add predicates attr length not equal values ");
       }
       for (int i = 0; i < size; i++) {
         String value = String.valueOf(values.get(i).toString());
@@ -278,7 +277,6 @@ public class DClient {
         stringBuffer.append(result);
         stringList.add(result);
       }
-      */
       // edge feed
       for (int k = 0; k < edge_pred.size(); k++) {
         String edgePredicate = edge_pred.get(k);

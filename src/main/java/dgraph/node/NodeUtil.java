@@ -104,6 +104,7 @@ public class NodeUtil {
       Nodeput dput = new Nodeput();
       String uid = item.getUid();
       if (uid != null && !"".equals(uid)) {
+        item.getAttrValueMap(pres, values);
         item.getEdgeValueMap(edge_pres, objectIds, "getUid");
         dput.setUniqueId(item.getUnique_id());
         dput.setEdge_predicates(edge_pres);

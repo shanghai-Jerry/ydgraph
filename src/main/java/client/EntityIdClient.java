@@ -151,6 +151,33 @@ public class EntityIdClient {
     return uids;
   }
 
+  public <T extends EntityNode> void getNoneExistEntityList(List<T> entityReqs, String
+      type, List<T> newEntityReqs) {
+    int outSize = entityReqs.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      T entityNode = entityReqs.get(i);
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addAllName(entityNode.getUnique_ids()).setType(type)
+          .build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        // String matchedName = entityIdResponse.getMatchedName();
+        if (!ok) {
+          newEntityReqs.add(entityReqs.get(i));
+        }
+      }
+    }
+  }
+
   public <T extends EntityNode> void checkEntityListAndPutUid(List<T> entityReqs, String type) {
     int outSize = entityReqs.size();
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
@@ -223,8 +250,8 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder().addAllName(Arrays.asList
-                ("llb00000000000000000000000020901"))
-                .setType("候选人").build())
+                ("上海陆家嘴国际金融资产交易市场股份有限公司"))
+                .setType("公司").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
