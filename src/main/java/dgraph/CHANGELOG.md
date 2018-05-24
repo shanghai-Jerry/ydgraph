@@ -53,3 +53,5 @@
 
     json object 形式的入库: 部分子实体uid没有被重新填入（实体id服务没有该实体的时候)，该实体会被写入（导致uidFlatten出错）
 
+    查询: uid(,,): 多个uid的方式query数据，返回结果是按uid排好序的，不是一一对应uid查询list的顺序。
+

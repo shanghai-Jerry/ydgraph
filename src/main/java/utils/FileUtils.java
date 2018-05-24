@@ -8,11 +8,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FileUtils {
 
@@ -69,8 +78,81 @@ public class FileUtils {
       }
     }
   }
+  public static void readAllFiles(String dirPath, List<String> dict) {
+    try {
+      Files.walkFileTree(Paths.get(dirPath), new SimpleFileVisitor<Path>() {
+        @Override
+        @SuppressWarnings({"IllegalCatch", "NestedTryDepth"})
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
-  public static void readFiles(String filePath, List<String> dict) {
+          String fileName = file.getFileName().toString();
+          if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+            // ..todo
+          } else if (fileName.endsWith(".pdfx")) {
+            // ..todo
+          } else if (fileName.endsWith(".zip")) {
+            ZipInputStream zin = new ZipInputStream(new FileInputStream(file.toFile()), Charset.forName("GBK"));
+            try {
+              ZipEntry entry = null;
+              while ((entry = zin.getNextEntry()) != null) {
+                String name = entry.getName();
+                try {
+
+                  if (!entry.isDirectory() && (name.endsWith(".doc") || name.endsWith(".docx"))) {
+                    // ..todo
+                  }
+                } finally {
+                  try {
+                    zin.closeEntry();
+                  } catch (Exception ex) {
+                    System.err.println("got error for zip file:" + fileName + ",and entry:" + name);
+                  }
+                }
+              }
+            } catch (Exception ex) {
+              System.err.println("process zip file error :" + file.toAbsolutePath().toString());
+            } finally {
+              zin.close();
+            }
+          } else {
+            // ..todo
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+          if (e != null) {
+            System.err.println("found error after visit directory:" + e);
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+          System.err.println("skipped:" + file);
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (IOException e) {
+      util.println("IOException", e.getMessage());
+    }
+  }
+
+  public static void readFiles(String dirPath, List<String> dict) {
+    File dirFile = new File(dirPath);
+    if (dirFile.isDirectory()) {
+      File []files = dirFile.listFiles();
+      for (File file : files) {
+        readFiles(file.getPath(), dict);
+      }
+    } else {
+      // util.println("filePath", dirFile.getAbsolutePath());
+      readFile(dirFile.getAbsolutePath(), dict);
+    }
+  }
+
+  public static void readFile(String filePath, List<String> dict) {
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "utf-8"));
@@ -124,5 +206,32 @@ public class FileUtils {
         printWriter.close();
       }
     }
+  }
+  public static void saveFile(String filePath, List<String> stringList, boolean isAppend) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), isAppend));
+      int count = 0;
+      for (String string : stringList) {
+        printWriter.write(string);
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
+
+  public static void deleteFile(String filePath) {
+    new File(filePath).delete();
   }
 }

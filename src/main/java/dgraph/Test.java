@@ -1,5 +1,7 @@
 package dgraph;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,12 +10,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import dgraph.node.Candidate;
 import dgraph.node.Company;
 import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import dgraph.node.School;
 import utils.FileUtils;
+import utils.util;
 
 /**
  * Created by lolaliva on 2018/5/10.
@@ -167,13 +171,20 @@ public class Test {
     }
     return companyList;
   }
+
+  private void test_six() {
+    Candidate candidate = new Candidate();
+    String string = new Gson().toJson(candidate);
+    util.println("can:", string);
+  }
   public static void main(String[] arg) {
     Test test = new Test();
-    test.demo.init();
-    test.test_one();
+    // test.demo.init();
+    // test.test_one();
     // test.test_two();
     // test.test_tree();
     // test.test_five();
+    test.test_six();
 
   }
 
