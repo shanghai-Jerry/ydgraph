@@ -27,21 +27,24 @@
 2. 更新日志：
 
     2018.5.12
-         * 支持获取类似List<EntityNode>实体关系的解析
-         * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
-         * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
+        * 支持获取类似List<EntityNode>实体关系的解析
+        * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
+        * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
             (已确认确认是需要重置DgraphProto.Assigned，该异常会丢失数据, 可相应减少batch数和map的数量，and retry mutation)
 
-         * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs,
+        * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs,
             but this attr must be index tokenizer
 
     2018.5.17
-         * 子实体的uid在返回uidMap之前,就已经写回到实体中。
+        * 子实体的uid在返回uidMap之前,就已经写回到实体中。
 
-         * 支持: 多个unique_ids写入到id服务器
+        * 支持: 多个unique_ids写入到id服务器
 
     2018.5.22
-         * 支持单独添加edge facets的操作。
+        * 支持单独添加edge facets的操作。
+
+    2018.5.24
+        * 支持按照uid list检查dgraph中是否存在对应数据。(因为dgraph server突然挂了，重新启动后，从日志恢复的完整的数据了吗？？)
 
 
 3. 发现问题
