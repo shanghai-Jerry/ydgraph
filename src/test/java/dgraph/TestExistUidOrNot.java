@@ -95,7 +95,14 @@ public class TestExistUidOrNot {
   }
 
   public void queryDemo(String dir, String subDir) {
-    String filePath = "/Users/devops/workspace/shell/dgraph/" + dir;
+
+    String filePath;
+    if ("".equals(subDir)) {
+     filePath = "/Users/devops/workspace/shell/dgraph/" + dir;
+     subDir = "uidmap";
+    } else {
+      filePath = "/Users/devops/workspace/shell/dgraph/" + dir + "/" + subDir;
+    }
     String savePath = "src/main/resources/" + dir + "_none_exist_in_" + subDir + ".txt";
     String query = "{\ncandidates(func:uid(%s)) { \nname\n uid\n gender\n}\n}";
     FileUtils.deleteFile(savePath);
@@ -132,9 +139,9 @@ public class TestExistUidOrNot {
   public static void main(String[] args) {
     TestExistUidOrNot testExistUidOrNot = new TestExistUidOrNot();
     String dir = "alpha_final_distinct_3";
-    String subDir = "uidmap2";
-    testExistUidOrNot.test_query();
-    // testExistUidOrNot.queryDemo(dir, subDir);
+    String subDir = "uidmap3";
+    // testExistUidOrNot.test_query();
+    testExistUidOrNot.queryDemo(dir, subDir);
 
   }
 }

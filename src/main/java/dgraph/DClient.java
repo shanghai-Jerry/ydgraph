@@ -396,6 +396,8 @@ public class DClient {
     // retry multiply times as possible
     // io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state code: 14
     // io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED code: 4
+    // io.grpc.StatusRuntimeException: Please retry again, server is not ready to accept
+    // request code: 2
     // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
     String message;
