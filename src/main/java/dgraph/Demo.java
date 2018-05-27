@@ -167,8 +167,8 @@ public class Demo {
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
-    // demo.init();
-    demo.deleteEdge();
+    demo.init();
+    // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();

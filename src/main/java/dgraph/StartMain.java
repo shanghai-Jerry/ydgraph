@@ -17,9 +17,9 @@ public class StartMain {
     int needCheck = 0;
     IndustryToDgraph industryToDgraph = new IndustryToDgraph();
     industryToDgraph.initWithJson(dict);
-    String schoolPath = "/Users/devops/Documents/知识图谱/school/school_dump_dict.txt";
+    String schoolPath = "src/main/resources/school_dump_dict.txt";
     schoolToDgraph.initWithJson(schoolPath);
-    String majorPath = "/Users/devops/workspace/gitlab/idmg/resume_extractor/src/cc/major_dict.txt";
+    String majorPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     majorToDgraph.initWithJson(majorPath);
     System.out.println("finished");

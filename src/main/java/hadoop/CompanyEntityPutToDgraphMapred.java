@@ -147,19 +147,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
             originSuccessCounter.increment(ret.size());
             writeUidMap(mos, ret);
           } else if (source == 2) {
-            // past test into dgraph
-            List<Industry> checkIndustries = getIndustry(companyList);
-            entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
-            Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
-            // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
-            // getLabeledCompany(companyList), type, checkUid);
-            entityIdClient.putFeedEntityWithNames(companyRet, type);
-            if (companyRet.size() == 0) {
-              writeOriginContentMap(mos, originContent);
-              timeOutErrorCounter.increment(1L);
-            }
-            originSuccessCounter.increment(companyRet.size());
-            writeUidMap(mos, companyRet);
+            batchPut(companyList, originContent, type);
           }
           companyList.clear();
           originContent.clear();
@@ -175,22 +163,36 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           originSuccessCounter.increment(ret.size());
           writeUidMap(mos, ret);
         } else if (source == 2) {
-          List<Industry> checkIndustries = getIndustry(companyList);
-          entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
-          Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
-          // NodeUtil.putEntityUid(companyList, companyRet);
-          // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
-          // getLabeledCompany(companyList), type, checkUid);
-          entityIdClient.putFeedEntityWithNames(companyRet, type);
+          batchPut(companyList, originContent, type);
+        }
+      }
+      cleanup(context);
+    }
+
+    private void batchPut(List<Company> companyList, List<String> originContent, String type) {
+      List<Industry> checkIndustries = getIndustry(companyList);
+      entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+      Map<String, List<String>> companyRet;
+      if (checkUid > 0) {
+        List<Company> newComapnyList = new ArrayList<>();
+        entityIdClient.getNoneExistEntityList(companyList, type, newComapnyList);
+        companyRet = NodeUtil.insertEntity(dClient,newComapnyList);
+        if (newComapnyList.size() > 0) {
           if (companyRet.size() == 0) {
             writeOriginContentMap(mos, originContent);
             timeOutErrorCounter.increment(1L);
           }
-          originSuccessCounter.increment(companyRet.size());
-          writeUidMap(mos, companyRet);
+        }
+      } else {
+        companyRet = NodeUtil.insertEntity(dClient,companyList);
+        if (companyRet.size() == 0) {
+          writeOriginContentMap(mos, originContent);
+          timeOutErrorCounter.increment(1L);
         }
       }
-      cleanup(context);
+      entityIdClient.putFeedEntityWithNames(companyRet, type);
+      originSuccessCounter.increment(companyRet.size());
+      writeUidMap(mos, companyRet);
     }
   }
 

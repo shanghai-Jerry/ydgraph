@@ -171,17 +171,7 @@ public class CandidateEntityPutToDgraphMapred {
           if (source == 1) {
             // ..todo
           } else if (source == 2) {
-            getCompnays(dealingJsonObject, companyList);
-            List<String> companyUid = entityIdClient.checkEntityList(companyList, "公司");
-            checkExistCompnayUidCandidates(dealingJsonObject, companyUid, candidateList);
-            Map<String, List<String>> candidateRet = NodeUtil.insertEntity(dClient,candidateList);
-            // entityIdClient.putFeedEntityWithNames(candidateRet, type);
-            if (candidateRet.size() == 0) {
-              writeOriginContentMap(mos, originContent);
-              timeOutErrorCounter.increment(1L);
-            }
-            originSuccessCounter.increment(candidateRet.size());
-            writeUidMap(mos, candidateRet);
+            batchCandidatesPut(dealingJsonObject, companyList, candidateList, type, originContent);
           }
           dealingJsonObject.clear();
           candidateList.clear();
@@ -196,17 +186,7 @@ public class CandidateEntityPutToDgraphMapred {
         if (source == 1) {
           // ..todo
         } else if (source == 2) {
-          getCompnays(dealingJsonObject, companyList);
-          List<String> companyUid = entityIdClient.checkEntityList(companyList, "公司");
-          checkExistCompnayUidCandidates(dealingJsonObject, companyUid, candidateList);
-          Map<String, List<String>> candidateRet = NodeUtil.insertEntity(dClient,candidateList);
-          // entityIdClient.putFeedEntityWithNames(candidateRet, type);
-          if (candidateRet.size() == 0) {
-            writeOriginContentMap(mos, originContent);
-            timeOutErrorCounter.increment(1L);
-          }
-          originSuccessCounter.increment(candidateRet.size());
-          writeUidMap(mos, candidateRet);
+          batchCandidatesPut(dealingJsonObject, companyList, candidateList, type, originContent);
         }
       }
       cleanup(context);
@@ -218,6 +198,33 @@ public class CandidateEntityPutToDgraphMapred {
         industryList.addAll(company.getIndustry());
       }
       return industryList;
+    }
+    private void batchCandidatesPut(List<JsonObject> dealingJsonObject, List<Company> companyList,
+                                    List<Candidate> candidateList, String type, List<String> originContent) {
+      getCompnays(dealingJsonObject, companyList);
+      List<String> companyUid = entityIdClient.checkEntityList(companyList, "公司");
+      checkExistCompnayUidCandidates(dealingJsonObject, companyUid, candidateList);
+      Map<String, List<String>> candidateRet;
+      if (checkUid > 0) {
+        List<Candidate> newCandidateList = new ArrayList<>();
+        entityIdClient.getNoneExistEntityList(candidateList, type, newCandidateList);
+        candidateRet = NodeUtil.insertEntity(dClient, newCandidateList);
+        if (newCandidateList.size() > 0) {
+          if (candidateRet.size() == 0) {
+            writeOriginContentMap(mos, originContent);
+            timeOutErrorCounter.increment(1L);
+          }
+        }
+      } else {
+        candidateRet = NodeUtil.insertEntity(dClient, candidateList);
+        if (candidateRet.size() == 0) {
+          writeOriginContentMap(mos, originContent);
+          timeOutErrorCounter.increment(1L);
+        }
+      }
+      entityIdClient.putFeedEntityWithNames(candidateRet, type);
+      originSuccessCounter.increment(candidateRet.size());
+      writeUidMap(mos, candidateRet);
     }
   }
 
