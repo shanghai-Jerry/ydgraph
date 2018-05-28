@@ -139,7 +139,7 @@ public class TestExistUidOrNot {
   public static void main(String[] args) {
     TestExistUidOrNot testExistUidOrNot = new TestExistUidOrNot();
     String dir = "alpha_final_distinct_3";
-    String subDir = "uidmap3";
+    String subDir = "uidmap2";
     // testExistUidOrNot.test_query();
     testExistUidOrNot.queryDemo(dir, subDir);
 

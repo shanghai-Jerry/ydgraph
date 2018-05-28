@@ -47,7 +47,7 @@ public class DClient {
 
   private DgraphClient dgraphClient;
 
-  private static  int deadlineSecs = 60;
+  private static  int deadlineSecs = 300;
   private int retryCompensation = 100;
   // deadline exceed retry max number default 5
   @Deprecated
@@ -398,6 +398,8 @@ public class DClient {
     // io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED code: 4
     // io.grpc.StatusRuntimeException: Please retry again, server is not ready to accept
     // request code: 2
+    // io.grpc.StatusRuntimeException: UNKNOWN: Predicate is being moved, please retry
+    // later, code: 2
     // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
     String message;
@@ -410,8 +412,8 @@ public class DClient {
       logger.info("[OtherException]:" + exception);
       return assigned;
     }
-    // 重试直到非该exception为止
-    while("DEADLINE_EXCEEDED".equals(message) && code == 4) {
+    // 重试直到非 retry exception为止
+    while(code != 14 && code != 0) {
       message = "";
       code = 0;
       try {

@@ -25,7 +25,7 @@ public class StartMain {
     System.out.println("finished");
   }
   public static void main(String[] args) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     // 行业
     String dict = "src/main/resources/industry_dump_dict.txt";
     IndustryToDgraph industryToDgraph = new IndustryToDgraph(dClient);

@@ -88,7 +88,7 @@ public class MajorToDgraph {
     // .. todo
     String type = "专业";
     init(dictPath);
-    Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
+    Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
     entityIdClient.putFeedEntityWithNames(uidMap, type);
   }

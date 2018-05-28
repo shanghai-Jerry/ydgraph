@@ -61,6 +61,21 @@ public class Demo {
     return persons;
   }
 
+  public void QueryCount() {
+    System.out.println("querying ....");
+    String query = "{\n" +
+        "query (func:uid(0x2b832f)) @cascade {\n" +
+            "~candidate_company{\n" +
+                "count(uid)\n" +
+            "}\n" +
+        "}\n" + "}\n";
+    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
+    // 获取时间
+    // res.getLatency()
+    System.out.println(res.getJson().toStringUtf8());
+    util.println("latency:", res.getLatency().toString());
+  }
+
   public void QueryDemo() {
 
     // Query
@@ -165,10 +180,11 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
-    // demo.init();
-    demo.deleteEdge();
+    // emo.QueryCount();
+    demo.init();
+    // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();

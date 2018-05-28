@@ -34,6 +34,6 @@ public class Config {
           "parent_industry:uid .\n";
 
   public static String updateSchema =
-            "has_label:uid @reverse .\n";
+            "candidate_company:uid @reverse .\n";
 
 }

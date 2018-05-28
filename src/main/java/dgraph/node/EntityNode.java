@@ -178,6 +178,10 @@ public class EntityNode implements Serializable {
           if ("uid".equals(name)) {
             continue;
           }
+          // 一般属性值
+          if ("unique_id".equals(name)) {
+            continue;
+          }
           util.println("  other else:", name);
           if (value != null) {
             util.println("  name:", name);
