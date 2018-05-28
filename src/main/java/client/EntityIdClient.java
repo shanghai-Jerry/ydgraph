@@ -250,8 +250,8 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder().addAllName(Arrays.asList
-                ("上海陆家嘴国际金融资产交易市场股份有限公司"))
-                .setType("公司").build())
+                ("房地产"))
+                .setType("行业").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
