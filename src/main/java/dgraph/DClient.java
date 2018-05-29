@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import client.dgrpah.DgraphClient;
+import client.dgrpah.TxnConflictException;
 import dgraph.node.EntityNode;
 import dgraph.put.EdgeFacetsPut;
 import dgraph.put.Nodeput;
@@ -408,6 +409,8 @@ public class DClient {
       code = ((StatusRuntimeException) exception).getStatus().getCode().value();
       message = exception.getMessage();
       logger.info("[StatusRuntimeException code value]:" + code);
+    } else if (exception instanceof TxnConflictException) {
+      code = 4;
     } else {
       logger.info("[OtherException]:" + exception);
       return assigned;
@@ -431,6 +434,8 @@ public class DClient {
         message = e.getMessage();
         if (e instanceof StatusRuntimeException) {
           code = ((StatusRuntimeException) exception).getStatus().getCode().value();
+        } else if (exception instanceof TxnConflictException) {
+          code = 4;
         }
         assigned = null;
       } finally {
