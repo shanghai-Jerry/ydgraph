@@ -180,7 +180,7 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
     // emo.QueryCount();
     demo.init();

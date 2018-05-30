@@ -85,14 +85,14 @@ public class TestCompanyLabelToDgraph extends Configured implements Tool {
           batch++;
         }
         if (batch >= 200) {
-          NodeUtil.addEntityEdge(dClient, companyList);
+          NodeUtil.insertEntity(dClient, companyList);
           companyList.clear();
           batch = 0;
         }
         jsonSuccessCounter.increment(1);
       }
       if (batch > 0) {
-        NodeUtil.addEntityEdge(dClient, companyList);
+        NodeUtil.insertEntity(dClient, companyList);
       }
 
       cleanup(context);

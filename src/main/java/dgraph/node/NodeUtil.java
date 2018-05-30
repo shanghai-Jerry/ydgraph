@@ -33,55 +33,6 @@ public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
-  /**
-   * 添加实体的子实体属性
-   * @param dClient dgraph client
-   * @param list 实体数组
-   * @param <T> 支持实体泛型，继承自EntityNode
-   */
-  @Deprecated
-  public static <T extends EntityNode> void addEntityEdge(DClient dClient, List<T> list) {
-    List<Nodeput> updatePutList = new ArrayList<>();
-    for (T entityNode : list) {
-      List<String> pres = new ArrayList<>();
-      List<String> values = new ArrayList<>();
-      entityNode.getEdgeValueMap(pres, values, "getUid");
-      Nodeput dput = new Nodeput();
-      if ("".equals(entityNode.getUid())) {
-        continue;
-      }
-      dput.setUid(entityNode.getUid());
-      dput.setEdge_predicates(pres);
-      dput.setObjectIds(values);
-      updatePutList.add(dput);
-    }
-    dClient.entityAdd(updatePutList);
-  }
-
-  /**
-   * 更新实体的属性
-   * @param dClient dgraph cllient
-   * @param list 实体数组
-   * @param <T> 支持实体泛型，继承自EntityNode
-   */
-  @Deprecated
-  public static <T extends EntityNode> void updateEntity(DClient dClient, List<T> list) {
-    List<Nodeput> updatePutList = new ArrayList<>();
-    for (T school : list) {
-      List<String> pres = new ArrayList<>();
-      List<Object> values = new ArrayList<>();
-      school.getAttrValueMap(pres, values);
-      Nodeput dput = new Nodeput();
-      if ("".equals(school.getUid())) {
-        continue;
-      }
-      dput.setUid(school.getUid());
-      dput.setPredicates(pres);
-      dput.setValueObjects(values);
-      updatePutList.add(dput);
-    }
-    dClient.entityAddAttr(updatePutList);
-  }
 
   /**
    * 插入新增实体属性，与子实体属性等

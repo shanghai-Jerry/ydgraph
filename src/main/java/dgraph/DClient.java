@@ -49,7 +49,7 @@ public class DClient {
   private DgraphClient dgraphClient;
 
   private static  int deadlineSecs = 300;
-  private int retryCompensation = 100;
+  private int retryCompensation = 5;
   // deadline exceed retry max number default 5
   @Deprecated
   private int retryMaxNumber = 5;
@@ -122,7 +122,9 @@ public class DClient {
     } finally {
       txn.discard();
     }
-
+    if (assigned == null) {
+      logger.info("[Final] Retry Error!!");
+    }
     return assigned;
   }
 
@@ -220,38 +222,6 @@ public class DClient {
 
   /**
    * 形式: <uid> <> <>
-   * @param putList node 属性的上一层抽象
-   */
-  public void entityAddAttr(List<Nodeput> putList) {
-    StringBuilder stringBuffer = new StringBuilder();
-    List<String> stringList = new ArrayList<>();
-    for (Nodeput nodeput : putList) {
-      String uid = nodeput.getUid();
-      List<String> predicates = nodeput.getPredicates();
-      List<Object> values = nodeput.getValueObjects();
-      if (predicates.size() != values.size()) {
-        logger.fatal("entity add predicates length not equal values ");
-      }
-      // 属性值添加
-      int size = predicates.size();
-      if (size != values.size()) {
-        logger.fatal("entity add predicates length not equal values ");
-      }
-      for (int i = 0; i < size; i++) {
-        String value = String.valueOf(values.get(i).toString());
-        String pred = predicates.get(i);
-        String result = attrFormat(uid, pred, value);
-        stringBuffer.append(result);
-        stringList.add(result);
-      }
-    }
-    if (stringList.size() > 0) {
-      logger.info("multiplyEdgesMutation =====> ");
-      multiplyEdgesMutation(stringList);
-    }
-  }
-  /**
-   * 形式: <uid> <> <>
    * @param putList  node 属性的上一层抽象
    */
   public void entityAdd(List<Nodeput> putList) {
@@ -290,28 +260,6 @@ public class DClient {
     if (stringList.size() > 0) {
       logger.info("entityAdd multiplyEdgesMutation =====> ");
       multiplyEdgesMutation(stringList);
-    }
-  }
-
-  /**
-   *
-   * @param src  start uid
-   * @param predicate relation
-   * @param uid end uid
-   */
-  public void entityAddAttrTest(String src, String predicate, String uid) {
-    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
-
-    DgraphProto.NQuad quad = DgraphProto.NQuad.newBuilder().setSubject(String.format("_:%s", src)
-    ).setPredicate(predicate).setObjectId(uid).build();
-    quads.add(quad);
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addAllSet(quads).build();
-    try {
-      txn.mutate(mu);
-      txn.commit();
-    } finally {
-      txn.discard();
     }
   }
 
@@ -383,6 +331,9 @@ public class DClient {
     } finally {
       txn.discard();
     }
+    if (ag == null) {
+      logger.info("[Final] Retry Error!!");
+    }
     return ag;
   }
 
@@ -403,11 +354,9 @@ public class DClient {
     // later, code: 2
     // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
-    String message;
     int code;
     if (exception instanceof StatusRuntimeException) {
       code = ((StatusRuntimeException) exception).getStatus().getCode().value();
-      message = exception.getMessage();
       logger.info("[StatusRuntimeException code value]:" + code);
     } else if (exception instanceof TxnConflictException) {
       code = 4;
@@ -416,8 +365,7 @@ public class DClient {
       return assigned;
     }
     // 重试直到非 retry exception为止
-    while(code != 14 && code != 0) {
-      message = "";
+    while(code == 4 || code == 2) {
       code = 0;
       try {
         Thread.sleep(retryCompensation * retryCounter.incrementAndGet());
@@ -431,7 +379,6 @@ public class DClient {
       } catch (Exception e) {
         logger.info("[multiplyEdgeMutation Retry Exception] => " + e.getMessage() +
             ", retry times:" + retryCounter.get());
-        message = e.getMessage();
         if (e instanceof StatusRuntimeException) {
           code = ((StatusRuntimeException) exception).getStatus().getCode().value();
         } else if (exception instanceof TxnConflictException) {

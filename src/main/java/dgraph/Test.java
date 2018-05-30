@@ -47,7 +47,6 @@ public class Test {
   }
 
   private void test_two() {
-    dClient.entityAddAttrTest("分析化学", "has_label", "0x118d");
   }
 
   private void test_tree() {
