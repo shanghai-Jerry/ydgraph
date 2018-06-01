@@ -97,8 +97,8 @@ public class CandidateEntityPutToDgraphMapred {
         int workExprSize = workExpr.size();
         for (int i = 0; i < workExprSize; i ++) {
           JsonObject companyObject = workExpr.getJsonObject(i).getJsonObject("company", new JsonObject());
-          String companyNorName = companyObject.getString("name_nor", "");
-          String companyName = companyObject.getString("name", "");
+          String companyNorName = companyObject.getString("name_nor", "-");
+          String companyName = companyObject.getString("name", "-");
           Company company = new Company();
           company.setUnique_ids(Arrays.asList(companyName, companyNorName));
           companyList.add(company);
@@ -110,10 +110,10 @@ public class CandidateEntityPutToDgraphMapred {
         companyUid, List<Candidate> candidateList) {
       int index = 0;
       for (JsonObject jsonObject : dealingJsonObject) {
-        String docId = jsonObject.getString("doc_id", "");
+        String docId = jsonObject.getString("doc_id", "-");
         JsonObject info = jsonObject.getJsonObject("info", new JsonObject());
-        String candidateName = info.getString("chinese_name", "");
-        String gender = info.getString("gender", "");
+        String candidateName = info.getString("chinese_name", "-");
+        String gender = info.getString("gender", "-");
         JsonArray workExpr = jsonObject.getJsonArray("work_experiences", new JsonArray());
         int workExprSize = workExpr.size();
         List<Company> candidateCompanys = new ArrayList<>();

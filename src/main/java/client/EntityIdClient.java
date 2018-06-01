@@ -249,8 +249,8 @@ public class EntityIdClient {
     try {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder().addAllName(Arrays.asList
-                ("llb00000000000000000000000121929"))
+            .addEntityReq(EntityIdRequest.newBuilder()
+                .addAllName(Arrays.asList("1eb8113c70506ccb9b9c52f3c3cf90e7"))
                 .setType("候选人").build())
           .build());
       if (rep != null) {

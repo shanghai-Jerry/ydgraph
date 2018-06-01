@@ -20,7 +20,10 @@ import utils.util;
  *
  * 多种形式的插入
  *
- * <0xd60> <friend> <0xd57> . _:id <friend> <0xd57> . _:id <name> "value1" . _:id <age> "value2" .
+ * <0xd60> <friend> <0xd57> .
+ * _:id <friend> <0xd57> .
+ * _:id <name> "value1" .
+ * _:id <age> "value2" .
  * 注：value 为int等类型都需""，具体类型转换由schema的类型定义决定
  *
  * <<licensetext>>
@@ -178,10 +181,9 @@ public class EntityNode implements Serializable {
           if ("uid".equals(name)) {
             continue;
           }
-          // 一般属性值
-          if ("unique_id".equals(name)) {
-            continue;
-          }
+
+          // unique_id: 一般属性值, 需要入到dgraph中, 不然无法反向推断出某个uid具体对应unique_id
+          // 同样type也需要入库到dgraph: 通过unique_id获取uid时，需要指定type
           util.println("  other else:", name);
           if (value != null) {
             util.println("  name:", name);

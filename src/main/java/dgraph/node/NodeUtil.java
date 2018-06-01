@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +45,10 @@ public class NodeUtil {
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
                                                                               List<T> list) {
     Map<String, List<String>> uidMap = new HashMap<>();
+    if (!checkUniqueId(list)) {
+      logger.info("Please set unique_id !!");
+      return uidMap;
+    }
     // insert
     List<Nodeput> dputList = new ArrayList<>();
     List<Nodeput> newPutList = new ArrayList<>();
@@ -292,11 +297,21 @@ public class NodeUtil {
       list, Map<String, List<String>> uidMap) {
     for (T entityNode : list) {
       List<String> uniqueIdList = entityNode.getUnique_ids();
-      for (String uniqueId : uniqueIdList) {
-        if (keyUidMap.containsKey(uniqueId)) {
-          String uid = keyUidMap.get(uniqueId);
-          uidMap.put(uid, entityNode.getUnique_ids());
-          break;
+      if (uniqueIdList.size() == 0) {
+        String uniqueId = entityNode.getUnique_id();
+        if (uniqueId != null && !"".equals(uniqueId)) {
+          if (keyUidMap.containsKey(uniqueId)) {
+            String uid = keyUidMap.get(uniqueId);
+            uidMap.put(uid, Arrays.asList(uniqueId));
+          }
+        }
+      } else {
+        for (String uniqueId : uniqueIdList) {
+          if (keyUidMap.containsKey(uniqueId)) {
+            String uid = keyUidMap.get(uniqueId);
+            uidMap.put(uid, entityNode.getUnique_ids());
+            break;
+          }
         }
       }
     }
@@ -354,4 +369,21 @@ public class NodeUtil {
       return Long.parseLong(str, 16);
     }
   }
+
+  /**
+   * 检查实体中必须存在的uinque_id存在与否
+   * @param list 实体数组
+   * @param  <T> 支持实体泛型，继承自EntityNode
+   * @return pass or not pass
+   */
+  private static  <T extends  EntityNode> boolean checkUniqueId(List<T> list) {
+    for (T entityNode : list) {
+      String uniqueId = entityNode.getUnique_id();
+      if (uniqueId == null || "".equals(uniqueId)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }

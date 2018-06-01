@@ -316,11 +316,11 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
             errorCounter.increment(1);
             e.printStackTrace();
           }
-          String qccUnique = infoObject.getString("qcc_unique", "");
-          String name = infoObject.getString("name", "");
-          String location = infoObject.getString("location", "");
-          String establish_at = infoObject.getString("establish_at", "");
-          String legal_person = infoObject.getString("legal_person", "");
+          String qccUnique = infoObject.getString("qcc_unique", "-");
+          String name = infoObject.getString("name", "-");
+          String location = infoObject.getString("location", "-");
+          String establish_at = infoObject.getString("establish_at", "-");
+          String legal_person = infoObject.getString("legal_person", "-");
           JsonArray normed_industry_names = infoObject.getJsonArray("normed_industry_names", new
               JsonArray());
           JsonArray normed_industry_codes = infoObject.getJsonArray("normed_industry_codes", new

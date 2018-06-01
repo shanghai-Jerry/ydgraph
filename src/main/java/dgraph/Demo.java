@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import client.dgrpah.DgraphClient;
+import dgraph.node.EntityNode;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import dgraph.node.Person;
@@ -64,11 +65,21 @@ public class Demo {
   public void QueryCount() {
     System.out.println("querying ....");
     String query = "{\n" +
-        "query (func:uid(0x2b832f)) @cascade {\n" +
-            "~candidate_company{\n" +
-                "count(uid)\n" +
+        "var(func:has(candidate_company)) {\n" +
+            "candidate_company{\n" +
+                "CU as uid\n" +
             "}\n" +
-        "}\n" + "}\n";
+        "}\n" +
+        "var(func:uid(CU)) {\n" +
+           "number as count(~candidate_company)\n" +
+        "}\n" +
+        "query(func:uid(number), orderdesc: val(number), first:2) {\n" +
+            "candidate_company{\n" +
+               "uid\n" +
+               "name\n" +
+            "}\n" +
+        "}\n" +
+    "}\n";
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
     // 获取时间
     // res.getLatency()
@@ -129,7 +140,7 @@ public class Demo {
     label.setUnique_ids(Arrays.asList("行业类型"));
     // 0x118e
     label.setUid("0x04");
-    Map<String,  List<String>> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", uid);
   }
 
@@ -139,7 +150,7 @@ public class Demo {
     label.setUnique_ids(Arrays.asList("专业类型"));
     // 0x118d
     label.setUid("0x03");
-    Map<String,  List<String>> uid = NodeUtil.putEntity(dClient , Arrays.asList(label));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient , Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/major_label_uid_map.txt", uid);
   }
 
@@ -149,7 +160,7 @@ public class Demo {
     label.setUnique_ids(Arrays.asList("学校类型"));
     // 0x118c
     label.setUid("0x02");
-    Map<String,  List<String>> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/school_abel_uid_map.txt", uid);
   }
 
@@ -159,7 +170,7 @@ public class Demo {
     label.setUnique_ids(Arrays.asList("公司类型"));
     // "公司类型": "0x118b"
     label.setUid("0x01");
-    Map<String,  List<String>> uid = NodeUtil.putEntity(dClient, Arrays.asList(label));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
     FileUtils.saveFile("src/main/resources/company_label_uid_map.txt", uid);
   }
 
@@ -170,24 +181,44 @@ public class Demo {
 
   }
 
+  public void initDegreeUid() {
+    EntityNode entityNode = new EntityNode();
+    String name = "高中";
+    entityNode.setUnique_id(name);
+    entityNode.setName(name);
+    EntityNode entityNode1 = new EntityNode();
+    name = "本科";
+    entityNode1.setUnique_id(name);
+    entityNode1.setName(name);
+    name = "硕士";
+    EntityNode entityNode2 = new EntityNode();
+    entityNode2.setUnique_id(name);
+    entityNode2.setName(name);
+    Map<String, List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(entityNode,
+        entityNode1, entityNode2));
+    FileUtils.saveFile("src/main/resources/degree_uid_map.txt", uid);
+
+  }
+
   public void initLeaseLabel() {
     Label labellease = new Label();
     labellease.setLabel_name("lease类型");
     labellease.setUnique_ids(Arrays.asList("lease类型"));
     labellease.setUid("0x00");
-    Map<String, List<String>> uid = NodeUtil.putEntity(dClient, Arrays.asList(labellease));
+    Map<String, List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(labellease));
     FileUtils.saveFile("src/main/resources/lease_label_uid_map.txt", uid);
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
-    // emo.QueryCount();
-    demo.init();
+    // demo.QueryCount();
+    // demo.init();
     // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();
+    // demo.initDegreeUid();
     System.out.println("finished");
   }
 }
