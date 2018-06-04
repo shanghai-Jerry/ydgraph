@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import client.dgrpah.DgraphClient;
 import client.dgrpah.TxnConflictException;
 import dgraph.node.EntityNode;
+import dgraph.put.EdgeFacetPut;
 import dgraph.put.EdgeFacetsPut;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphGrpc;
@@ -159,10 +160,15 @@ public class DClient {
    * @param src start uid
    * @param pred relation
    * @param dest end uid
+   * @param isExistUid src是否是uid
    * @return format string
    */
-  private String edgeFormat(String src, String pred, String dest) {
-    return String.format("<%s> <%s> <%s> . \n", src, pred, dest);
+  private String edgeFormat(String src, String pred, String dest, boolean isExistUid) {
+    if (isExistUid) {
+      return String.format("<%s> <%s> <%s> . \n", src, pred, dest);
+    } else {
+      return String.format("_:%s <%s> <%s> . \n", src, pred, dest);
+    }
   }
 
   /**
@@ -170,54 +176,150 @@ public class DClient {
    * @param src start uid
    * @param pred relation
    * @param dest end uid
+   * @param isExistUid src是否是uid
    * @return format string
    */
-  private String attrFormat(String src, String pred, String dest) {
-    return String.format("<%s> <%s> \"%s\" . \n", src, pred, dest);
+  private String attrFormat(String src, String pred, String dest, boolean isExistUid) {
+    if (isExistUid) {
+      return String.format("<%s> <%s> \"%s\" . \n", src, pred, dest);
+    } else {
+      return String.format("_:%s <%s> \"%s\" . \n", src, pred, dest);
+    }
   }
 
   /**
    * 增加边的facets
-   * @param src start uid
+   * @param src start uid or unique_id
    * @param pred relation
    * @param dest end uid
    * @param facets 边的属性集合
    * @return Nquad string
    */
-  private String edgeFacetsFormat(String src, String pred, String dest, List<String> facets) {
+  private String edgeUidFacetsFormat(String src, String pred, String dest, List<String> facets,
+                                  boolean isExistUid) {
     StringBuilder stringBuilder = new StringBuilder();
     int facetSize = facets.size();
-    for (int i = 0; i < facetSize; i ++) {
+    for (int i = 0; i < facetSize; i++) {
       if (i == 0) {
         stringBuilder.append(facets.get(i));
       } else {
         stringBuilder.append("," + facets.get(i));
       }
     }
-    return String.format("<%s> <%s> <%s> (%s). \n", src, pred, dest, stringBuilder.toString());
+    if (isExistUid) {
+      // uid
+      return String.format("<%s> <%s> <%s> (%s) . \n", src, pred, dest, stringBuilder.toString());
+    } else {
+      // unique_id
+      return String.format("_:%s <%s> <%s> (%s) . \n", src, pred, dest, stringBuilder.toString());
+    }
   }
 
-  public void entityAddFacets(List<EdgeFacetsPut> edgeFacetsPutList) {
+  /**
+   * 增加边的facets
+   * @param src start uid or unique_id
+   * @param pred relation
+   * @param dest end uid
+   * @param facets 边的属性集合
+   * @return Nquad string
+   */
+  private String edgeAttributeFacetsFormat(String src, String pred, String dest, List<String>
+      facets, boolean isExistUid) {
+    StringBuilder stringBuilder = new StringBuilder();
+    int facetSize = facets.size();
+    for (int i = 0; i < facetSize; i++) {
+      if (i == 0) {
+        stringBuilder.append(facets.get(i));
+      } else {
+        stringBuilder.append("," + facets.get(i));
+      }
+    }
+    if (isExistUid) {
+      // uid
+      return String.format("<%s> <%s> %s (%s) . \n", src, pred, dest, stringBuilder.toString());
+    } else {
+      // unique_id
+      return String.format("_:%s <%s> %s (%s) . \n", src, pred, dest, stringBuilder.toString());
+    }
+  }
+
+  public List<String> getAddFacet(List<EdgeFacetPut> edgeFacetPutList) {
+    List<String> stringList = new ArrayList<>();
+    for (EdgeFacetPut edgeFacetPut : edgeFacetPutList) {
+      String src = edgeFacetPut.getSrc();
+      String dst = edgeFacetPut.getDst();
+      String predicate = edgeFacetPut.getPredicate();
+      EdgeFacetPut.PredicateType predicateType = edgeFacetPut.getPredicateType();
+      List<String> facet = edgeFacetPut.getFacets();
+      String result = "";
+      if (src.startsWith("0x")) {
+        switch (predicateType) {
+          case UID:
+            result = edgeUidFacetsFormat(src, predicate, dst, facet, true);
+            break;
+          case ATTRIBUTE:
+            result = edgeAttributeFacetsFormat(src, predicate, dst, facet, true);
+            break;
+        }
+      } else if (src != null && !"".equals(src)) {
+        switch (predicateType) {
+          case UID:
+            result = edgeUidFacetsFormat(src, predicate, dst, facet, false);
+            break;
+          case ATTRIBUTE:
+            result = edgeAttributeFacetsFormat(src, predicate, dst, facet, false);
+            break;
+        }
+      }
+      if (!"".equals(result)) {
+        stringList.add(result);
+      }
+
+    }
+    return stringList;
+  }
+
+  public List<String> getAddFacets(List<EdgeFacetsPut> edgeFacetsPutList) {
     List<String> stringList = new ArrayList<>();
     for (EdgeFacetsPut edgeFacetsPut : edgeFacetsPutList) {
       List<String> srcs = edgeFacetsPut.getSrcs();
       List<String> dsts = edgeFacetsPut.getDst();
       List<String> predicates = edgeFacetsPut.getPredicates();
+      List<EdgeFacetsPut.PredicateType> predicateTypes = edgeFacetsPut.getPredicateTypes();
       List<List<String>> facets = edgeFacetsPut.getFacets();
       int size = srcs.size();
       for (int i = 0; i < size; i++) {
         String src = srcs.get(i);
         String dst = dsts.get(i);
         String predicate = predicates.get(i);
+        EdgeFacetsPut.PredicateType predicateType = predicateTypes.get(i);
         List<String> facet = facets.get(i);
-        String result = edgeFacetsFormat(src, predicate, dst, facet);
-        stringList.add(result);
+        String result = "";
+        if (src.startsWith("0x")) {
+          switch (predicateType) {
+            case UID:
+              result = edgeUidFacetsFormat(src, predicate, dst, facet, true);
+              break;
+            case ATTRIBUTE:
+              result = edgeAttributeFacetsFormat(src, predicate, dst, facet, true);
+              break;
+          }
+        } else if (src != null && !"".equals(src)) {
+          switch (predicateType) {
+            case UID:
+              result = edgeUidFacetsFormat(src, predicate, dst, facet, false);
+              break;
+            case ATTRIBUTE:
+              result = edgeAttributeFacetsFormat(src, predicate, dst, facet, false);
+              break;
+          }
+        }
+        if (!"".equals(result)) {
+          stringList.add(result);
+        }
       }
     }
-    if (stringList.size() > 0) {
-      logger.info("entityAddFacets multiplyEdgesMutation =====> ");
-      multiplyEdgesMutation(stringList);
-    }
+    return stringList;
   }
 
   /**
@@ -244,7 +346,7 @@ public class DClient {
       for (int i = 0; i < size; i++) {
         String value = String.valueOf(values.get(i).toString());
         String pred = predicates.get(i);
-        String result = attrFormat(uid, pred, value);
+        String result = attrFormat(uid, pred, value, true);
         stringBuffer.append(result);
         stringList.add(result);
       }
@@ -252,7 +354,7 @@ public class DClient {
       for (int k = 0; k < edge_pred.size(); k++) {
         String edgePredicate = edge_pred.get(k);
         String objectId = objectIds.get(k);
-        String result = edgeFormat(uid, edgePredicate, objectId);
+        String result = edgeFormat(uid, edgePredicate, objectId, true);
         stringBuffer.append(result);
         stringList.add(result);
       }
@@ -269,6 +371,48 @@ public class DClient {
    * @param putList node 属性的上一层抽象
    * @return rdf 形式的实体插入
    */
+  public DgraphProto.Assigned newEntityInitial(List<Nodeput> putList, List<EdgeFacetPut> edgeFacetsPutList) {
+    List<String> stringList = new ArrayList<>();
+    for (Nodeput nodeput : putList) {
+      String uniqueId = nodeput.getUniqueId();
+      List<String> predicates = nodeput.getPredicates();
+      List<Object> values = nodeput.getValueObjects();
+      List<String> edge_pred = nodeput.getEdge_predicates();
+      List<String> objectIds = nodeput.getObjectIds();
+      int size = predicates.size();
+      if (size != values.size() || edge_pred.size() != objectIds.size()) {
+        logger.fatal("entity inital predicates length not equal values ");
+      }
+      // value feed : value can not be uid in here
+      for (int i = 0; i < size; i++) {
+        String pred = predicates.get(i);
+        Object value = values.get(i);
+        String result = attrFormat(uniqueId, pred, value.toString(),false);
+        stringList.add(result);
+      }
+      // edge feed
+      for (int k = 0; k < edge_pred.size(); k++) {
+        String edgePredicate = edge_pred.get(k);
+        String objectId = objectIds.get(k);
+        String result = edgeFormat(uniqueId, edgePredicate, objectId,false);
+        stringList.add(result);
+      }
+    }
+    if (edgeFacetsPutList.size() > 0) {
+      stringList.addAll(getAddFacet(edgeFacetsPutList));
+    }
+    DgraphProto.Assigned ag;
+    ag = multiplyEdgesMutation(stringList);
+    return ag;
+  }
+
+  /**
+   * 形式: <_:id> <> <>
+   * rdf 格式
+   * @param putList node 属性的上一层抽象
+   * @return rdf 形式的实体插入
+   */
+  @Deprecated
   public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     List<DgraphProto.NQuad> quads = new ArrayList<>();

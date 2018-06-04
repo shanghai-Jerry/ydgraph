@@ -49,6 +49,7 @@
     2018.5.29
         * uidReMapping的时候如果获取unique_ids为空时， 使用unique_id;
         * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
+        * 支持添加facet
 
 
 3. 发现问题

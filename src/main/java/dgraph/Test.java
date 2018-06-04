@@ -16,6 +16,8 @@ import dgraph.node.Industry;
 import dgraph.node.Label;
 import dgraph.node.NodeUtil;
 import dgraph.node.School;
+import dgraph.put.EdgeFacetPut;
+import dgraph.put.EdgeFacetsPut;
 import utils.FileUtils;
 import utils.util;
 
@@ -172,9 +174,40 @@ public class Test {
   }
 
   private void test_six() {
+    demo.init();
     Candidate candidate = new Candidate();
-    String string = new Gson().toJson(candidate);
-    util.println("can:", string);
+    String cname = "youchaojiang";
+    candidate.setName(cname);
+    candidate.setGender("男");
+    candidate.setUnique_id(cname);
+    Industry industry = new Industry();
+    String industryType = "行业";
+    String industryName = "互联网";
+    String industryCode = "8001";
+    industry.setType(industryType);
+    industry.setUnique_id(industryName);
+    industry.setUnique_ids(Arrays.asList(industryName));
+    industry.setCode(Integer.parseInt(industryCode));
+    industry.setName(industryName);
+    Company company = new Company();
+    String name = "腾讯有限公司";
+    String location = "深圳";
+    String type = "公司";
+    company.setName(name);
+    company.setUnique_id(name);
+    company.setUnique_ids(Arrays.asList(name));
+    company.setLocation(location);
+    company.setType(type);
+    company.setIndustry(Arrays.asList(industry));
+    candidate.setCandidate_company(Arrays.asList(company));
+    NodeUtil.insertEntity(dClient, company.getIndustry());
+    NodeUtil.insertEntity(dClient, Arrays.asList(company));
+    EdgeFacetPut edgeFacetPut = new EdgeFacetPut(cname, "candidate_company", EdgeFacetPut
+        .PredicateType.UID, candidate.getCandidate_company().get(0).getUid(),
+        Arrays.asList("dept_name=\"tech_dept\", on_job=true"));
+    Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(candidate),
+        Arrays.asList(edgeFacetPut));
+    FileUtils.saveFile("src/main/resources/test_candidate_facets_uid_map.txt", uid);
   }
   public static void main(String[] arg) {
     Test test = new Test();

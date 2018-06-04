@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import dgraph.DClient;
+import dgraph.put.EdgeFacetPut;
+import dgraph.put.EdgeFacetsPut;
 import dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
@@ -34,6 +36,56 @@ public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
+  public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
+                                                                              List<T> list,
+                                                                              List<EdgeFacetPut>
+                                                                                  edgeFacetsPutList) {
+    // insert
+    Map<String, List<String>> uidMap = new HashMap<>();
+    List<Nodeput> dputList = new ArrayList<Nodeput>();
+    List<Nodeput> newPutList = new ArrayList<>();
+    for (T item : list) {
+      List<String> pres = new ArrayList<String>();
+      List<Object> values = new ArrayList<>();
+      List<String> edge_pres = new ArrayList<String>();
+      List<String> objectIds = new ArrayList<String>();
+      Nodeput dput = new Nodeput();
+      String uid = item.getUid();
+      if (uid != null && !"".equals(uid)) {
+        item.getAttrValueMap(pres, values);
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
+        dput.setUid(uid);
+        newPutList.add(dput);
+      } else {
+        item.getAttrValueMap(pres, values);
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setPredicates(pres);
+        dput.setValueObjects(values);
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
+        dputList.add(dput);
+      }
+    }
+    if (newPutList.size() > 0) {
+      dClient.entityAdd(newPutList);
+    }
+    if (dputList.size() > 0) {
+      DgraphProto.Assigned assigned = dClient.newEntityInitial(dputList, edgeFacetsPutList);
+      if (assigned != null) {
+        // 写回uid到实体中
+        NodeUtil.putEntityUid(list, assigned.getUidsMap());
+        NodeUtil.uidReMapping(assigned.getUidsMap(), list, uidMap);
+        return uidMap;
+      } else {
+        return uidMap;
+      }
+    }
+    return uidMap;
+  }
 
   /**
    * 插入新增实体属性，与子实体属性等
@@ -96,6 +148,8 @@ public class NodeUtil {
     }
     return uidMap;
   }
+
+
 
   /**
    * 深拷贝， 引用对象独立，互不影响
