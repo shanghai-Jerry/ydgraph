@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import client.EntityIdClient;
 import dgraph.DClient;
+import dgraph.del.NodeDel;
 import dgraph.put.EdgeFacetPut;
 import dgraph.put.EdgeFacetsPut;
 import dgraph.put.Nodeput;
@@ -39,7 +41,7 @@ public class NodeUtil {
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
                                                                               List<T> list,
                                                                               List<EdgeFacetPut>
-                                                                                  edgeFacetsPutList) {
+                                                                                  edgeFacetPutList) {
     // insert
     Map<String, List<String>> uidMap = new HashMap<>();
     List<Nodeput> dputList = new ArrayList<Nodeput>();
@@ -74,17 +76,27 @@ public class NodeUtil {
       dClient.entityAdd(newPutList);
     }
     if (dputList.size() > 0) {
-      DgraphProto.Assigned assigned = dClient.newEntityInitial(dputList, edgeFacetsPutList);
+      DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
       if (assigned != null) {
         // 写回uid到实体中
-        NodeUtil.putEntityUid(list, assigned.getUidsMap());
-        NodeUtil.uidReMapping(assigned.getUidsMap(), list, uidMap);
+        Map<String, String> assignedUidsMap = assigned.getUidsMap();
+        NodeUtil.putEntityUid(list, assignedUidsMap);
+        NodeUtil.getFacetsUidSrc(assignedUidsMap, edgeFacetPutList);
+        NodeUtil.uidReMapping(assignedUidsMap, list, uidMap);
+        // 补充facets
+        dClient.entityAddFacets(edgeFacetPutList);
         return uidMap;
       } else {
         return uidMap;
       }
     }
     return uidMap;
+  }
+
+  public static void deleteEntity(DClient dClient, EntityIdClient entityIdClient, List<NodeDel>
+      nodeDelList, String type) {
+    entityIdClient.checkDelEntityUid(nodeDelList, type);
+    dClient.entityDel(nodeDelList);
   }
 
   /**
@@ -438,6 +450,15 @@ public class NodeUtil {
       }
     }
     return true;
+  }
+
+  public static void getFacetsUidSrc(Map<String, String> map, List<EdgeFacetPut> edgeFacetsPutList) {
+    for (EdgeFacetPut edgeFacetPut : edgeFacetsPutList) {
+      String src = edgeFacetPut.getSrc();
+      if (map.containsKey(src)) {
+        edgeFacetPut.setUidSrc(map.get(src));
+      }
+    }
   }
 
 }

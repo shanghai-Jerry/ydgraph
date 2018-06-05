@@ -51,20 +51,25 @@
         * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
         * 支持添加facet
 
+    2018.6.5
+
+
 
 3. 发现问题
 
-    以rdf set { _:leia <name> "Princess Leia New" . } 的形式插入数据到dgraph，同一个批次下唯一一个unique_id返回对应的uid
+    * 以rdf set { _:leia <name> "Princess Leia New" . } 的形式插入数据到dgraph，同一个批次下唯一一个unique_id返回对应的uid
        不同批次下面的set对应同样一个unique_id其返回的uid是不同的，所以检查uid是否存在很重要， 不然就有重复的实体存在。
 
        解决办法: 保存失败的批次数据，后面重新写该部分数据。 尝试更少的batch看超时的比例
 
-    json object 形式的入库: 部分子实体uid没有被重新填入（实体id服务没有该实体的时候)，该实体会被写入（导致uidFlatten出错）
+    * json object 形式的入库: 部分子实体uid没有被重新填入（实体id服务没有该实体的时候)，该实体会被写入（导致uidFlatten出错）
 
-    查询: uid(,,): 多个uid的方式query数据，返回结果是按uid排好序的，不是一一对应uid查询list的顺序。
+    * 查询: uid(,,): 多个uid的方式query数据，返回结果是按uid排好序的，不是一一对应uid查询list的顺序。
 
-    dgraph中如果只存储uid中间的关系，那如果从其中获取到了一个uid, 该uid没有基本存储基本属性，如果获取详情，
+    * dgraph中如果只存储uid中间的关系，那如果从其中获取到了一个uid, 该uid没有基本存储基本属性，如果获取详情，
         所有必须有唯一的unique_id存储到dgraph中,同样需要保留类型到dgraph中（entity_ids）
 
-    groupby的时候：predicate为空的时候，默认是不统计的，空字符的话可选择改成其他
+    * groupby的时候：predicate为空的时候，默认是不统计的，空字符的话可选择改成其他
+
+    * facets的属性是覆盖式的，不是新增式的， 如果先前存在的属性，在修改facets时没有加入，那么先前属性就不存在了。
 

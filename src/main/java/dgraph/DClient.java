@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import client.dgrpah.DgraphClient;
 import client.dgrpah.TxnConflictException;
+import dgraph.del.NodeDel;
 import dgraph.node.EntityNode;
 import dgraph.put.EdgeFacetPut;
 import dgraph.put.EdgeFacetsPut;
@@ -98,61 +99,8 @@ public class DClient {
     dgraphClient.alter(op);
   }
 
-  /**
-   * 批量<uid> <relation> <uid>的方式写入
-   * @param edges 属性数组
-   * @return uid assigned
-   */
-  public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges) {
-    List<ByteString> newEdges = new ArrayList<>();
-    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    DgraphProto.Assigned assigned = null;
-    for (String edge : edges) {
-      logger.info("edge ===> " + edge);
-      newEdges.add(ByteString.copyFromUtf8(edge));
-    }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-    .setSetNquads(ByteString.copyFrom(newEdges))
-        .build();
-    try {
-      assigned = txn.mutate(mu);
-      txn.commit();
-    } catch (Exception e) {
-      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = mutateRetry(mu, e);
-    } finally {
-      txn.discard();
-    }
-    if (assigned == null) {
-      logger.info("[Final] Retry Error!!");
-    }
-    return assigned;
-  }
-
-  /**
-   * 批量<uid> <relation> <uid>的方式写入
-   * @param edges 熟悉
-   * @return uid assigned
-   */
-  @Deprecated
-  public DgraphProto.Assigned multiplyEdgesMutation(String edges) {
-
-    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
-    DgraphProto.Assigned assigned = null;
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString
-        .copyFromUtf8(edges))
-        .build();
-    try {
-      assigned = txn.mutate(mu);
-      txn.commit();
-    } catch (Exception e) {
-      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = null;
-    } finally {
-      txn.discard();
-    }
-
-    return assigned;
+  private String edgeDelAll(String src) {
+    return String.format("<%s> * * . \n", src);
   }
 
   /**
@@ -243,6 +191,45 @@ public class DClient {
     }
   }
 
+  public List<String> getAddUidFacet(List<EdgeFacetPut> edgeFacetPutList) {
+    List<String> stringList = new ArrayList<>();
+    for (EdgeFacetPut edgeFacetPut : edgeFacetPutList) {
+      String src = edgeFacetPut.getUidSrc();
+      String dst = edgeFacetPut.getDst();
+      String predicate = edgeFacetPut.getPredicate();
+      EdgeFacetPut.PredicateType predicateType = edgeFacetPut.getPredicateType();
+      List<String> facet = edgeFacetPut.getFacets();
+      String result = "";
+      if (src == null || "".equals(src)) {
+        continue;
+      }
+      if (src.startsWith("0x")) {
+        switch (predicateType) {
+          case UID:
+            result = edgeUidFacetsFormat(src, predicate, dst, facet, true);
+            break;
+          case ATTRIBUTE:
+            result = edgeAttributeFacetsFormat(src, predicate, dst, facet, true);
+            break;
+        }
+      } else if (src != null && !"".equals(src)) {
+        switch (predicateType) {
+          case UID:
+            result = edgeUidFacetsFormat(src, predicate, dst, facet, false);
+            break;
+          case ATTRIBUTE:
+            result = edgeAttributeFacetsFormat(src, predicate, dst, facet, false);
+            break;
+        }
+      }
+      if (!"".equals(result)) {
+        stringList.add(result);
+      }
+
+    }
+    return stringList;
+  }
+
   public List<String> getAddFacet(List<EdgeFacetPut> edgeFacetPutList) {
     List<String> stringList = new ArrayList<>();
     for (EdgeFacetPut edgeFacetPut : edgeFacetPutList) {
@@ -252,6 +239,9 @@ public class DClient {
       EdgeFacetPut.PredicateType predicateType = edgeFacetPut.getPredicateType();
       List<String> facet = edgeFacetPut.getFacets();
       String result = "";
+      if (src == null || "".equals(src)) {
+        continue;
+      }
       if (src.startsWith("0x")) {
         switch (predicateType) {
           case UID:
@@ -323,6 +313,36 @@ public class DClient {
   }
 
   /**
+   * 形式: <uid> <> <> (key=value,...)
+   * @param edgeFacetPutList
+   */
+  public void entityAddFacets(List<EdgeFacetPut> edgeFacetPutList) {
+    List<String> stringList = getAddUidFacet(edgeFacetPutList);
+    if (stringList.size() > 0) {
+      multiplyEdgesMutation(stringList);
+    }
+  }
+
+  /**
+   * 形式: <uid> * * .
+   * @param nodeDelList  node 属性的上一层抽象
+   */
+  public void entityDel(List<NodeDel> nodeDelList) {
+    List<String> stringList = new ArrayList<>();
+    for (NodeDel nodeDel : nodeDelList) {
+      String uid = nodeDel.getUid();
+      if (uid == null || "".equals(uid)) {
+        continue;
+      }
+      String result = edgeDelAll(uid);
+      stringList.add(result);
+    }
+    if (stringList.size() > 0) {
+      multiplyEdgesDeleteMutation(stringList);
+    }
+  }
+
+  /**
    * 形式: <uid> <> <>
    * @param putList  node 属性的上一层抽象
    */
@@ -371,6 +391,7 @@ public class DClient {
    * @param putList node 属性的上一层抽象
    * @return rdf 形式的实体插入
    */
+  @Deprecated
   public DgraphProto.Assigned newEntityInitial(List<Nodeput> putList, List<EdgeFacetPut> edgeFacetsPutList) {
     List<String> stringList = new ArrayList<>();
     for (Nodeput nodeput : putList) {
@@ -398,6 +419,7 @@ public class DClient {
         stringList.add(result);
       }
     }
+    // ..todo 容易因存在特殊字符导致异常的发生
     if (edgeFacetsPutList.size() > 0) {
       stringList.addAll(getAddFacet(edgeFacetsPutList));
     }
@@ -412,7 +434,6 @@ public class DClient {
    * @param putList node 属性的上一层抽象
    * @return rdf 形式的实体插入
    */
-  @Deprecated
   public DgraphProto.Assigned entityInitial(List<Nodeput> putList) {
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     List<DgraphProto.NQuad> quads = new ArrayList<>();
@@ -508,8 +529,8 @@ public class DClient {
       logger.info("[OtherException]:" + exception);
       return assigned;
     }
-    // 重试直到非 retry exception为止
-    while(code == 4 || code == 2) {
+    // 重试直到非retry exception为止
+    while(code == 4) {
       code = 0;
       try {
         Thread.sleep(retryCompensation * retryCounter.incrementAndGet());
@@ -565,6 +586,98 @@ public class DClient {
     } finally {
       txnInner.discard();
     }
+    return assigned;
+  }
+
+
+  /**
+   * 批量<uid> <relation> <uid>的方式删除
+   * <0xf11168064b01135b> <died> "1998" .
+   * <0xf11168064b01135b> <author.of> * .
+   * <0xf11168064b01135b> * * .
+   * @param edges 属性数组
+   * @return uid assigned
+   */
+  private DgraphProto.Assigned multiplyEdgesDeleteMutation(List<String> edges) {
+    List<ByteString> newEdges = new ArrayList<>();
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    for (String edge : edges) {
+      logger.info("edge ===> " + edge);
+      newEdges.add(ByteString.copyFromUtf8(edge));
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .setDelNquads(ByteString.copyFrom(newEdges))
+        .build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[multiplyEdgesDeleteMutation Exception] =>" + e.getMessage());
+      assigned = mutateRetry(mu, e);
+    } finally {
+      txn.discard();
+    }
+    if (assigned == null) {
+      logger.info("[Final] Retry Error!!");
+    }
+    return assigned;
+  }
+
+  /**
+   * 批量<uid> <relation> <uid>的方式写入
+   * @param edges 属性数组
+   * @return uid assigned
+   */
+  public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges) {
+    List<ByteString> newEdges = new ArrayList<>();
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    for (String edge : edges) {
+      logger.info("edge ===> " + edge);
+      newEdges.add(ByteString.copyFromUtf8(edge));
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .setSetNquads(ByteString.copyFrom(newEdges))
+        .build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
+      assigned = mutateRetry(mu, e);
+    } finally {
+      txn.discard();
+    }
+    if (assigned == null) {
+      logger.info("[Final] Retry Error!!");
+    }
+    return assigned;
+  }
+
+  /**
+   * 批量<uid> <relation> <uid>的方式写入
+   * @param edges 熟悉
+   * @return uid assigned
+   */
+  @Deprecated
+  public DgraphProto.Assigned multiplyEdgesMutation(String edges) {
+
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString
+        .copyFromUtf8(edges))
+        .build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
+      assigned = null;
+    } finally {
+      txn.discard();
+    }
+
     return assigned;
   }
 

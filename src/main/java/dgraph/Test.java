@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import client.EntityIdClient;
+import dgraph.del.NodeDel;
 import dgraph.node.Candidate;
 import dgraph.node.Company;
 import dgraph.node.Industry;
@@ -27,6 +29,8 @@ import utils.util;
 public class Test {
 
   DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+
+  EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
 
   Demo demo = new Demo(dClient);
 
@@ -209,6 +213,12 @@ public class Test {
         Arrays.asList(edgeFacetPut));
     FileUtils.saveFile("src/main/resources/test_candidate_facets_uid_map.txt", uid);
   }
+
+  private void test_seven() {
+    NodeDel nodeDel = new NodeDel();
+    nodeDel.setUniqueId("llb00000000000000000000000100192");
+    NodeUtil.deleteEntity(dClient, client, Arrays.asList(nodeDel),"候选人");
+  }
   public static void main(String[] arg) {
     Test test = new Test();
     // test.demo.init();
@@ -216,7 +226,8 @@ public class Test {
     // test.test_two();
     // test.test_tree();
     // test.test_five();
-    test.test_six();
+    // test.test_six();
+    test.test_seven();
 
   }
 

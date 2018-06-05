@@ -213,7 +213,7 @@ public class Demo {
     DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.QueryCount();
-    demo.init();
+    // demo.init();
     // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();

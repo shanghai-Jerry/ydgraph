@@ -21,6 +21,7 @@ public class EdgeFacetPut {
 
   }
   private String src;
+  private String uidSrc;
   private String predicate;
   private EdgeFacetPut.PredicateType predicateType;
   private String dst;
@@ -36,6 +37,14 @@ public class EdgeFacetPut {
 
   public String getSrc() {
     return src;
+  }
+
+  public String getUidSrc() {
+    return uidSrc;
+  }
+
+  public void setUidSrc(String uidSr) {
+    this.uidSrc = uidSr;
   }
 
   public void setSrc(String src) {

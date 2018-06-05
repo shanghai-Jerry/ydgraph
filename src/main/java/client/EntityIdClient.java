@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import dgraph.del.NodeDel;
 import dgraph.node.EntityNode;
+import dgraph.put.EdgeFacetPut;
+import dgraph.put.EdgeFacetsPut;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.grpc.ManagedChannel;
@@ -117,6 +120,38 @@ public class EntityIdClient {
     if (batch > 0) {
       feedEntity(BatchEntityIdRequest.newBuilder()
           .addAllEntityReq(entityIdRequestList).build());
+    }
+  }
+
+  public void checkDelEntityUid(List<NodeDel> nodeDelList, String type) {
+    int size = nodeDelList.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < size; i++) {
+      NodeDel nodeDel = nodeDelList.get(i);
+      String unique_id = nodeDel.getUniqueId();
+      entityIdRequestList.add(EntityIdRequest.newBuilder()
+          .addName(unique_id).setType(type)
+          .build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < size; i++) {
+        NodeDel nodeDel = nodeDelList.get(i);
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        // String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          nodeDel.setUid(values);
+        } else {
+          nodeDel.setUid("");
+        }
+      }
     }
   }
 
@@ -250,8 +285,8 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList("1eb8113c70506ccb9b9c52f3c3cf90e7"))
-                .setType("候选人").build())
+                .addAllName(Arrays.asList("辽宁大学"))
+                .setType("学校").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
