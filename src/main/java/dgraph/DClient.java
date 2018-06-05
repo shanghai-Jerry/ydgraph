@@ -319,7 +319,7 @@ public class DClient {
   public void entityAddFacets(List<EdgeFacetPut> edgeFacetPutList) {
     List<String> stringList = getAddUidFacet(edgeFacetPutList);
     if (stringList.size() > 0) {
-      multiplyEdgesMutation(stringList);
+      multiplyEdgesMutation(stringList, false);
     }
   }
 
@@ -381,7 +381,7 @@ public class DClient {
     }
     if (stringList.size() > 0) {
       logger.info("entityAdd multiplyEdgesMutation =====> ");
-      multiplyEdgesMutation(stringList);
+      multiplyEdgesMutation(stringList, true);
     }
   }
 
@@ -424,7 +424,7 @@ public class DClient {
       stringList.addAll(getAddFacet(edgeFacetsPutList));
     }
     DgraphProto.Assigned ag;
-    ag = multiplyEdgesMutation(stringList);
+    ag = multiplyEdgesMutation(stringList, false);
     return ag;
   }
 
@@ -517,6 +517,7 @@ public class DClient {
     // request code: 2
     // io.grpc.StatusRuntimeException: UNKNOWN: Predicate is being moved, please retry
     // later, code: 2
+    // While proposing to RAFT group, err: context deadline exceeded, code: 2
     // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
     int code;
@@ -530,7 +531,7 @@ public class DClient {
       return assigned;
     }
     // 重试直到非retry exception为止
-    while(code == 4) {
+    while(code == 4 || code == 2) {
       code = 0;
       try {
         Thread.sleep(retryCompensation * retryCounter.incrementAndGet());
@@ -629,7 +630,7 @@ public class DClient {
    * @param edges 属性数组
    * @return uid assigned
    */
-  public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges) {
+  public DgraphProto.Assigned multiplyEdgesMutation(List<String> edges, boolean needRetry) {
     List<ByteString> newEdges = new ArrayList<>();
     DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
     DgraphProto.Assigned assigned = null;
@@ -645,7 +646,11 @@ public class DClient {
       txn.commit();
     } catch (Exception e) {
       logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
-      assigned = mutateRetry(mu, e);
+      if (needRetry) {
+        assigned = mutateRetry(mu, e);
+      } else {
+        assigned = null;
+      }
     } finally {
       txn.discard();
     }
