@@ -28,7 +28,7 @@ import utils.util;
  */
 public class Test {
 
-  DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+  DClient dClient = new DClient(Config.LOCAL_HOST_NAME);
 
   EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
 
@@ -208,7 +208,7 @@ public class Test {
     NodeUtil.insertEntity(dClient, Arrays.asList(company));
     EdgeFacetPut edgeFacetPut = new EdgeFacetPut(cname, "candidate_company", EdgeFacetPut
         .PredicateType.UID, candidate.getCandidate_company().get(0).getUid(),
-        Arrays.asList("dept_name=\"\\?ech_dept\", on_job=true"));
+        Arrays.asList("dept_name=\"tech_dept\", on_job=true"));
     Map<String,  List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(candidate),
         Arrays.asList(edgeFacetPut));
     FileUtils.saveFile("src/main/resources/test_candidate_facets_uid_map.txt", uid);

@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Config {
 
+  public static final List<String> LOCAL_HOST_NAME = Arrays.asList("127.0.0.1:9080");
+
   public static final List<String> addressList =  Arrays.asList("172.20.0.8:9080",
       "172.20.0.9:9080","172.20.0.10:9080");
 
@@ -13,6 +15,8 @@ public class Config {
   public static final List<String> TEST_HOSTNAME = Arrays.asList("172.20.0.14:9080");
 
   public static final String EntityId_Host = "172.20.0.14";
+
+  // 公司归一化服务地址: 172.20.0.14:26543
 
   public static final int EntityIdService_PORT = 26544;
 
