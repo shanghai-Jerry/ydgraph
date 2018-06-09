@@ -26,7 +26,7 @@
 
 2. 更新日志：
 
-    2018.5.12
+    ## 2018.5.12
         * 支持获取类似List<EntityNode>实体关系的解析
         * 支持最外层实体存在uid，rdf入库时直接使用该uid入库
         * 支持出现mutate exception[ DEADLINE_EXCEEDED ]时不能将retMap输入到entityId服务中，该uid无效
@@ -35,23 +35,24 @@
         * 多线程修改一个实体的属性时: 导致transition abort, try @upsert in some attrs,
             but this attr must be index tokenizer
 
-    2018.5.17
+    ## 2018.5.17
         * 子实体的uid在返回uidMap之前,就已经写回到实体中。
 
         * 支持: 多个unique_ids写入到id服务器
 
-    2018.5.22
+    ## 2018.5.22
         * 支持单独添加edge facets的操作。
 
-    2018.5.24
+    ## 2018.5.24
         * 支持按照uid list检查dgraph中是否存在对应数据。(因为dgraph server突然挂了，重新启动后，从日志恢复的完整的数据了吗？？)
 
-    2018.5.29
+    ## 2018.5.29
         * uidReMapping的时候如果获取unique_ids为空时， 使用unique_id;
         * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
         * 支持添加facet
 
-    2018.6.5
+    ## 2018.6.5
+        * EntityNode可尝试使用proto的形式定义出来
 
 
 
