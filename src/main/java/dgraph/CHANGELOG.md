@@ -49,7 +49,7 @@
         * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
         * 支持添加facet
 ## 2018.6.5
-        * EntityNode可尝试使用proto的形式定义出来
+        
 
 
 
