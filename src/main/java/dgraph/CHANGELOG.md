@@ -2,8 +2,8 @@
 
 现有操作流程介绍
 
-# json object的方式， 子实体支持单个object或者以JsonArray的格式
-
+# 1.1 json object的方式
+  子实体支持单个object或者以JsonArray的格式
   以整个json对象put，如果json对象中存在实体之前的连接关系，子实体需要写回对应的uid到子实体中，
     这样建立的子实体才是唯一的，不会重复。见：NodeUtil.putEntity。
 
@@ -12,8 +12,8 @@
     * 最后入库外层的实体对象
 
 
-# 1.2 以rdf格式的方式, 子实体支持单个实体对象或者List<EntityNode>的方式
-
+# 1.2 以rdf格式的方式
+  子实体支持单个实体对象或者List<EntityNode>的方式
   同样需要建立对应的实体json对象，不过入库的时候会抽取其中的关系和属性值进行入库。
     不是以整个json对象直接入库，见：NodeUtil.insertEntity
 
