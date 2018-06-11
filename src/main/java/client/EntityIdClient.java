@@ -1,7 +1,5 @@
 package client;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,10 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import dgraph.del.NodeDel;
-import dgraph.node.EntityNode;
-import dgraph.put.EdgeFacetPut;
-import dgraph.put.EdgeFacetsPut;
+import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.node.EntityNode;
+
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.grpc.ManagedChannel;
@@ -25,12 +22,12 @@ import kb.rpc.BatchEntityIdResponse;
 import kb.rpc.EntityIdRequest;
 import kb.rpc.EntityIdResponse;
 import kb.rpc.EntityIdServiceGrpc;
-import utils.FileUtils;
+import com.higgs.utils.FileUtils;
 
 
 /**
  * Created by Jerry You on 2018/5/3.
- * hadoop.dgraph uid 自维护客户端
+ * hadoop.com.higgs.dgraph uid 自维护客户端
  *
  * 返回的数据（proto）可能需要稍作修改如下：
  * 1.重复names入库，uid需要根据最新一次更新

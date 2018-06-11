@@ -178,7 +178,7 @@ public class DgraphClient {
     }
 
     /**
-     * sends a query to one of the connected dgraph instances. If no mutations need to be made in
+     * sends a query to one of the connected com.higgs.dgraph instances. If no mutations need to be made in
      * the same transaction, it's convenient to chain the method: <code>
      * client.NewTransaction().queryWithVars(...)</code>.
      *
@@ -213,7 +213,7 @@ public class DgraphClient {
       return queryWithVars(query, Collections.<String, String>emptyMap());
     }
     /**
-     * Allows data stored on dgraph instances to be modified. The fields in Mutation come in pairs,
+     * Allows data stored on com.higgs.dgraph instances to be modified. The fields in Mutation come in pairs,
      * set and delete. Mutations can either be encoded as JSON or as RDFs.
      *
      * <p>If the commitNow property on the Mutation object is set,
