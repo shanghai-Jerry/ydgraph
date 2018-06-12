@@ -1,12 +1,15 @@
 package com.higgs.dgraph;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import client.dgrpah.DgraphClient;
+import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.node.EntityNode;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
@@ -16,6 +19,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import com.higgs.utils.FileUtils;
 import com.higgs.utils.util;
+
+import javax.sound.midi.Patch;
 
 /**
  * User: JerryYou
@@ -60,6 +65,22 @@ public class Demo {
       }
     }
     return persons;
+  }
+
+  public void QueryGenderDis() {
+    String query = "";
+    try {
+      query = new String(Files.readAllBytes(Paths.get
+          ("src/main/resources/count_gender_distribute.query")));
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
+    // 获取时间
+    // res.getLatency()
+    System.out.println(res.getJson().toStringUtf8());
+    util.println("latency:", res.getLatency().toString());
   }
 
   public void QueryCount() {
@@ -210,9 +231,9 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
-    // demo.QueryCount();
+    demo.QueryGenderDis();
     // demo.init();
     // demo.deleteEdge();
     // demo.QueryDemo();

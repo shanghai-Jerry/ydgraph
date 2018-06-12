@@ -1,6 +1,4 @@
-package client.dgrpah;
-
-import client.dgrpah.TxnException;
+package com.higgs.client.dgrpah;
 
 public class TxnFinishedException extends TxnException {
   TxnFinishedException() {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package client.dgrpah;
+package com.higgs.client.dgrpah;
 
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto.*;

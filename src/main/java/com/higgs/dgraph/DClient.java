@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import client.dgrpah.DgraphClient;
-import client.dgrpah.TxnConflictException;
+import com.higgs.client.dgrpah.DgraphClient;
+import com.higgs.client.dgrpah.TxnConflictException;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.EntityNode;
 import com.higgs.dgraph.put.EdgeFacetPut;

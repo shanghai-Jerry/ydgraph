@@ -38,7 +38,6 @@ public class Config {
           "parent_industry:uid .\n";
 
   public static String updateSchema =
-            "candidate_company:uid @reverse .\n" +
-            "name:string @lang .\n";
+            "candidate_company:uid @reverse .\n";
 
 }

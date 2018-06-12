@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import client.EntityIdClient;
+import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;

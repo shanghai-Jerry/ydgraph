@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import client.EntityIdClient;
+import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.DClient;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;

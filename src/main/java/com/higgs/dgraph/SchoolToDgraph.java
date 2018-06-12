@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import client.EntityIdClient;
+import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.School;

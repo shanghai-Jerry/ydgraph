@@ -1,4 +1,4 @@
-package client;
+package com.higgs.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -282,8 +282,8 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList("百度在线网络技术（北京）有限公司"))
-                .setType("公司").build())
+                .addAllName(Arrays.asList("07157985594c36be2b02edaa04d47914"))
+                .setType("候选人").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);

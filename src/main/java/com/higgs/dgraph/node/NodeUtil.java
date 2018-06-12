@@ -15,11 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import client.EntityIdClient;
+import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.DClient;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.put.EdgeFacetPut;
-import com.higgs.dgraph.put.EdgeFacetsPut;
 import com.higgs.dgraph.put.Nodeput;
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
