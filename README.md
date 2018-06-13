@@ -1,11 +1,11 @@
-# com.higgs.hbase-demo
+# hbase-demo
 
 
-## com.higgs.hbase api ##
+## hbase api ##
 
-* com.higgs.hbase write api
-* com.higgs.hbase get api
+* hbase write api
+* hbase get api
 
-## com.higgs.dgraph ##
+## dgraph ##
 
-* https://github.com/bgfurfeature/com.higgs.dgraph
+* https://github.com/bgfurfeature/dgraph
