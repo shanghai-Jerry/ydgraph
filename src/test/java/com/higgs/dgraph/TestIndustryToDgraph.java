@@ -16,10 +16,6 @@ public class TestIndustryToDgraph {
   public void test_one(String dict, int needCheck) {
     industryToDgraph.initWithRdf(dict);
   }
-
-  public void test_two(int needCheck) {
-  }
-
   public static void main(String[] args) {
     TestIndustryToDgraph testIndustryToDgraph = new TestIndustryToDgraph();
     String dict = "src/main/resources/industry_dump_dict.txt";

@@ -83,14 +83,6 @@ public class TestExistUidOrNot {
       }
     }
   }
-
-  public void test_query() {
-    List<String> errorUids = new ArrayList<>();
-    String query = "{\ncandidates(func:uid(%s)) { \nname\n uid\n gender\n}\n}";
-    query(query, Arrays.asList("0x3c6205cc"), errorUids);
-    FileUtils.saveFile("src/main/resources/test_uidmap.txt", errorUids, true);
-  }
-
   public void queryDemo(String dir, String subDir) {
 
     String filePath;
@@ -137,7 +129,6 @@ public class TestExistUidOrNot {
     TestExistUidOrNot testExistUidOrNot = new TestExistUidOrNot();
     String dir = "alpha_final_distinct_3";
     String subDir = "uidmap2";
-    // testExistUidOrNot.test_query();
     testExistUidOrNot.queryDemo(dir, subDir);
 
   }

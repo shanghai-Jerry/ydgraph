@@ -27,7 +27,7 @@ import com.higgs.utils.FileUtils;
 
 /**
  * Created by Jerry You on 2018/5/3.
- * hadoop.com.higgs.dgraph uid 自维护客户端
+ * dgraph uid 自维护客户端
  *
  * 返回的数据（proto）可能需要稍作修改如下：
  * 1.重复names入库，uid需要根据最新一次更新
@@ -282,7 +282,7 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList("07157985594c36be2b02edaa04d47914"))
+                .addAllName(Arrays.asList("6d45c4992a04e96937aaf949e7d0ebd7"))
                 .setType("候选人").build())
           .build());
       if (rep != null) {

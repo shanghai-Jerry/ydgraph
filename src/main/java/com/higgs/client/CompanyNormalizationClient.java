@@ -1,5 +1,5 @@
-/*
-package client;
+
+package com.higgs.client;
 
 import com.lieluobo.norm.Company;
 import com.lieluobo.norm.CompanyNormalizeServiceGrpc;
@@ -13,10 +13,9 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
 
-*/
 /**
  * Created by Jerry You on 2018/3/30.
- *//*
+ */
 
 public class CompanyNormalizationClient {
   private static Logger logger = LoggerFactory.getLogger(CompanyNormalizationClient.class);
@@ -68,4 +67,3 @@ public class CompanyNormalizationClient {
     }
   }
 }
-*/

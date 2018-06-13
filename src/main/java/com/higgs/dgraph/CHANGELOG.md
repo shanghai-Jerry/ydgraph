@@ -3,7 +3,9 @@
 现有操作流程介绍
 
 # 1.1 json object的方式
+  实体的表示: json object的形式，任何非json object的格式的数据，都需要考虑是否需要入库。
   子实体支持单个object或者以JsonArray的格式
+  JsonArray: 内部是string，int等类型的可以插入为list type，如果内部还是jsonObject那么就是多个子实体
   以整个json对象put，如果json对象中存在实体之前的连接关系，子实体需要写回对应的uid到子实体中，
     这样建立的子实体才是唯一的，不会重复。见：NodeUtil.putEntity。
 
@@ -48,7 +50,10 @@
         * uidReMapping的时候如果获取unique_ids为空时， 使用unique_id;
         * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
         * 支持添加facet
+
 ## 2018.6.5
+
+        * list type: schema中predicate声明为list type,重复赋值该predicate,不会覆盖
         
 
 
