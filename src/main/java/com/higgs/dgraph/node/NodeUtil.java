@@ -322,6 +322,9 @@ public class NodeUtil {
     List<T> needRemoveNodes = new ArrayList<>();
     for (T entityNode : entityNodes) {
       List<String> uniqueIdList = entityNode.getUnique_ids();
+      if (uniqueIdList.size() == 0) {
+        uniqueIdList = Arrays.asList(entityNode.getUnique_id());
+      }
       Set<Map.Entry<String, List<String>>> entrySet = uidMap.entrySet();
       boolean  flag = true;
       for (String unique_id : uniqueIdList) {
@@ -344,9 +347,6 @@ public class NodeUtil {
         logger.info("remove don't hava uid entity!");
         needRemoveNodes.add(entityNode);
       }
-    }
-    for (T entityNode : needRemoveNodes) {
-      entityNodes.remove(entityNode);
     }
   }
 

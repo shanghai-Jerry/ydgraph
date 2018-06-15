@@ -1,5 +1,6 @@
 package com.higgs.dgraph.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Company extends EntityNode {
@@ -8,6 +9,16 @@ public class Company extends EntityNode {
   private String legal_person;
   private String establish_at;
   private List<Industry> industry;
+
+  private List<DeptName> company_dept = new ArrayList<>();
+
+  public List<DeptName> getCompany_dept() {
+    return company_dept;
+  }
+
+  public void setCompany_dept(List<DeptName> company_dept) {
+    this.company_dept = company_dept;
+  }
 
   public String getLocation() {
     return location;

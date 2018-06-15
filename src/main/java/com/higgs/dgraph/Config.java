@@ -40,4 +40,7 @@ public class Config {
   public static String updateSchema =
             "candidate_company:uid @reverse .\n";
 
+  public static String checkSchema =
+      "name:string @index(hash) @upsert .\n";
+
 }

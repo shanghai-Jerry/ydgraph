@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,8 @@ import io.vertx.core.logging.LoggerFactory;
 import com.higgs.utils.FileUtils;
 import com.higgs.utils.util;
 
-import javax.sound.midi.Patch;
+import org.apache.hadoop.hdfs.DFSClient;
+
 
 /**
  * User: JerryYou
@@ -67,49 +69,40 @@ public class Demo {
     return persons;
   }
 
-  public void QueryGenderDis() {
+  public void QueryTest() {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/count_gender_distribute.query")));
+          ("src/main/resources/query/query_test.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
     }
-    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
+    Map<String, String> vars = new HashMap<>();
+    String companyUid = "0x35";
+    String deptUid = "0x34";
+    query = String.format(query, companyUid, deptUid);
+    DgraphProto.Response res = dClient.getDgraphClient()
+        .newTransaction()
+        .query(query);
+    // queryWithVars seems not a good choice
     // 获取时间
     // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
     util.println("latency:", res.getLatency().toString());
   }
-
-  public void QueryCount() {
+  public void QueryCount() throws IOException {
     System.out.println("querying ....");
-    String query = "{\n" +
-        "var(func:has(candidate_company)) {\n" +
-            "candidate_company{\n" +
-                "CU as uid\n" +
-            "}\n" +
-        "}\n" +
-        "var(func:uid(CU)) {\n" +
-           "number as count(~candidate_company)\n" +
-        "}\n" +
-        "query(func:uid(number), orderdesc: val(number), first:2) {\n" +
-            "candidate_company{\n" +
-               "uid\n" +
-               "name\n" +
-            "}\n" +
-        "}\n" +
-    "}\n";
+    String query = new String(Files.
+        readAllBytes(Paths.get("src/main/resources/query/count_company.query")));
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
     // 获取时间
     // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
     util.println("latency:", res.getLatency().toString());
   }
-
+  @Deprecated
   public void QueryDemo() {
-
     // Query
     String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " ~has_label { " +
         "count(uid) } \n" + "  }\n" + "}";
@@ -136,6 +129,9 @@ public class Demo {
     feedEntities(edgeConnect);
   }
 
+  public void dropSchema() {
+    dClient.dropSchema();
+  }
   public void init() {
     long value = Long.parseLong("0x1780e".substring(2), 16);
     String hexValue = Long.toHexString(98951);
@@ -152,6 +148,10 @@ public class Demo {
   public void alterSchema() {
     logger.info("alter schema ... ");
     dClient.alterSchema(Config.updateSchema);
+  }
+
+  public void alterUpsertScheam() {
+    dClient.alterSchema(Config.checkSchema);
   }
 
 
@@ -231,14 +231,16 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
     Demo demo = new Demo(dClient);
-    demo.QueryGenderDis();
+    // demo.dropSchema();
+    demo.QueryTest();
     // demo.init();
     // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();
     // demo.alterSchema();
+    // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");
   }

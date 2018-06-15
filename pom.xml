@@ -335,6 +335,12 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.eduworks</groupId>
+            <artifactId>org.json-ld</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>

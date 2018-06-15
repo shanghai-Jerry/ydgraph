@@ -1,0 +1,12 @@
+{
+      count(func:uid(%s)) {
+      name
+      company_dept @filter(uid(%s)) {
+        name
+        candidate:~candidate_company_dept {
+          name
+          uid
+        }
+      }
+    }
+}
