@@ -38,7 +38,7 @@ public class Config {
           "parent_industry:uid .\n";
 
   public static String updateSchema =
-            "candidate_company:uid @reverse .\n";
+            "age:int @index(int) .\n";
 
   public static String checkSchema =
       "name:string @index(hash) @upsert .\n";

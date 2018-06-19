@@ -30,6 +30,7 @@ import com.higgs.utils.util;
  */
 public class EntityNode implements Serializable {
 
+  private String pass;
   private String uid;
   private List<String> unique_ids = new ArrayList<>();
   // _:uniqueId <name> value
@@ -43,6 +44,14 @@ public class EntityNode implements Serializable {
   private Label has_label;
 
   private String label_name;
+
+  public String getPass() {
+    return pass;
+  }
+
+  public void setPass(String pass) {
+    this.pass = pass;
+  }
 
   String getUnique_id() {
     return unique_id;

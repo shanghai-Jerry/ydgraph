@@ -231,15 +231,15 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    demo.QueryTest();
+    // demo.QueryTest();
     // demo.init();
     // demo.deleteEdge();
     // demo.QueryDemo();
     // demo.edgeConnect();
-    // demo.alterSchema();
+    demo.alterSchema();
     // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");
