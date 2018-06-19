@@ -1,0 +1,23 @@
+{
+  query(func:uid(0x48c8d16)) {
+    name
+    one: ~candidate_company @filter(lt(age, 20)) {
+      count(uid)
+    }
+    two: ~candidate_company @filter(ge(age, 20) and lt(age, 25)) {
+      uid
+      age
+      count(uid)
+    }
+    three: ~candidate_company @filter(ge(age, 25) and lt(age, 30)) {
+      count(uid)
+    }
+    four: ~candidate_company @filter(ge(age, 30) and lt(age, 35)) {
+      count(uid)
+    }
+    five: ~candidate_company @filter(ge(age, 35)) {
+      count(uid)
+    }
+
+  }
+}

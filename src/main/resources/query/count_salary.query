@@ -1,0 +1,23 @@
+{
+  query(func:uid(0x48c8d16)) {
+    name
+    number_one: ~candidate_company @facets(lt(salary,3000)) {
+      count(uid)
+    }
+    number_two: ~candidate_company @facets(ge(salary,3000) and lt(salary, 7000)) {
+      count(uid)
+    }
+    number_three: ~candidate_company @facets(ge(salary,7000) and lt(salary, 15000)) {
+      count(uid)
+    }
+    number_four: ~candidate_company @facets(ge(salary,15000) and lt(salary, 20000)) {
+      count(uid)
+    }
+    number_five: ~candidate_company @facets(ge(salary,20000) and lt(salary, 30000)) {
+      count(uid)
+    }
+    number_six: ~candidate_company @facets(ge(salary,30000))) {
+      count(uid)
+    }
+  }
+}
