@@ -76,3 +76,19 @@
 
     * facets的属性是覆盖式的，不是新增式的， 如果先前存在的属性，在修改facets时没有加入，那么先前属性就不存在了。
 
+
+# 4. export dgraph database
+
+    检查cluster leader node
+
+       http://localhost:6080/state
+
+    在leader node 节点运行
+
+    ` curl localhost:8080/admin/export &` 导出database
+
+    详细情况参考：https://docs.dgraph.io/deploy/#export-database
+
+
+
+
