@@ -183,6 +183,35 @@ public class EntityIdClient {
     return uids;
   }
 
+  public  Map<String, String> checkUidWithName(List<String> names, String type) {
+    Map<String, String> uidMap = new HashMap<>();
+    int outSize = names.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      String name = names.get(i);
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addName(name).setType(type)
+          .build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          uidMap.put(matchedName, values);
+        }
+      }
+    }
+    return uidMap;
+  }
+
   public <T extends EntityNode> void getNoneExistEntityList(List<T> entityReqs, String
       type, List<T> newEntityReqs) {
     int outSize = entityReqs.size();
@@ -282,7 +311,7 @@ public class EntityIdClient {
 
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList("6d45c4992a04e96937aaf949e7d0ebd7"))
+                .addAllName(Arrays.asList("e38519547b9a681b674710fd25c6a3df"))
                 .setType("候选人").build())
           .build());
       if (rep != null) {

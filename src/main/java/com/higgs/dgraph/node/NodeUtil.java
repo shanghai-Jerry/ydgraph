@@ -108,10 +108,6 @@ public class NodeUtil {
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
                                                                               List<T> list) {
     Map<String, List<String>> uidMap = new HashMap<>();
-    if (!checkUniqueId(list)) {
-      logger.info("Please set unique_id !!");
-      return uidMap;
-    }
     // insert
     List<Nodeput> dputList = new ArrayList<>();
     List<Nodeput> newPutList = new ArrayList<>();
@@ -147,6 +143,10 @@ public class NodeUtil {
     }
     if (dputList.size() > 0) {
       logger.info("entityInitial =====> ");
+      if (!checkUniqueId(list)) {
+        logger.info("Please set unique_id !!");
+        return uidMap;
+      }
       DgraphProto.Assigned assigned = dClient.entityInitial(dputList);
       if (assigned != null) {
         // 写回uid到实体中
@@ -451,8 +451,13 @@ public class NodeUtil {
     return true;
   }
 
-  public static void getFacetsUidSrc(Map<String, String> map, List<EdgeFacetPut> edgeFacetsPutList) {
-    for (EdgeFacetPut edgeFacetPut : edgeFacetsPutList) {
+  /**
+   * 初次添加实体和实体之前的facets时，facets通过实体的unique_id（src）来绑定新增的实体uid
+   * @param map 新增实体插入dgraph后返回的map， 或者entityIdClient返回的uidMAp
+   * @param edgeFacetPutList FACETS list
+   */
+  public static void getFacetsUidSrc(Map<String, String> map, List<EdgeFacetPut> edgeFacetPutList) {
+    for (EdgeFacetPut edgeFacetPut : edgeFacetPutList) {
       String src = edgeFacetPut.getSrc();
       if (map.containsKey(src)) {
         edgeFacetPut.setUidSrc(map.get(src));
@@ -460,4 +465,22 @@ public class NodeUtil {
     }
   }
 
+  /**
+   * 修改实体之前边的属性
+   * @param entityIdClient 检查实体存在与否， 检查去重后所有edgeFacetPut的src对应的uidMap
+   * @param edgeFacetPutList FACETS list
+   * @param faceType  该facets属性属于哪个实体类型下的（src）
+   */
+  public static void getFacetsUidSrc(EntityIdClient entityIdClient, List<EdgeFacetPut>
+      edgeFacetPutList, String faceType) {
+    List<String> names = new ArrayList<>();
+    for (EdgeFacetPut edgeFacetPut : edgeFacetPutList) {
+      String src = edgeFacetPut.getSrc();
+      if (src != null && !"".equals(src) && !names.contains(src)) {
+        names.add(src);
+      }
+    }
+    Map<String, String> uidMap = entityIdClient.checkUidWithName(names, faceType);
+    getFacetsUidSrc(uidMap, edgeFacetPutList);
+  }
 }
