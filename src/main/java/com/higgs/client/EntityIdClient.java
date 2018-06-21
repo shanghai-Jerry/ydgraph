@@ -212,6 +212,34 @@ public class EntityIdClient {
     return uidMap;
   }
 
+  public  List<String> checkUidListWithName(List<String> names, String type) {
+    List<String> uids = new ArrayList<>();
+    int outSize = names.size();
+    List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
+    for (int i = 0; i < outSize; i++) {
+      String name = names.get(i);
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addName(name).setType(type)
+          .build());
+    }
+    BatchEntityIdRequest req = BatchEntityIdRequest.newBuilder()
+        .addAllEntityReq(entityIdRequestList).build();
+    BatchEntityIdResponse rep = entityLinkSimple(req);
+    if (rep != null) {
+      for (int i = 0; i < outSize; i++) {
+        EntityIdResponse entityIdResponse = rep.getEntityResList().get(i);
+        long id = entityIdResponse.getId();
+        boolean ok = entityIdResponse.getOk();
+        String msg = entityIdResponse.getMsg();
+        // 如果服务直接返回了matched_name,可直接使用
+        String matchedName = entityIdResponse.getMatchedName();
+        if (ok) {
+          String values = "0x" + Long.toHexString(id);
+          uids.add(values);
+        }
+      }
+    }
+    return uids;
+  }
   public <T extends EntityNode> void getNoneExistEntityList(List<T> entityReqs, String
       type, List<T> newEntityReqs) {
     int outSize = entityReqs.size();
@@ -304,15 +332,41 @@ public class EntityIdClient {
     return uidMap;
   }
 
+  private void getNames(List<String> lines, List<String> names) {
+    for (String line : lines) {
+      String[] sp = line.split("\t");
+      names.add(sp[0]);
+    }
+  }
+
+  private void getUids(List<String> uid, List<String> newUid) {
+    for (String line : uid) {
+      newUid.add(line.replace("0x", "uid"));
+    }
+  }
+
+  private void getNameUids(String src, String dst) {
+    List<String> lines = new ArrayList<>();
+    List<String> names = new ArrayList<>();
+    List<String> uids = new ArrayList<>();
+    FileUtils.readFile(src, lines);
+    getNames(lines, names);
+    List<String> uid = this.checkUidListWithName(names, "公司");
+    getUids(uid, uids);
+    FileUtils.saveFile(dst, uids, false);
+  }
+
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
+    client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt", "src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
+      String name = "??平县?\u0000?\u0000?\u0000??\u0000??裰行?\u0000?增庄分销?\u0000";
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList("e38519547b9a681b674710fd25c6a3df"))
-                .setType("候选人").build())
+                .addAllName(Arrays.asList(name))
+                .setType("公司").build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);

@@ -38,7 +38,10 @@ public class Config {
           "parent_industry:uid .\n";
 
   public static String updateSchema =
-            "age:int @index(int) .\n";
+            "current_location_code:int @index(int) .\n" +
+            "birthday: string . \n" +
+            "started_work_at: string . \n"
+      ;
 
   public static String checkSchema =
       "name:string @index(hash) @upsert .\n";

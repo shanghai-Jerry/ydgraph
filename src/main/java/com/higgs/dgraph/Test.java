@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import com.higgs.client.EntityIdClient;
+import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;
@@ -19,6 +21,11 @@ import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.School;
 import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.utils.FileUtils;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+
+import io.dgraph.DgraphProto;
 
 /**
  * Created by lolaliva on 2018/5/10.
@@ -95,12 +102,49 @@ public class Test {
         candidate1, candidate2));
     FileUtils.saveFile("src/main/resources/test_dir/candidate_uid.txt", canuid);
 
+  }
 
+  private void test_unkonw_format() {
+    String uniqueId = "??平县?\u0000?\u0000?\u0000??\u0000??裰行?\u0000?增庄分销?\u0000";
+    DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
+        .format("_:%s", uniqueId)).setPredicate("name")
+        .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(uniqueId).build())
+        ;
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(builder.build()).build();
+    DgraphProto.Assigned ag = null;
+    DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
+    try {
+      ag = txn.mutate(mu);
+      txn.commit();
+    }  catch (Exception e) {
+    } finally {
+      txn.discard();
+    }
+    Map<String, String> map = ag.getUidsMap();
+    if (map.containsKey(uniqueId)) {
+      System.out.println(uniqueId + " has uid:" + map.get(uniqueId));
+    }
+    FileUtils.saveFiles("src/main/resources/test_dir/unknow_format_uid.txt", ag.getUidsMap());
+
+  }
+
+  private void test_import() {
+    List<String> edges = new ArrayList<>();
+    edges.add("<0x47c2> <name> \"哈尔滨市艺乐糖酒有限公司\"^^<xs:string> .");
+    dClient.multiplyEdgesMutation(edges, false);
   }
   public static void main(String[] arg) {
     Test test = new Test();
+    Pattern pattern = Pattern.compile("[\\u0000-\\u0002]+");
+    String name = "\u0002安丘市新兴物资有限公司";
+    if (name != null && !"".equals(name) && pattern.matcher(name).find()) {
+      System.out.println(name);
+    }
+    System.out.println(name);
     // test.test_list_type();
-    test.test_conut_byuid();
+    // test.test_conut_byuid();
+    // test.test_unkonw_format();
+    test.test_import();
   }
 
 

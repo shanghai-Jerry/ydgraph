@@ -207,6 +207,34 @@ public class FileUtils {
       }
     }
   }
+  public static void saveFiles(String filePath, Map<String, String> map) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
+      Set<Map.Entry<String, String>> entrySet = map.entrySet();
+      Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
+      int count = 0;
+      while (iterator.hasNext()) {
+        Map.Entry<String, String> entry = iterator.next();
+        String key = entry.getKey();
+        String value = entry.getValue();
+        printWriter.write(key + "\t" + value );
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
   public static void saveFile(String filePath, List<String> stringList, boolean isAppend) {
     PrintWriter printWriter = null;
     try {
