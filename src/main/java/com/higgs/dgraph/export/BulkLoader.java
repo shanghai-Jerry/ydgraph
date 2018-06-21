@@ -21,6 +21,8 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * Copyright (c) 2018 devops
  *
+ * ref: dgraph bulk loader
+ *
  * <<licensetext>>
  */
 public class BulkLoader {
