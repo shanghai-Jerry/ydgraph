@@ -76,7 +76,7 @@ public class BulkLoader {
     long total = totalTime.addAndGet(time);
     totalTime.set(total);
     if (totalData % (batchSize * 1000L) == 0) {
-      logger.info("total spend:" + (end - started) + " ms, totalCount:" + totalData);
+      logger.info("total spend:" + totalTime + " ms, totalCount:" + totalData);
     }
   }
 

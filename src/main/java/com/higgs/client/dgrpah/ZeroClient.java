@@ -54,7 +54,7 @@ public class ZeroClient {
   }
 
   public static void main(final String[] args) {
-     ZeroClient client = new ZeroClient("172.20.0.68:5080");
+     ZeroClient client = new ZeroClient("172.20.0.14:5080");
      DgraphProto.AssignedIds assigned = client.getZeroClient().assignUids(Internal.Num.newBuilder()
         .setVal(Long.MAX_VALUE).build());
       logger.info("zero assigned ids:" + assigned.getStartId() + " - " + assigned.getEndId());
