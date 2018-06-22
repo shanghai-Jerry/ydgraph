@@ -1,5 +1,6 @@
 package com.higgs.dgraph;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.School;
 import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.utils.FileUtils;
+import com.higgs.utils.TimeUtil;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -144,7 +146,9 @@ public class Test {
     // test.test_list_type();
     // test.test_conut_byuid();
     // test.test_unkonw_format();
-    test.test_import();
+    // test.test_import();
+    String time = TimeUtil.consumeTime(30000 * 1000);
+    System.out.println(time);
   }
 
 

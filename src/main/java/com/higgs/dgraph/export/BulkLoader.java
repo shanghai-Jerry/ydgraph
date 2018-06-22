@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -52,6 +53,12 @@ public class BulkLoader {
 
   }
 
+  private String consumeTime(long totalMills) {
+    SimpleDateFormat formatter = new SimpleDateFormat("mm分:ss秒:S");
+    String hms = formatter.format(totalMills);
+    return hms;
+  }
+
   public void loading(List<String> rdf) {
     executorCompletionService.submit(new DataHandlerCallable(dClient, NodeUtil.deepCopy(rdf)));
   }
@@ -76,7 +83,7 @@ public class BulkLoader {
     long total = totalTime.addAndGet(time);
     totalTime.set(total);
     if (totalData % (batchSize * 1000L) == 0) {
-      logger.info("total spend:" + totalTime + " ms, totalCount:" + totalData);
+      logger.info("total spend:" + consumeTime(total) + " ms, totalCount:" + totalData);
     }
   }
 
