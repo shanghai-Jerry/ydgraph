@@ -1,16 +1,24 @@
 package com.higgs.dgraph.export;
 
+
 import com.higgs.dgraph.DClient;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 
-import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -21,8 +29,6 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * Copyright (c) 2018 devops
  *
- * ref: dgraph bulk loader
- *
  * <<licensetext>>
  */
 public class BulkLoader {
@@ -30,62 +36,91 @@ public class BulkLoader {
   private static final Logger logger = LoggerFactory.getLogger(BulkLoader.class);
   private DClient dClient;
 
-  private long errorNumber = 0;
+  private AtomicLong counter = new AtomicLong(0);
 
-  private long successedEdges = 0;
+  ExecutorService executor = Executors.newFixedThreadPool(5);
+  ExecutorCompletionService executorCompletionService = new ExecutorCompletionService(executor);
 
-  public BulkLoader(String[] serverAddrs) {
-    dClient = new DClient(serverAddrs);
+  public BulkLoader(String serverAddress) {
+    String[] strings = new String[]{serverAddress};
+    dClient = new DClient(strings);
   }
 
-  public void formatRdf(List<String> rdfs, List<String> formatRdfs) {
-    for (String rdf : rdfs) {
-      formatRdfs.add(rdf.replace("_:uid", "0x"));
-    }
+  public void loading(List<String> rdf) {
+    executorCompletionService.submit(new DataHandlerCallable(dClient, rdf));
   }
 
-  public void loading(List<String> rdfs) {
-    long started = System.currentTimeMillis();
-    List<String> formatRdfs = new ArrayList<>();
-    formatRdf(rdfs, formatRdfs);
-    DgraphProto.Assigned assigned = dClient.multiplyEdgesMutation(formatRdfs, false);
-    if (assigned == null) {
-      errorNumber = errorNumber + formatRdfs.size();
-    } else {
-      successedEdges = successedEdges + formatRdfs.size();
+  public int processFile(String rdfDir, int batchSize) throws IOException {
+    int batch = 0;
+    int tasks = 0;
+    List<String> rdf = new ArrayList<>();
+    if (rdfDir.endsWith("rdf.gz")) {
+      GZIPInputStream gzipInputStream =  new GZIPInputStream(new FileInputStream(new File(rdfDir)));
+      Scanner sc = new Scanner(gzipInputStream);
+      while(sc.hasNextLine()) {
+        String line = sc.nextLine();
+        rdf.add(line + "\n");
+        batch++;
+        if (batch >= batchSize) {
+          tasks++;
+          loading(rdf);
+          rdf.clear();
+          batch = 0;
+        }
+      }
+      if (batch > 0) {
+        tasks++;
+        loading(rdf);
+      }
+    } else if (rdfDir.endsWith(".rdf")) {
+      BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(rdfDir)));
+      String line = bufferedReader.readLine();
+      while (line != null) {
+        rdf.add(line + "\n");
+        batch++;
+        if (batch >= batchSize) {
+          tasks++;
+          loading(rdf);
+          rdf.clear();
+          batch = 0;
+        }
+        line = bufferedReader.readLine();
+      }
+      if (batch > 0) {
+        tasks++;
+        loading(rdf);
+      }
     }
-    long end = System.currentTimeMillis();
-    logger.info("successedEdges:" + successedEdges + ", errorNumber:" + errorNumber + ", spend:"
-        + (end - started) + " ms/" + formatRdfs.size());
+    executor.shutdown();
+    return tasks;
   }
 
   public static void main(String[] args) throws IOException {
     if (args.length < 4) {
-      System.out.println("Usage: java -jar xxx.jar <RDFDir> <SchemaFile> <DgserverAddress> " +
-          "<BatchSize> ");
+      System.out.println("Usage: java -jar xxx.jar <RDFDir: *.rdf.gz or *.rdf> <SchemaFile> " +
+          "<DgserverAddress> <BatchSize> ");
       return;
     }
     String rdfDir = args[0];
     String dserver = args[2];
-    logger.info("dserver:" + dserver);
-    BulkLoader bulkLoader = new BulkLoader(dserver.split(","));
     int batchSize = Integer.parseInt(args[3]);
-    int batch = 0;
-    GZIPInputStream gzipInputStream =  new GZIPInputStream(new FileInputStream(new File(rdfDir)));
-    Scanner sc = new Scanner(gzipInputStream);
-    List<String> rdf = new ArrayList<>();
-    while(sc.hasNextLine()) {
-      String line = sc.nextLine();
-      rdf.add(line + "\n");
-      batch++;
-      if (batch >= batchSize) {
-        bulkLoader.loading(rdf);
-        rdf.clear();
-        batch = 0;
+    logger.info("dserver:" + dserver + ", rdf:" + rdfDir + ", batchSize:" + batchSize);
+    BulkLoader bulkLoader = new BulkLoader(dserver);
+    long started = System.currentTimeMillis();
+    int tasks = bulkLoader.processFile(rdfDir, batchSize);
+    for (int i = 0; i < tasks; i++) {
+      try {
+        Future<Long> success = bulkLoader.executorCompletionService.take();
+        long ret = success.get();
+        bulkLoader.counter.addAndGet(ret);
+      } catch (InterruptedException e) {
+        logger.info("[ExecutorCompletionService Take error] -> " + e.getMessage());
+      } catch (ExecutionException e) {
+        logger.info("[ExecutorCompletionService Future Get error] -> " + e.getMessage());
       }
-    }
-    if (batch > 0) {
-      bulkLoader.loading(rdf);
+      long end = System.currentTimeMillis();
+      logger.info("spend:" + (end - started) + "ms, totalCount:" + bulkLoader.counter.get());
     }
   }
+
 }
