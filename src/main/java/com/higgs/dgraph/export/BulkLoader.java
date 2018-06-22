@@ -1,7 +1,7 @@
 package com.higgs.dgraph.export;
 
-
 import com.higgs.dgraph.DClient;
+import com.higgs.dgraph.node.NodeUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 
@@ -37,20 +38,56 @@ public class BulkLoader {
   private DClient dClient;
 
   private AtomicLong counter = new AtomicLong(0);
+  private AtomicLong totalTime = new AtomicLong(0);
+  private AtomicBoolean isFull = new AtomicBoolean(false);
 
-  ExecutorService executor = Executors.newFixedThreadPool(5);
-  ExecutorCompletionService executorCompletionService = new ExecutorCompletionService(executor);
+  ExecutorService executor;
+  ExecutorCompletionService executorCompletionService;
 
-  public BulkLoader(String serverAddress) {
+  public BulkLoader(String serverAddress, int numberThread) {
     String[] strings = new String[]{serverAddress};
     dClient = new DClient(strings);
+    executor = Executors.newFixedThreadPool(numberThread);
+    executorCompletionService = new ExecutorCompletionService(executor);
+
   }
 
   public void loading(List<String> rdf) {
-    executorCompletionService.submit(new DataHandlerCallable(dClient, rdf));
+    executorCompletionService.submit(new DataHandlerCallable(dClient, NodeUtil.deepCopy(rdf)));
   }
 
-  public int processFile(String rdfDir, int batchSize) throws IOException {
+  private void handleResult(int tasks, int batchSize) {
+    long started = System.currentTimeMillis();
+    for (int i = 0; i < tasks; i++) {
+      try {
+        Future<Long> success = executorCompletionService.take();
+        long ret = success.get();
+        long newCounter = counter.addAndGet(ret);
+        counter.set(newCounter);
+      } catch (InterruptedException e) {
+        logger.info("[ExecutorCompletionService Take error] -> " + e.getMessage());
+      } catch (ExecutionException e) {
+        logger.info("[ExecutorCompletionService Future Get error] -> " + e.getMessage());
+      }
+    }
+    long totalData = counter.get();
+    long end = System.currentTimeMillis();
+    long time = end - started;
+    long total = totalTime.addAndGet(time);
+    totalTime.set(total);
+    if (totalData % (batchSize * 1000L) == 0) {
+      logger.info("total spend:" + (end - started) + " ms, totalCount:" + totalData);
+    }
+  }
+
+  private void lock() {
+    isFull.set(true);
+  }
+
+  private void unlock() {
+    isFull.set(false);
+  }
+  public int processFile(String rdfDir, int batchSize, int numberThread) throws IOException {
     int batch = 0;
     int tasks = 0;
     List<String> rdf = new ArrayList<>();
@@ -64,6 +101,11 @@ public class BulkLoader {
         if (batch >= batchSize) {
           tasks++;
           loading(rdf);
+          if (tasks % numberThread == 0) {
+            logger.info("task full, pls wait !!");
+            handleResult(tasks, batchSize);
+            tasks = 0;
+          }
           rdf.clear();
           batch = 0;
         }
@@ -72,6 +114,8 @@ public class BulkLoader {
         tasks++;
         loading(rdf);
       }
+      handleResult(tasks, batchSize);
+
     } else if (rdfDir.endsWith(".rdf")) {
       BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(rdfDir)));
       String line = bufferedReader.readLine();
@@ -81,6 +125,11 @@ public class BulkLoader {
         if (batch >= batchSize) {
           tasks++;
           loading(rdf);
+          if (tasks % numberThread == 0) {
+            logger.info("task full, pls wait !!");
+            handleResult(tasks, batchSize);
+            tasks = 0;
+          }
           rdf.clear();
           batch = 0;
         }
@@ -90,37 +139,25 @@ public class BulkLoader {
         tasks++;
         loading(rdf);
       }
+      handleResult(tasks,batchSize);
     }
     executor.shutdown();
     return tasks;
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length < 4) {
+    if (args.length < 5) {
       System.out.println("Usage: java -jar xxx.jar <RDFDir: *.rdf.gz or *.rdf> <SchemaFile> " +
-          "<DgserverAddress> <BatchSize> ");
+          "<DgserverAddress> <BatchSize> <NumberThread> ");
       return;
     }
     String rdfDir = args[0];
     String dserver = args[2];
     int batchSize = Integer.parseInt(args[3]);
+    int numberThread = Integer.parseInt(args[4]);
     logger.info("dserver:" + dserver + ", rdf:" + rdfDir + ", batchSize:" + batchSize);
-    BulkLoader bulkLoader = new BulkLoader(dserver);
-    long started = System.currentTimeMillis();
-    int tasks = bulkLoader.processFile(rdfDir, batchSize);
-    for (int i = 0; i < tasks; i++) {
-      try {
-        Future<Long> success = bulkLoader.executorCompletionService.take();
-        long ret = success.get();
-        bulkLoader.counter.addAndGet(ret);
-      } catch (InterruptedException e) {
-        logger.info("[ExecutorCompletionService Take error] -> " + e.getMessage());
-      } catch (ExecutionException e) {
-        logger.info("[ExecutorCompletionService Future Get error] -> " + e.getMessage());
-      }
-      long end = System.currentTimeMillis();
-      logger.info("spend:" + (end - started) + "ms, totalCount:" + bulkLoader.counter.get());
-    }
+    BulkLoader bulkLoader = new BulkLoader(dserver, numberThread);
+    bulkLoader.processFile(rdfDir, batchSize, numberThread);
   }
 
 }

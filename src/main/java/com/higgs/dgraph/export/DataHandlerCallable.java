@@ -56,6 +56,8 @@ public class DataHandlerCallable implements Callable<Long> {
     long end = System.currentTimeMillis();
     logger.info("map:" + Thread.currentThread().getId() + ", successedEdges:" + successedEdges +
         ", errorNumber:" + errorNumber + ", spend:" + (end - started) + " ms/" + size);
+    this.data.clear();
+    formatRdf.clear();
     return successedEdges;
   }
   @Override
