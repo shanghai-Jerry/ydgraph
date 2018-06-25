@@ -231,7 +231,7 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
     // demo.QueryTest();

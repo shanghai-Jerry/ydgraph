@@ -358,11 +358,11 @@ public class EntityIdClient {
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
-    client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt", "src/main/resources/test_dir/unknow_format_uid.txt");
+    //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "??平县?\u0000?\u0000?\u0000??\u0000??裰行?\u0000?增庄分销?\u0000";
+      String name = "深圳市腾讯计算机系统有限公司";
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))

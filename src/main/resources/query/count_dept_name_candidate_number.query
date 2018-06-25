@@ -1,0 +1,10 @@
+# 按公司统计指定一个部门下的候选人总数, 可选择根据参数列表的顺序返回json结果
+{
+ query(func:uid(%s)) {
+  uid
+  name
+  one:~candidate_company @facets(eq(dept_name, "%s")) {
+    count(uid)
+  }
+ }
+}

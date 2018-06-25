@@ -1,3 +1,4 @@
+# 按公司统计候选人的年龄分布
 {
   query(func:uid(0x48c8d16)) {
     name
