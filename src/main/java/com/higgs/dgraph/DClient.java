@@ -510,16 +510,20 @@ public class  DClient {
    * @return uid assigned
    */
   private DgraphProto.Assigned mutateRetry(DgraphProto.Mutation mu, Exception exception) {
-    // retry multiply times as possible
-    // io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state code: 14
-    // io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED code: 4
-    // io.grpc.StatusRuntimeException: Please retry again, server is not ready to accept
-    // request code: 2
-    // io.grpc.StatusRuntimeException: UNKNOWN: Predicate is being moved, please retry
-    // later, code: 2
-    // io.grpc.StatusRuntimeException:While proposing to RAFT group, err: context deadline exceeded, code: 2
-    // io.grpc.StatusRuntimeException: UNKNOWN: Only leader can decide to commit or abort, code: -
-    // 可能的异常: TxnConflictException,
+    /** retry multiply times as possible
+      1. io.grpc.StatusRuntimeException: UNAVAILABLE: Channel in TRANSIENT_FAILURE state code: 14
+
+      2. io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED code: 4
+
+      3. io.grpc.StatusRuntimeException: Please retry again, server is not ready to accept
+         request code: 2
+      4. io.grpc.StatusRuntimeException: UNKNOWN: Predicate is being moved, please retry
+         later, code: 2
+      5. io.grpc.StatusRuntimeException:While proposing to RAFT group, err: context deadline
+         exceeded, code: 2
+      6. io.grpc.StatusRuntimeException: UNKNOWN: Only leader can decide to commit or abort,
+         code: - 2
+      7. 可能的异常: TxnConflictException,*/
     DgraphProto.Assigned assigned = null;
     int code;
     if (exception instanceof StatusRuntimeException) {
