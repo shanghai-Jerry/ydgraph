@@ -1,0 +1,21 @@
+query withvar($a:string, $b:string,$c:string,$d:string,$e:string) {
+  query(func:uid($a)) {
+    uid
+    one: ~candidate_company @filter(gt(birthday, "$b")) {
+      count(uid)
+    }
+    two: ~candidate_company @filter(le(birthday, "$b") and gt(birthday, "$c")) {
+      count(uid)
+    }
+    three: ~candidate_company @filter(le(birthday, "$c") and gt(birthday, "$d")) {
+      count(uid)
+    }
+    four: ~candidate_company @filter(le(birthday, "$d") and gt(birthday, "$e")) {
+      count(uid)
+    }
+    five: ~candidate_company @filter(le(birthday, "$e")) {
+      count(uid)
+    }
+
+  }
+}

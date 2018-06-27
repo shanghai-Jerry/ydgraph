@@ -1,0 +1,19 @@
+{
+  query(func:uid(0x430372)) {
+    uid
+    name
+    unique_id
+    parent_industry {
+        uid
+        name
+      }
+    industry {
+      uid
+      name
+      parent_industry {
+        uid
+        name
+      }
+    }
+  }
+}

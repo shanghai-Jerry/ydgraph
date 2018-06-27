@@ -1,0 +1,43 @@
+syntax = "proto3";
+package com.inmind.idmg.serving.dgrpah.query.rpc;
+
+option java_multiple_files = true;
+
+
+service DgraphQuery {
+    rpc query(QueryRequest) returns (QueryRespond) {
+    };
+    // TODO ... batchQuery:
+}
+
+message QueryRequest {
+    // 实体类型定义
+    enum UniqueIdType {
+        NONE_TYPE = 0;
+        CANDIDATE=1;
+        COMPANY=2;
+        INDUSTRY=3;
+        SCHOOL=4;
+        MAJOR=5;
+    }
+    // 查询的类型定义
+    enum QueryType {
+        NONE = 0;
+        COMPANY_CANDIDATE_AGE = 1;
+        COMPANY_CANDIDATE_MAX_DEGREE=2;
+        COMPANY_CANDIDATE_GENDER=3;
+        COMPANY_CANDIDATE_SALARY=4;
+        COMPANY_DEPTNAME_CANDIDATE_NUMBER=5;
+    }
+    string unique_id=1;
+    QueryType query_type=2;
+    UniqueIdType unique_id_type=3;
+    string dept_name=4;
+}
+
+message QueryRespond {
+    string result_json=1;
+}
+
+
+

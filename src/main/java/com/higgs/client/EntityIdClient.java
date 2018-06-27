@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.higgs.dgraph.Config;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.EntityNode;
 
@@ -357,12 +358,13 @@ public class EntityIdClient {
   }
 
   public static void main(String[] args) throws Exception {
-    EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
+    EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
+        Config.ENTITY_ID_SERVICE_PORT);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "深圳市腾讯计算机系统有限公司";
+      String name = "七星关区得意屋童装店";
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))

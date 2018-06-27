@@ -1,0 +1,21 @@
+{
+  query(func:uid(0x1b948c)) {
+    uid
+    one: ~candidate_company @filter(gt(birthday, "1998")) {
+      count(uid)
+    }
+    two: ~candidate_company @filter(le(birthday, "1998") and gt(birthday, "1993")) {
+      count(uid)
+    }
+    three: ~candidate_company @filter(le(birthday, "1993") and gt(birthday, "1988")) {
+      count(uid)
+    }
+    four: ~candidate_company @filter(le(birthday, "1988") and gt(birthday, "1983")) {
+      count(uid)
+    }
+    five: ~candidate_company @filter(le(birthday, "1983")) (first:2) {
+      count(uid)
+    }
+
+  }
+}

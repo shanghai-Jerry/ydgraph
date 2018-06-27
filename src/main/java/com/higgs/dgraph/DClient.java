@@ -38,7 +38,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * <<licensetext>>
  */
-public class DClient {
+public class  DClient {
 
   private static final Logger logger = LoggerFactory.getLogger(DClient.class);
 
@@ -517,7 +517,8 @@ public class DClient {
     // request code: 2
     // io.grpc.StatusRuntimeException: UNKNOWN: Predicate is being moved, please retry
     // later, code: 2
-    // While proposing to RAFT group, err: context deadline exceeded, code: 2
+    // io.grpc.StatusRuntimeException:While proposing to RAFT group, err: context deadline exceeded, code: 2
+    // io.grpc.StatusRuntimeException: UNKNOWN: Only leader can decide to commit or abort, code: -
     // 可能的异常: TxnConflictException,
     DgraphProto.Assigned assigned = null;
     int code;

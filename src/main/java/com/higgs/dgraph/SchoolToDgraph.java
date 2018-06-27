@@ -32,12 +32,12 @@ public class SchoolToDgraph {
 
   public SchoolToDgraph() {
     dClient = new DClient(Config.addressList);
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    entityIdClient = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
   }
 
-  public SchoolToDgraph(DClient dClient) {
+  public SchoolToDgraph(DClient dClient, EntityIdClient entityIdClient) {
     this.dClient = dClient;
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    this.entityIdClient = entityIdClient;
   }
 
   public void getSchool(List<String> dictLines, List<School> schools) {
@@ -115,7 +115,8 @@ public class SchoolToDgraph {
 
   public static void main(String[] args) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
-    SchoolToDgraph schoolToDgraph = new SchoolToDgraph(dClient);
+    EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT_TEST);
+    SchoolToDgraph schoolToDgraph = new SchoolToDgraph(dClient, client);
     String dictPath = "src/main/resources/school_dump_dict.txt";
     // schoolToDgraph.initWithJson(dictPath);
     schoolToDgraph.initWithRdf(dictPath);

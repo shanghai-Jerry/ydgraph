@@ -45,21 +45,22 @@ public class CompanyNormalizationClient {
     return rep;
   }
 
-  public static void StartMain(String[] args) throws Exception {
-    CompanyNormalizationClient client = new CompanyNormalizationClient("172.20.0.81", 26543);
+  public static void main(String[] args) throws Exception {
+    CompanyNormalizationClient client = new CompanyNormalizationClient("172.20.0.14", 26543);
     try {
       Company.CompanyNormReply rep = client.normalize(Company.CompanyNormRequest.newBuilder()
-          .addNames(args[0]).build());
+          .addNames("1553（营运牌号）").build());
       Company.CompanyNormReply.NormedItem normalItem = rep.getItems(0);
       String originTitle = normalItem.getOrigin();
-      String normed = "";
       int normalLength = normalItem.getNormedCount();
-      if (normalLength > 0) {
-        normed = normalItem.getNormed(0);
+      String normed = "";
+      for (int i = 0; i < normalLength; i++) {
+        // score返回已是排好了序， 控制阈值0.75
+        logger.info("[normed] => " + normalItem.getNormed(i) + ", score:" + normalItem.getScore(i));
       }
       String originCoreInd = normalItem.getOriginCoreInd();
       String originLocCoreInd = normalItem.getOriginLocCoreInd();
-      System.out.println(originTitle + " , " + normed + " , " + originCoreInd + " , " + originLocCoreInd);
+      logger.info(originTitle + " , " + normed + " , " + originCoreInd + " , " + originLocCoreInd);
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

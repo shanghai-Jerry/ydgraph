@@ -31,12 +31,12 @@ public class MajorToDgraph {
 
   public MajorToDgraph() {
     dClient = new DClient(Config.TEST_HOSTNAME);
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    entityIdClient = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
   }
 
-  public MajorToDgraph(DClient dClient) {
+  public MajorToDgraph(DClient dClient, EntityIdClient entityIdClient) {
     this.dClient = dClient;
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    this.entityIdClient = entityIdClient;
   }
 
   public void getMajor(List<String> dictLines, List<Major> majors) {
@@ -111,7 +111,8 @@ public class MajorToDgraph {
   public static void main(String[] args) {
     String dictPath = "src/main/resources/major_dict.txt";
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
-    MajorToDgraph majorToDgraph = new MajorToDgraph(dClient);
+    EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT_TEST);
+    MajorToDgraph majorToDgraph = new MajorToDgraph(dClient, client);
     // majorToDgraph.initWithJson(dictPath);
     // majorToDgraph.initWithRdf(dictPath);
     majorToDgraph.initWithRdf(dictPath);

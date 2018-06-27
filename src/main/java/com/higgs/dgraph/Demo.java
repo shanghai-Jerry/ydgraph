@@ -19,6 +19,7 @@ import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import com.higgs.utils.FileUtils;
+import com.higgs.utils.TimeUtil;
 import com.higgs.utils.util;
 
 import org.apache.hadoop.hdfs.DFSClient;
@@ -73,15 +74,12 @@ public class Demo {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query/query_test.query")));
+          ("src/main/resources/query_test/query_test.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
     }
-    Map<String, String> vars = new HashMap<>();
-    String companyUid = "0x35";
-    String deptUid = "0x34";
-    query = String.format(query, companyUid, deptUid);
+    query = String.format(query);
     DgraphProto.Response res = dClient.getDgraphClient()
         .newTransaction()
         .query(query);
@@ -89,7 +87,12 @@ public class Demo {
     // 获取时间
     // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
+    parseLatency(res);
+  }
+  public void parseLatency(DgraphProto.Response res) {
+    long processTime = res.getLatency().getProcessingNs();
     util.println("latency:", res.getLatency().toString());
+    logger.info("consume:" + TimeUtil.consumeTime(processTime / 1000/ 1000));
   }
   public void QueryCount() throws IOException {
     System.out.println("querying ....");
@@ -97,24 +100,32 @@ public class Demo {
         readAllBytes(Paths.get("src/main/resources/query/count_company.query")));
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
     // 获取时间
-    // res.getLatency()
     System.out.println(res.getJson().toStringUtf8());
-    util.println("latency:", res.getLatency().toString());
   }
   @Deprecated
   public void QueryDemo() {
     // Query
-    String query = "query all($a: string) {\n" + " count(func: uid($a)) {\n" + " ~has_label { " +
-        "count(uid) } \n" + "  }\n" + "}";
-    // System.out.println("Query => \n" + query);
-    System.out.println("querying ....");
-    Map<String, String> vars = Collections.singletonMap("$a", "0x118b");
-    DgraphProto.Response res = dClient.getDgraphClient().newTransaction().queryWithVars(query,
-        vars);
+    String query = "";
+    try {
+      query = new String(Files.readAllBytes(Paths.get
+          ("src/main/resources/query/5.query")));
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    System.out.println("querying ....\n" + query);
+    Map<String, String> vars = new HashMap<>();
+    vars.put("$a", "0xb");
+    vars.put("$b", "ai");
+    vars.put("$c", "youchaojng");
+    String queryFormat = String.format(query, "0x1b948c", "音乐事业部");
+    DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
+        // .query(queryFormat)
+        .queryWithVars(query, vars)
+    ;
     // 获取时间
     // res.getLatency()
-    System.out.println(res.getJson().toStringUtf8());
-    util.println("latency:", res.getLatency().toString());
+    System.out.println("result => \n" + res.getJson().toStringUtf8());
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {
@@ -231,15 +242,15 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    // demo.QueryTest();
+    demo.QueryTest();
+    // demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
-    // demo.QueryDemo();
     // demo.edgeConnect();
-    demo.alterSchema();
+    // demo.alterSchema();
     // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");

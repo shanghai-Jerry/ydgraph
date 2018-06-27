@@ -33,12 +33,12 @@ public class IndustryToDgraph {
 
   public IndustryToDgraph() {
     dClient = new DClient(Config.TEST_HOSTNAME);
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    entityIdClient = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
   }
 
-  public IndustryToDgraph(DClient dClient) {
+  public IndustryToDgraph(DClient dClient, EntityIdClient entityIdClient) {
     this.dClient = dClient;
-    entityIdClient = new EntityIdClient(Config.EntityId_Host, Config.EntityIdService_PORT);
+    this.entityIdClient = entityIdClient;
   }
 
   public List<Industry> getParentIndustry(List<Industry> industries) {
