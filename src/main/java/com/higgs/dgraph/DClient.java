@@ -36,6 +36,8 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * 基于DgraphClient上的另一个逻辑实现
  *
+ * _STAR_ALL : * 
+ *
  * <<licensetext>>
  */
 public class  DClient {

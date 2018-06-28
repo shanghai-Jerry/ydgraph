@@ -112,7 +112,7 @@ message Latency {
 }
 
 message NQuad {
-    string subject = 1;
+    string subject = 1;   // it can be uid
     string predicate = 2;
     string object_id = 3;
     Value object_value = 4;

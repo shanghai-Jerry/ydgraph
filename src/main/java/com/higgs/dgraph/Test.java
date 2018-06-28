@@ -34,7 +34,7 @@ import io.dgraph.DgraphProto;
  */
 public class Test {
 
-  DClient dClient = new DClient(Config.TEST_VM_HOSTNAME);
+  DClient dClient = new DClient(Config.TEST_HOSTNAME);
 
   EntityIdClient client = new EntityIdClient("172.20.0.14", 26544);
 
@@ -135,20 +135,34 @@ public class Test {
     edges.add("<0x47c2> <name> \"哈尔滨市艺乐糖酒有限公司\"^^<xs:string> .");
     dClient.multiplyEdgesMutation(edges, false);
   }
+
+  private void test_delete_edges() {
+    String uid = "0x3";
+    DgraphProto.NQuad nQuad = DgraphProto.NQuad.newBuilder().setSubject(String
+        .format(uid)).setPredicate("name")
+        .setObjectValue(DgraphProto.Value.newBuilder().setStrVal("_STAR_ALL").build()).build();
+
+    DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().addDel(nQuad).build();
+
+    DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
+    try {
+      txn.mutate(mutation);
+      txn.commit();
+    }  catch (Exception e) {
+    } finally {
+      txn.discard();
+    }
+  }
+
+
   public static void main(String[] arg) {
     Test test = new Test();
-    Pattern pattern = Pattern.compile("[\\u0000-\\u0002]+");
-    String name = "\u0002安丘市新兴物资有限公司";
-    if (name != null && !"".equals(name) && pattern.matcher(name).find()) {
-      System.out.println(name);
-    }
-    System.out.println(name);
     // test.test_list_type();
     // test.test_conut_byuid();
     // test.test_unkonw_format();
     // test.test_import();
-    String time = TimeUtil.consumeTime(30000 * 1000);
-    System.out.println(time);
+    // String time = TimeUtil.consumeTime(30000 * 1000);
+    test.test_delete_edges();
   }
 
 
