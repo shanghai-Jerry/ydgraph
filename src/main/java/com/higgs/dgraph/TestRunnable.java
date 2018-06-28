@@ -12,18 +12,14 @@ import com.higgs.utils.util;
  * Created by lolaliva on 2018/5/15.
  */
 public class TestRunnable implements Runnable {
-  Label label;
+  List<String> rdfs;
   DClient dClient;
-  TestRunnable(DClient dClient,Label label) {
-    this.label = label;
+  TestRunnable(DClient dClient, List<String> rdfs) {
+    this.rdfs = rdfs;
     this.dClient = dClient;
   }
   @Override
   public void run() {
-
-    Map<String, List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(label));
-    util.println("finished:", uid.size());
-    // FileUtils.saveFile("src/main/resources/test_label_uid_map.txt", uid);
-
+     dClient.multiplyEdgesMutation(rdfs, false);
   }
 }

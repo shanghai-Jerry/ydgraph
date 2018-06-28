@@ -31,16 +31,26 @@ public class Config {
   public static  String schema =
           "uid:int . \n" +
           "name:string  . \n" +
+          "unique_id:string .\n" +
           "alias:string .\n" +
           "code:int . \n" +
           "type:string .  \n" +
+          "gender：string .\n " +
           "eng_name:string . \n" +
           "location:string  .\n" +
           "legal_person:string .\n" +
           "establish_at:string .\n" +
           "company:uid .\n" +
           "industry:uid .\n" +
-          "parent_industry:uid .\n";
+          "parent_industry:uid .\n" +
+          "candidate_company:uid .\n" +
+          "candidate_school:uid .\n" +
+          "birthday: dateTime @index(year) . \n" +
+          "started_work_at:dateTime @index(year) . \n" +
+          "current_location_code: int ."
+
+
+      ;
 
   public static String updateSchema =
             "birthday: dateTime @index(year) . \n" +
@@ -48,6 +58,7 @@ public class Config {
       ;
 
   public static String checkSchema =
-      "name:string @index(hash) @upsert .\n";
+      "name:string @index(hash) @upsert .\n"
+      ;
 
 }

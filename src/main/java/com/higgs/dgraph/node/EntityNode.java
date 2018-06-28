@@ -109,6 +109,31 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
+  private boolean checkPredicateValue(Object predicate) {
+    if(predicate == null) {
+      return false;
+    }
+    if (predicate instanceof Integer || predicate instanceof Long) {
+      long value = Long.valueOf(predicate.toString());
+      if (value == 0) {
+        return false;
+      }
+    } else if (predicate instanceof String) {
+      if ("".equals(predicate)) {
+        return false;
+      }
+    } else if (predicate instanceof Double || predicate instanceof Float) {
+      double value = Double.valueOf(predicate.toString());
+      if (value == 0) {
+        return false;
+      }
+    } else if (predicate instanceof Boolean) {
+      return true;
+    }
+
+    return true;
+  }
+
   /**
    * 通过反射的形式获取uid
    * @param object 对象
@@ -194,7 +219,7 @@ public class EntityNode implements Serializable {
           // unique_id: 一般属性值, 需要入到dgraph中, 不然无法反向推断出某个uid具体对应unique_id
           // 同样type也需要入库到dgraph: 通过unique_id获取uid时，需要指定type
           util.println("  other else:", name);
-          if (value != null) {
+          if (checkPredicateValue(value)) {
             util.println("  name:", name);
             util.println("  att value:", value);
             pre.add(name);

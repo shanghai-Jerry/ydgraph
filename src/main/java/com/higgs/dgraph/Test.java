@@ -23,11 +23,14 @@ import com.higgs.dgraph.node.School;
 import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.utils.FileUtils;
 import com.higgs.utils.TimeUtil;
+import com.higgs.utils.util;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import io.dgraph.DgraphProto;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 /**
  * Created by lolaliva on 2018/5/10.
@@ -131,9 +134,17 @@ public class Test {
   }
 
   private void test_import() {
-    List<String> edges = new ArrayList<>();
-    edges.add("<0x47c2> <name> \"哈尔滨市艺乐糖酒有限公司\"^^<xs:string> .");
-    dClient.multiplyEdgesMutation(edges, false);
+    List<String> rdf = new ArrayList<>();
+    rdf.add("_:p2 <name> \"p1\"^^<xs:string> .");
+    dClient.multiplyEdgesMutation(rdf, false);
+  }
+
+  private void test_concurrently_insert() {
+    List<String> rdf = new ArrayList<>();
+    rdf.add("_:p2 <name> \"p1\"^^<xs:string> .");
+    for (int i = 0; i < 100; i++) {
+
+    }
   }
 
   private void test_delete_edges() {
@@ -156,13 +167,15 @@ public class Test {
 
 
   public static void main(String[] arg) {
+
+    Logger logger = LoggerFactory.getLogger(Test.class);
     Test test = new Test();
+    // String time = TimeUtil.consumeTime(30000 * 1000);
     // test.test_list_type();
     // test.test_conut_byuid();
     // test.test_unkonw_format();
     // test.test_import();
-    // String time = TimeUtil.consumeTime(30000 * 1000);
-    test.test_delete_edges();
+    // test.test_delete_edges();
   }
 
 
