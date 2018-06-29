@@ -1,5 +1,7 @@
 package com.higgs.dgraph;
 
+import com.google.protobuf.ByteString;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,8 +137,24 @@ public class Test {
 
   private void test_import() {
     List<String> rdf = new ArrayList<>();
-    rdf.add("_:p2 <name> \"p1\"^^<xs:string> .");
-    dClient.multiplyEdgesMutation(rdf, false);
+    rdf.add("_:p2 <name> \"p2\"^^<xs:string> . \n");
+    rdf.add("_:p3 <name> \"p3\"^^<xs:string> . \n ");
+    rdf.add("_:p4 <name> \"p4\"^^<xs:string> . \n");
+    DgraphProto.Assigned assigned = null;
+    List<ByteString> newEdges = new ArrayList<>();
+    for (String edge : rdf) {
+      newEdges.add(ByteString.copyFromUtf8(edge));
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .setSetNquads(ByteString.copyFrom(newEdges))
+        .build();
+    DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
+    try {
+      assigned = txn.mutate(mu);
+    }  catch (Exception e) {
+    } finally {
+    }
+    FileUtils.saveFiles("src/main/resources/test_dir/test_import_uid.txt", assigned.getUidsMap());
   }
 
   private void test_concurrently_insert() {
@@ -174,7 +192,7 @@ public class Test {
     // test.test_list_type();
     // test.test_conut_byuid();
     // test.test_unkonw_format();
-    // test.test_import();
+    test.test_import();
     // test.test_delete_edges();
   }
 

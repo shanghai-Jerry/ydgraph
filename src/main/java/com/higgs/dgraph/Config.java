@@ -54,7 +54,10 @@ public class Config {
 
   public static String updateSchema =
             "birthday: dateTime @index(year) . \n" +
-            "started_work_at:dateTime @index(year) . \n"
+            "started_work_at:dateTime @index(year) . \n" +
+            "current_location_code: int @index(int) . \n" +
+            "candidate_company:uid @reverse .\n"
+
       ;
 
   public static String checkSchema =

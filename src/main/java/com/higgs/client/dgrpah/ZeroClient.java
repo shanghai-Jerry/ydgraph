@@ -45,7 +45,8 @@ public class ZeroClient {
   public void getStartId() {
     DgraphProto.AssignedIds assigned;
     assigned = zeroClient.timestamps(Internal.Num.newBuilder().setVal(1L).build());
-    logger.info("timestamp zero assigned ids:" + assigned.getStartId() + " - " + assigned.getEndId());
+    logger.info("timestamp zero assigned ids:" + "0x" + Long.toHexString(assigned.getStartId())
+        + " - " + "0x" + Long.toHexString(assigned.getEndId()));
   }
 
   /**
@@ -61,12 +62,13 @@ public class ZeroClient {
   public void freeLeaseUidInZero(long num) {
     DgraphProto.AssignedIds assigned;
     assigned = zeroClient.assignUids(Internal.Num.newBuilder().setVal(num).build());
-    logger.info("zero assigned ids:" + assigned.getStartId() + " - " + assigned.getEndId());
+    logger.info("zero assigned ids:" + "0x" + Long.toHexString(assigned.getStartId())
+        + " - " + "0x" + Long.toHexString(assigned.getEndId()));
 
   }
 
   public static void main(final String[] args) {
      ZeroClient client = new ZeroClient("172.20.0.14:5080");
-     client.freeLeaseUidInZero(1000);
+     client.freeLeaseUidInZero(1);
   }
 }

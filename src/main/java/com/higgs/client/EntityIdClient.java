@@ -53,6 +53,30 @@ public class EntityIdClient {
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
+  public enum Etype {
+    MAJOR("专业", 0), SCHOOL("学校", 1), COMPANY("公司", 2), INDUSTRY("行业", 3), CANDIDATE("候选人",4);
+    private String name;
+    private int index;
+    // 构造方法
+    private Etype(String name, int index) {
+      this.name = name;
+      this.index = index;
+    }
+    // get set 方法
+    public String getName() {
+      return name;
+    }
+    public void setName(String name) {
+      this.name = name;
+    }
+    public int getIndex() {
+      return index;
+    }
+    public void setIndex(int index) {
+      this.index = index;
+    }
+  }
+
   /**
    * 写入实体id服务,支持多个names
    * @param map
@@ -364,11 +388,12 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "七星关区得意屋童装店";
+      String name = "博物馆学";
+      String type = Etype.MAJOR.name;
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))
-                .setType("公司").build())
+                .setType(type).build())
           .build());
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);

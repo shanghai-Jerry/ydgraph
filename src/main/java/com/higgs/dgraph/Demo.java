@@ -108,7 +108,7 @@ public class Demo {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query/5.query")));
+          ("src/main/resources/query_test/query.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -118,10 +118,10 @@ public class Demo {
     vars.put("$a", "0xb");
     vars.put("$b", "ai");
     vars.put("$c", "youchaojng");
-    String queryFormat = String.format(query, "0x1b948c", "音乐事业部");
+    String queryFormat = String.format(query);
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
-        // .query(queryFormat)
-        .queryWithVars(query, vars)
+        .query(queryFormat)
+        // .queryWithVars(query, vars)
     ;
     // 获取时间
     // res.getLatency()
@@ -242,16 +242,16 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
     // demo.QueryTest();
-    // demo.QueryDemo();
+    demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
     // demo.edgeConnect();
     // demo.alterSchema();
-    demo.alterUpsertScheam();
+    // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");
   }

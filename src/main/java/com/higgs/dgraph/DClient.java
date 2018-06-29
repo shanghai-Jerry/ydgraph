@@ -36,7 +36,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * 基于DgraphClient上的另一个逻辑实现
  *
- * _STAR_ALL : * 
+ * _STAR_ALL : *
  *
  * <<licensetext>>
  */
@@ -404,7 +404,7 @@ public class  DClient {
       List<String> objectIds = nodeput.getObjectIds();
       int size = predicates.size();
       if (size != values.size() || edge_pred.size() != objectIds.size()) {
-        logger.fatal("entity inital predicates length not equal values ");
+        logger.fatal("entity initial predicates length not equal values ");
       }
       // value feed : value can not be uid in here
       for (int i = 0; i < size; i++) {
