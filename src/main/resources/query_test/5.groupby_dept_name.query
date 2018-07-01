@@ -1,0 +1,9 @@
+# groupby dept_name , also can filter with a specific  dept_name uid
+
+{
+  query(func:uid(0x23ded5)) {
+    company_dept @filter(uid(0x4ea8c0)) @groupby(name){
+      count(uid)
+    }
+  }
+}

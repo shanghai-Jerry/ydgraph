@@ -388,8 +388,8 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "博物馆学";
-      String type = Etype.MAJOR.name;
+      String name = "携程计算机技术（上海）有限公司";
+      String type = Etype.COMPANY.name;
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))
