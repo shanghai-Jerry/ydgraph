@@ -1,26 +1,10 @@
-{
-  query(func:uid(0x430372)) {
-    uid
-    name
-    unique_id
-    parent_industry {
-        uid
-        name
-      }
-    industry {
-      uid
-      name
-      parent_industry {
-        uid
-        name
-      }
-    }
+# 按公司统计指定一个部门下的候选人总数, 可选择根据参数列表的顺序返回json结果
+query withvar($a:string, $b:string){
+ query(func:uid($a)) {
+  uid
+  name
+  one:~candidate_company @facets(eq(dept_name, "$b")) {
+    count(uid)
   }
-}
-
-
-# has parent_industry
-
-{
-
+ }
 }

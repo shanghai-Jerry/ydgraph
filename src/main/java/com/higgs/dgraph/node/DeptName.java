@@ -7,6 +7,7 @@ package com.higgs.dgraph.node;
  *
  * Copyright (c) 2018 devops
  *
+ * （公司 + 部门） = 部门实体
  * <<licensetext>>
  */
 public class DeptName  extends EntityNode {

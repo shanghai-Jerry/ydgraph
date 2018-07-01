@@ -108,20 +108,19 @@ public class Demo {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query_test/query.query")));
+          ("src/main/resources/query_test/query_test.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
     }
     System.out.println("querying ....\n" + query);
     Map<String, String> vars = new HashMap<>();
-    vars.put("$a", "0xb");
+    vars.put("$a", "0x3");
     vars.put("$b", "ai");
-    vars.put("$c", "youchaojng");
     String queryFormat = String.format(query);
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
-        .query(queryFormat)
-        // .queryWithVars(query, vars)
+        //.query(queryFormat)
+        .queryWithVars(query, vars)
     ;
     // 获取时间
     // res.getLatency()
@@ -242,7 +241,7 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
     // demo.QueryTest();
