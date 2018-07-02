@@ -366,9 +366,10 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "深圳市腾讯计算机系统有限公司";
-      String deptName = "电商研发部移动电商中心";
-      String unique_id = NodeUtil.generateMurMurHashId(name + "$" + deptName);
+      String name = "携程计算机技术（上海）有限公司";
+      String deptName = "客户服务部";
+      String unique_id = NodeUtil.generateMurMurHashId(NodeUtil.formatName(name) + "$" +
+          NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       name  = unique_id;
       String type = EntityType.COMPANY_DEPT.getName();

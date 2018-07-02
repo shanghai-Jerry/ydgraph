@@ -56,33 +56,40 @@ public class NodeUtil {
     return "";
   }
 
-  public static String formatCompanyName(String name) {
+  public static String formatName(String name) {
     if (name != null) {
       return name.trim();
     }
     return "";
   }
-
-  private static String convertString(String one, String two, String separate) {
-    return formatCompanyName(one) + separate + formatPredicateValue(two);
-  }
-
   /**
    * 通过两部分结合生产unique_id， 默认结合符号为:$
    * @param src 第一部分: 例如公司名
    * @param dest 第二部分: 部门名称
    * @return  unique_id
    */
+
   public static String generateEntityUniqueId(String src, String dest) {
+    return generateEntityUniqueId(src, dest, "");
+  }
+
+  public static String generateEntityUniqueId(String src, String dest, String sep) {
+    if (sep == null || "".equals(sep)) {
+      sep = "$";
+    }
+    String emmitValue = src + sep + dest;
+    return generateEntityUniqueId(emmitValue);
+  }
+
+  public static String generateEntityUniqueId(String src) {
     MessageDigest md = null;
     try {
       md = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();
     }
-    String emmitValue = src + "$" + dest;
     try {
-      md.update(emmitValue.getBytes("UTF-8"));
+      md.update(src.getBytes("UTF-8"));
     } catch (UnsupportedEncodingException e) {
       logger.info("[UnsupportedEncodingException] => " + e.getMessage());
     }
@@ -90,6 +97,12 @@ public class NodeUtil {
     return md5;
   }
 
+  @Deprecated
+  /**
+   * if use hash64, there are too many values like: 5800143478218191681, but
+   * the src is different, hard to explain
+   * of course, hash function has the same problem, value like: 1716736097
+   */
   public static String generateMurMurHashId(String src) {
     byte[] bytes = src.getBytes();
     long murmurId = Murmur2.hash64(bytes, bytes.length, MURMUR_SEED);

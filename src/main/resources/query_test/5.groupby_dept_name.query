@@ -1,9 +1,47 @@
 # groupby dept_name , also can filter with a specific  dept_name uid
 
 {
-  query(func:uid(0x23ded5)) {
-    company_dept @filter(uid(0x4ea8c0)) @groupby(name){
-      count(uid)
+   query(func:uid(0x23ded5)) {
+     name
+     company_dept @groupby(name) {
+       count(uid)
+     }
+   }
+ }
+
+
+ # count all dept_name
+
+ {
+     var(func:uid(0x23ded5)) {
+       name
+       company_dept @filter(uid(0x4ea8c0)){
+         a as count(~candidate_dept)
+       }
+       b as sum(val(a))
+     }
+     query(func:uid(0x23ded5)) {
+        name
+        val(b)
+      }
+   }
+
+
+# add facet filter
+
+ {
+    var(func:uid(0x23ded5)) {
+      name
+      company_dept @filter(uid(0x4ea8c0)){
+         ~candidate_dept @facets(eq(on_job,true)) {
+            a as count(unique_id) # facets filter 下的数量
+        }
+        b as sum(val(a)) # 各部门下的数量
+      }
+      c as sum(val())  # 公司下的数量
     }
+    query(func:uid(0x23ded5)) {
+       name
+       val(c)
+     }
   }
-}

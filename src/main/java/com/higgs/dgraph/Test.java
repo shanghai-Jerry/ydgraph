@@ -45,6 +45,14 @@ public class Test {
 
   Demo demo = new Demo(dClient);
 
+  public Test(DClient dClient) {
+    this.dClient = dClient;
+  }
+
+  public Test() {
+
+  }
+
   private void test_list_type() {
     Industry industry = new Industry();
     industry.setUnique_ids(Arrays.asList("1", "2"));
@@ -137,9 +145,9 @@ public class Test {
 
   private void test_import() {
     List<String> rdf = new ArrayList<>();
-    rdf.add("_:p2 <name> \"p2\"^^<xs:string> . \n");
-    rdf.add("_:p3 <name> \"p3\"^^<xs:string> . \n ");
-    rdf.add("_:p4 <name> \"p4\"^^<xs:string> . \n");
+    rdf.add(" <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0) .\n");
+    rdf.add(" <0x7b454d> <candidate_dept> <0x63569c> (on_job=false,salary=26000.0) .\n ");
+    // rdf.add("\n");
     DgraphProto.Assigned assigned = null;
     List<ByteString> newEdges = new ArrayList<>();
     for (String edge : rdf) {
@@ -151,8 +159,10 @@ public class Test {
     DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
     try {
       assigned = txn.mutate(mu);
+      txn.commit();
     }  catch (Exception e) {
     } finally {
+      txn.discard();
     }
     FileUtils.saveFiles("src/main/resources/test_dir/test_import_uid.txt", assigned.getUidsMap());
   }
@@ -187,7 +197,8 @@ public class Test {
   public static void main(String[] arg) {
 
     Logger logger = LoggerFactory.getLogger(Test.class);
-    Test test = new Test();
+    DClient dClient = new DClient(Config.addressList);
+    Test test = new Test(dClient);
     // String time = TimeUtil.consumeTime(30000 * 1000);
     // test.test_list_type();
     // test.test_conut_byuid();

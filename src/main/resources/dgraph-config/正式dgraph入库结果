@@ -1,7 +1,7 @@
 # 正式dgraph 172.20.0.8:8080
 {
    set {
-      _:youchaojiang_one <gender> "男" .
+     _:youchaojiang_one <gender> "男" .
      _:youchaojiang_one <age> "20" .
      _:youchaojiang_one <name> "游朝江_1" .
    }
@@ -20,7 +20,8 @@
 {
   set {
 
-   <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0)
+   <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0) .
+   <0x7b454d> <candidate_dept> <0x63569c> (on_job=false,salary=26000.0) .
 
   }
 }

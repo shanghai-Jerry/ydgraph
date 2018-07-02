@@ -241,11 +241,11 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    // demo.QueryTest();
-    demo.QueryDemo();
+    demo.QueryTest();
+    // demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
     // demo.edgeConnect();

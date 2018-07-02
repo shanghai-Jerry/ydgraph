@@ -1,10 +1,7 @@
-# 按公司统计指定一个部门下的候选人总数, 可选择根据参数列表的顺序返回json结果
-query withvar($a:string, $b:string){
- query(func:uid($a)) {
-  uid
-  name
-  one:~candidate_company @facets(eq(dept_name, "$b")) {
-    count(uid)
-  }
+
+{
+   query(func:uid(0x23ded5)) {
+     name
+     count(company_dept)
+   }
  }
-}
