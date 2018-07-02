@@ -10,7 +10,8 @@ package com.higgs.dgraph.enumtype;
  * <<licensetext>>
  */
 public enum EntityType {
-  MAJOR("专业", 0), SCHOOL("学校", 1), COMPANY("公司", 2), INDUSTRY("行业", 3), CANDIDATE("候选人",4);
+  MAJOR("专业", 0), SCHOOL("学校", 1), COMPANY("公司", 2), INDUSTRY("行业", 3), CANDIDATE("候选人",4),
+  COMPANY_DEPT("公司部门", 5);
   private String name;
   private int index;
   // 构造方法

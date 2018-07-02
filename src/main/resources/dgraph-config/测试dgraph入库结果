@@ -1,0 +1,130 @@
+# 测试dgraph 172.20.0.14:8080
+
+ {
+  set {
+    
+    _:p1 <name> "p1" .
+    _:p2 <name> "p2" .
+    _:m1 <name>  "m1" .
+    _:m2 <name>  "m2" .
+    _:g1 <name> "g1" .
+    _:g2 <name> "g2" .
+
+    
+    _:m1 <genre> _:g1 .
+    _:m2 <genre> _:g1 .
+    _:m3 <genre> _:g2 .
+    _:m4 <genre> _:g1 .
+
+  
+     _:m3 <name>  "m3" .
+     _:m4 <name>  "m4" .
+  
+     _:p1 <rated> _:m3 (rating=2.8) .
+     _:p1 <rated> _:m4 (rating=2.9) .
+     _:p1 <rated> _:m2 (rating=3.6) .
+     _:p1 <rated> _:m1 (rating=3.2) . 
+
+     _:p2 <rated> _:m1 (rating=3.5) .
+    
+  }
+}
+
+ "data": {
+    "code": "Success",
+    "message": "Done",
+    "g1": "0x17",
+      "g2": "0x18",
+      "m1": "0x15",
+      "m2": "0x16",
+      "m3": "0x19",
+      "m4": "0x1a",
+      "p1": "0x13",
+      "p2": "0x14"
+
+
+{
+  var (func: uid (0x3)) {# 1
+    rated @groupby (genre) {
+      gc as count (uid)
+    }
+
+    a as  math (1)
+    seen as rated @facets (r as rating) @facets (ge (rating, 3)) {
+      ~rated @facets (sr as rating) @facets (ge (rating, 3)) {
+        user_score as math ((sr + r) / a)
+      }
+    }
+  }
+
+  var (func: uid (user_score), first: 30, orderdesc: val (user_score)) {
+    norm as math (1)
+    rated @filter (not uid (seen)) @facets (ur as rating) {
+      genre {
+        q as math (gc)
+      }
+      x as sum (val (q))
+      fscore as math ((1+ (x / 100)) * ur / norm)
+    }
+  }
+
+  Recommendation(func: uid (fscore), orderdesc: val (fscore), first: 10) {
+    val (fscore)
+    val(x)
+    genre {
+      val(q)
+    }
+    val(norm)
+    rated {
+     
+    }
+    name
+    uid
+  }
+}
+
+
+
+    {
+  "data": {
+    "Recommendation": [
+      {
+        "val(fscore)": 2.958,
+        "val(x)": 2,
+        "genre": [
+          {
+            "val(q)": 2
+          }
+        ],
+        "name": "m4",
+        "uid": "0x9"
+      },
+      {
+        "val(fscore)": 2.856,
+        "val(x)": 2,
+        "genre": [
+          {
+            "val(q)": 2
+          }
+        ],
+        "name": "m3",
+        "uid": "0x7"
+      }
+    ]
+  },
+  "extensions": {
+    "server_latency": {
+      "parsing_ns": 104782,
+      "processing_ns": 753677,
+      "encoding_ns": 1014035
+    },
+    "txn": {
+      "start_ts": 66,
+      "lin_read": {
+        "ids": {
+          "1": 17
+        }
+      }
+    }
+  }
+}

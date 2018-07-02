@@ -7,6 +7,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +24,8 @@ import com.higgs.dgraph.DClient;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.dgraph.put.Nodeput;
+import com.sangupta.murmur.Murmur2;
+
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -36,6 +42,59 @@ import io.vertx.core.logging.LoggerFactory;
 public class NodeUtil {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
+
+  public static final long MURMUR_SEED = 0x7f3a21eaL;
+
+  public static String formatPredicateValue(String value) {
+    if (value != null) {
+      return value
+          .replace("\\", "/")
+          .replace("\n", "")
+          .replace("\"", "")
+          .trim();
+    }
+    return "";
+  }
+
+  public static String formatCompanyName(String name) {
+    if (name != null) {
+      return name.trim();
+    }
+    return "";
+  }
+
+  private static String convertString(String one, String two, String separate) {
+    return formatCompanyName(one) + separate + formatPredicateValue(two);
+  }
+
+  /**
+   * 通过两部分结合生产unique_id， 默认结合符号为:$
+   * @param src 第一部分: 例如公司名
+   * @param dest 第二部分: 部门名称
+   * @return  unique_id
+   */
+  public static String generateEntityUniqueId(String src, String dest) {
+    MessageDigest md = null;
+    try {
+      md = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    String emmitValue = src + "$" + dest;
+    try {
+      md.update(emmitValue.getBytes("UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      logger.info("[UnsupportedEncodingException] => " + e.getMessage());
+    }
+    String md5 = new BigInteger(1, md.digest()).toString(16);
+    return md5;
+  }
+
+  public static String generateMurMurHashId(String src) {
+    byte[] bytes = src.getBytes();
+    long murmurId = Murmur2.hash64(bytes, bytes.length, MURMUR_SEED);
+    return String.valueOf(murmurId);
+  }
 
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,
                                                                               List<T> list,

@@ -1,0 +1,26 @@
+# 正式dgraph 172.20.0.8:8080
+{
+   set {
+      _:youchaojiang_one <gender> "男" .
+     _:youchaojiang_one <age> "20" .
+     _:youchaojiang_one <name> "游朝江_1" .
+   }
+}
+
+"uids": {
+      "youchaojiang_one": "0x7b454d"
+    }
+
+
+
+"携程计算机技术（上海）有限公司" (0x23ded5) 下的 "技术运营部"（0x4ea8c0）
+
+"深圳市腾讯计算机系统有限公司" （0x31f19d） 下的 "研发部" <0x63569c>
+
+{
+  set {
+
+   <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0)
+
+  }
+}

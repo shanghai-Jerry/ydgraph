@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.higgs.dgraph.Config;
 import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.enumtype.EntityType;
 import com.higgs.dgraph.node.EntityNode;
 
 import io.vertx.core.logging.Logger;
@@ -23,6 +24,8 @@ import kb.rpc.BatchEntityIdResponse;
 import kb.rpc.EntityIdRequest;
 import kb.rpc.EntityIdResponse;
 import kb.rpc.EntityIdServiceGrpc;
+
+import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.utils.FileUtils;
 
 
@@ -52,31 +55,6 @@ public class EntityIdClient {
   public void shutdown() throws InterruptedException {
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
-
-  public enum Etype {
-    MAJOR("专业", 0), SCHOOL("学校", 1), COMPANY("公司", 2), INDUSTRY("行业", 3), CANDIDATE("候选人",4);
-    private String name;
-    private int index;
-    // 构造方法
-    private Etype(String name, int index) {
-      this.name = name;
-      this.index = index;
-    }
-    // get set 方法
-    public String getName() {
-      return name;
-    }
-    public void setName(String name) {
-      this.name = name;
-    }
-    public int getIndex() {
-      return index;
-    }
-    public void setIndex(int index) {
-      this.index = index;
-    }
-  }
-
   /**
    * 写入实体id服务,支持多个names
    * @param map
@@ -388,8 +366,12 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "携程计算机技术（上海）有限公司";
-      String type = Etype.COMPANY.name;
+      String name = "深圳市腾讯计算机系统有限公司";
+      String deptName = "电商研发部移动电商中心";
+      String unique_id = NodeUtil.generateMurMurHashId(name + "$" + deptName);
+      logger.info("dept:" + unique_id);
+      name  = unique_id;
+      String type = EntityType.COMPANY_DEPT.getName();
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))

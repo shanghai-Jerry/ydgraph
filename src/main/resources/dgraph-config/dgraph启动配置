@@ -1,0 +1,344 @@
+# dgraph部署服务器配置
+  用途: dgraph
+  CPU: 8核及以上
+  内存: 128G及以上
+  硬盘: 1T及以上
+  数量:3台及以上服务器
+
+  
+
+# dgraph 启动配置
+
+## zero config : 
+{
+  "my": localhost:5080,
+  "replicas": 3
+}
+
+## server config: 
+
+{
+  "my": localhost:7080,
+  "lru_mb": 20000,
+  "replicas": 3,
+  "zero": localhost:5080
+}
+
+
+
+线上dgraph集群机器: ubuntu@172.20.0.8,9,10
+
+zero 数据目录  /data/dgraph/zero/
+ 
+server 数据目录 /data/dgraph/server/
+ 
+zero 配置文件 /usr/local/etc/dgraph-zero.json
+
+server 配置文件  /usr/local/etc/dgraph-server.json
+
+# systemctl
+server_systemd_unit_name: dgraph-server
+zero_systemd_unit_name:dgraph-zero
+
+##
+sudo systemctl start  dgraph-zero
+sudo systemctl start  dgraph-server
+ 
+## 
+sudo systemctl restart  dgraph-zero
+
+sudo systemctl restart  dgraph-server
+
+# 
+sudo systemctl stop  dgraph-zero
+
+sudo systemctl stop  dgraph-server
+
+## 
+sudo systemctl status  dgraph-zero
+
+sudo systemctl status  dgraph-server
+
+
+# log 
+
+sudo journalctl -u  dgraph-server -f 
+
+sudo journalctl -u  dgraph-server --since today
+
+sudo journalctl -u  dgraph-server --since "5 min ago"
+
+## clean dir
+sudo rm -rf  server/* zero/*
+sudo rm -rf  zero/*
+
+
+# bulk loader
+
+ dgraph bulk  -r dgraph-1-2018-06-20-15-26.new.1.rdf -s dgraph-1-2018-06-20-15-26.schema.gz 
+ -j 4 --map_shards=4 --reduce_shards=2 --http localhost:8000 --zero=localhost:5080
+
+#
+
+1.模拟数据集:新增两个候选人的数据
+{
+  set {
+    _:youchaojiang_one <gender> "男" .
+    _:youchaojiang_one <age> "20" .
+    _:youchaojiang_one <name> "游朝江_1" .
+
+    _:company_a <name> "company_a" .
+    _:company_b <name> "company_b" .
+
+    _:youchaojiang_one <candidate_company> _:company_a (salary=2000) .
+
+
+	_:youchaojiang_two <gender> "男" .
+    _:youchaojiang_two <name> "游朝江_2" .
+    _:youchaojiang_two <age> "23" .
+    _:youchaojiang_two <candidate_company> _:company_a (salary=4000) .
+  
+  }
+}
+ret uid : 
+
+"uids": {
+  "youchaojiang_one": "0x48c8d15",
+  "youchaojiang_two": "0x48c8d18"
+  "youchaojiang_three": "0x48c8d19"
+  
+  "company_a": "0x48c8d16",
+  "company_b": "0x48c8d17",
+  	 
+
+} 
+ 
+
+2. 添加而外两个人候选人数据
+{
+  set {
+    _:youchaojiang_three <gender> "男" .
+    _:youchaojiang_three <name> "游朝江_3" .
+    
+    _:youchaojiang_four <gender> "男" .
+    _:youchaojiang_four <name> "游朝江_4" .
+    
+    <0x46575f0> <candidate_company> <0x2b529b3> (dept="tech_dept", since=2004-01-02T15:04:05) .
+    <0x46575ef> <candidate_company> <0x2b529b3> (dept="hr_dept", since=2016-01-02T15:04:05, end_at=2017-01-02T15:04:05) .
+
+    
+  }
+}
+
+3.添加候选人的学历、性格、 薪资 := 如果需要groupby的时候，
+{
+  set {
+    <0x46575ed> <gender> "女" .
+    <0x46575ed> <degree> "高中" .
+    <0x46575ee> <gender> "女" .
+    <0x46575ee> <degree> "本科" .
+    <0x46575f0> <degree> "本科" .
+    <0x46575ef> <degree> "硕士" .
+
+    <0x46575ed> <salary> "20-30万" .
+    <0x46575ee> <salary> "30-50万" .
+    <0x46575f0> <salary> "30-50万" .
+    <0x46575ef> <salary> "50万以上" .
+ 
+  }
+}
+
+eg: groupby的使用: Vars can be assigned only when grouped by UID attribute
+
+{
+  query (func:uid(0x2b529b3)) {
+    ~candidate_company @groupby(degree) {
+      count(uid)
+    }
+  }
+}
+
+4. 新增degree.new, 可实现groupby(uid)
+{
+  set {
+   
+    <0x46575ed> <degree.new> <0x46575f1> .
+    <0x46575ee> <degree.new> <0x46575f2> .
+    <0x46575f0> <degree.new> <0x46575f2> .
+    <0x46575ef> <degree.new> <0x46575f3> .
+
+  }
+}
+
+eg:
+{
+  var (func:uid(0x2b529b3)) {
+    ~candidate_company @groupby(degree.new) {
+      a as count(uid)
+    }
+  }
+  query(func:uid(a)) {
+    name
+    total: val(a)
+  }
+}
+
+4. shortestPath between candidates
+
+uid: 0x1b47
+uid: 0x1c2f
+
+uid: 0x3632c7a -> 0x36807ef
+
+{
+  path as shortest(from: 0x3632c7a, to: 0x36807ef) {
+  	candidate_company
+    ~candidate_company
+ }
+ path(func: uid(path)) {
+   uid
+   name
+ }
+}
+
+result: {
+  "data": {
+    "query": [
+      {
+        "uid": "0x3632c7a"
+      },
+      {
+        "name": "北京俊发物流有限公司",
+        "uid": "0xb34103"
+      },
+      {
+        "uid": "0x35ea453"
+      },
+      {
+        "name": "北京辉越嘉华汽车技术发展有限公司",
+        "uid": "0x14b5033"
+      },
+      {
+        "uid": "0x36807ef"
+      }
+    ],
+    "_path_": [
+      {
+        "candidate_company": [
+          {
+            "~candidate_company": [
+              {
+                "candidate_company": [
+                  {
+                    "~candidate_company": [
+                      {
+                        "uid": "0x36807ef"
+                      }
+                    ],
+                    "uid": "0x14b5033"
+                  }
+                ],
+                "uid": "0x35ea453"
+              }
+            ],
+            "uid": "0xb34103"
+          }
+        ],
+        "uid": "0x3632c7a"
+      }
+    ]
+  },
+  "extensions": {
+    "server_latency": {
+      "parsing_ns": 22900,
+      "processing_ns": 192983967,
+      "encoding_ns": 762391
+    },
+    "txn": {
+      "start_ts": 1565245,
+      "lin_read": {
+        "ids": {
+          "1": 1488075
+        }
+      }
+    }
+  }
+}
+
+5. facets filter and sorted
+   {
+  var(func:uid(0x2f70d8c)) {
+    ~candidate_company (first:2) @facets(eq(on_job, true)) @facets(a as started_at)
+  }  
+    
+  query(func:uid(a), orderdesc:val(a))  {
+    uid
+    name
+    candidate_company @facets(orderdesc: started_at)
+  } 
+}
+
+
+
+
+
+
+
+
+
+{
+	set {
+		_:class1 <name> "class1" .
+		_:class2 <name> "class2" .
+
+
+		_:st_sype1 <name> "strudent_type_one" .
+		_:st_sype2 <name> "strudent_type_two" .
+
+		_:st1 <name> "student1" .
+		_:st1 <type> _:st_sype1 .
+		_:st1 <grade> "3.8" . 
+		_:st2 <name> "student2" .
+		_:st2 <type> _:st_sype1 .
+		_:st2 <grade> "4.8" .
+		_:st3 <name> "student3" .
+		_:st3 <type> _:st_sype1 .
+		_:st3 <grade> "5.8" .
+
+		_:st4 <name> "student4" .
+		_:st4 <type> _:st_sype2 .
+		_:st4 <grade> "6.8" .
+		_:st5 <name> "student5" .
+		_:st5 <type> _:st_sype2 .
+		_:st5 <grade> "7.8" .
+		_:st6 <name> "student6" .
+		_:st6 <type> _:st_sype2 .
+		_:st6 <grade> "8.8" .	
+
+		_:class1 <student>  _:st1 .
+		_:class1 <student>  _:st2 .
+		_:class1 <student>  _:st3 .
+
+		_:class2 <student>  _:st4 .
+		_:class2 <student>  _:st5 .
+		_:class2 <student>  _:st6 .
+
+
+
+ 	}
+
+}
+
+
+"uids": {
+      "class1": "0x7",
+      "class2": "0x2",
+      "st1": "0x9",
+      "st2": "0x4",
+      "st3": "0x5",
+      "st4": "0xa",
+      "st5": "0x6",
+      "st6": "0xb",
+      "st_sype1": "0x3",
+      "st_sype2": "0x8"
+    }

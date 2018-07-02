@@ -1,0 +1,17 @@
+{
+  "idx": 1,
+  "my": "172.20.0.8:5080",
+  "replicas": 1,
+  "wal": "/data/dgraph/zero",
+  "rebalance_interval": "48h30m0s"
+}
+
+/** peer zero
+{
+  "idx": 3,
+  "my": "172.20.0.10:5080",
+  "peer": "172.20.0.8:5080",
+  "replicas": 3,
+  "wal": "/data/dgraph/zero"
+}
+*/
