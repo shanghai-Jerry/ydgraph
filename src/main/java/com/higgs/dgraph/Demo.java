@@ -244,12 +244,12 @@ public class Demo {
     DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    demo.QueryTest();
+    // demo.QueryTest();
     // demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
     // demo.edgeConnect();
-    // demo.alterSchema();
+    demo.alterSchema();
     // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");

@@ -8,8 +8,8 @@ public class Config {
   public static final List<String> LOCAL_HOST_NAME = Arrays.asList("127.0.0.1:9080");
 
   public static final List<String> addressList =  Arrays.asList(
-      // "172.20.0.8:9080",
-      "172.20.0.9:9080"
+      "172.20.0.8:9080"
+      // "172.20.0.9:9080"
       // "172.20.0.10:9080"
   );
 
@@ -47,14 +47,19 @@ public class Config {
           "candidate_school:uid .\n" +
           "birthday: dateTime @index(year) . \n" +
           "started_work_at:dateTime @index(year) . \n" +
-          "current_location_code: int ." +
-          "candidate_dept:uid"
+          "current_location_code: int @index(int) . \n" +
+          "candidate_dept:uid @reverse . \n"
 
 
       ;
 
   public static String updateSchema =
-            "candidate_dept:uid .\n";
+            "candidate_dept:uid @reverse .\n" +
+            "birthday: dateTime @index(year) . \n" +
+            "started_work_at:dateTime @index(year) . \n" +
+            "current_location_code: int @index(int) . \n"
+
+      ;
 
   public static String checkSchema =
       "name:string @index(hash) @upsert .\n"
