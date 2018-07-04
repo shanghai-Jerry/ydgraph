@@ -1,0 +1,13 @@
+# 按公司统计各部门候选人的学历分布
+ query withvar($a:string, $page_size:int, $offset:int){
+   query(func:uid($a)) {
+     uid
+     name
+     company_dept (first:$page_size, offset:$offset){
+       name
+       count:~candidate_dept @groupby(degree) {
+         count(uid)
+       }
+     }
+   }
+ }

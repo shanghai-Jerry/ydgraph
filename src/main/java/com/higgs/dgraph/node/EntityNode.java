@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.higgs.utils.util;
+import com.higgs.utils.Util;
 
 /**
  * User: JerryYou
@@ -176,17 +176,17 @@ public class EntityNode implements Serializable {
       try {
         String name = field.getName();
         Object value = field.get(object);
-        util.println("name:", name);
-        util.println("value:", value);
+        Util.println("name:", name);
+        Util.println("value:", value);
         // .. todo , 如果实体之前的关系通过List<EntityNode>的方式存在，那么以rdf方式如何建立实体之前的关系
         // .. todo, 以json object的方式写入只需要保证子实体的uid写回，无需进行获取uid进行绑定
         if (value instanceof EntityNode) {
           // 绑定单个实体之间的关系
           if (!"".equals(methodName)) {
-            util.println("  edge:", name);
+            Util.println("  edge:", name);
             String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
-            util.println("  uid:", uid);
-            util.println("  value:", value);
+            Util.println("  uid:", uid);
+            Util.println("  value:", value);
             if (uid != null && !"".equals(uid)) {
               edges.add(name);
               ids.add(uid);
@@ -201,8 +201,8 @@ public class EntityNode implements Serializable {
               List<EntityNode> entityNodes = (List<EntityNode>)value;
               for (EntityNode entityNode: entityNodes) {
                 String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
-                util.println("  list uid:", uid);
-                util.println("  list value:", entityNode);
+                Util.println("  list uid:", uid);
+                Util.println("  list value:", entityNode);
                 if (uid != null && !"".equals(uid)) {
                   edges.add(name);
                   ids.add(uid);
@@ -218,10 +218,10 @@ public class EntityNode implements Serializable {
 
           // unique_id: 一般属性值, 需要入到dgraph中, 不然无法反向推断出某个uid具体对应unique_id
           // 同样type也需要入库到dgraph: 通过unique_id获取uid时，需要指定type
-          util.println("  other else:", name);
+          Util.println("  other else:", name);
           if (checkPredicateValue(value)) {
-            util.println("  name:", name);
-            util.println("  att value:", value);
+            Util.println("  name:", name);
+            Util.println("  att value:", value);
             pre.add(name);
             values.add(value);
           }

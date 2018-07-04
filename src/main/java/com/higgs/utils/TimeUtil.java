@@ -13,9 +13,10 @@ import java.text.SimpleDateFormat;
  */
 public class TimeUtil {
 
-  public static  String consumeTime(long totalMills) {
+  public static String consumeTime(long totalMills) {
     SimpleDateFormat formatter = new SimpleDateFormat("mm分:ss秒:S");
     String hms = formatter.format(totalMills);
     return hms;
   }
+
 }

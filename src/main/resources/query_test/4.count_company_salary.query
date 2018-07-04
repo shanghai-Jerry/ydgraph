@@ -1,0 +1,13 @@
+# 按公司统计候选人的学历分布
+   {
+     query (func:uid(0x31e70e)) {
+     uid
+     name
+     company_dept (first:10, offset:10){
+       name
+       ~candidate_dept @groupby(degree) {
+           count(uid)
+        }
+     }
+    }
+   }

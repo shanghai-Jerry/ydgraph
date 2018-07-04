@@ -1,0 +1,8 @@
+# 统计公司的部门数
+query withvar($a:string){
+  query (func:uid($a)) {
+  uid
+  name
+  dept_number:count(company_dept)
+ }
+}

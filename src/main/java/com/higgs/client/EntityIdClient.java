@@ -59,7 +59,7 @@ public class EntityIdClient {
    * 写入实体id服务,支持多个names
    * @param map
    */
-  public void putFeedEntityWithNames(Map<String, List<String>> map, String type) {
+  public void putFeedEntityWithUidNamesMap(Map<String, List<String>> map, String type) {
     Set<Map.Entry<String, List<String>>> entrySet=  map.entrySet();
     Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
     int batch = 0;
@@ -331,7 +331,7 @@ public class EntityIdClient {
   private Map<String, List<String>> reMappingName(String uidMapDict) {
     Map<String, List<String>> uidMap = new HashMap<>();
     FileUtils.readUidMapDict(uidMapDict, uidMap);
-    this.putFeedEntityWithNames(uidMap, "候选人");
+    this.putFeedEntityWithUidNamesMap(uidMap, "候选人");
     return uidMap;
   }
 
@@ -366,13 +366,34 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "携程计算机技术（上海）有限公司";
-      String deptName = "客户服务部";
-      String unique_id = NodeUtil.generateMurMurHashId(NodeUtil.formatName(name) + "$" +
-          NodeUtil.formatPredicateValue(deptName));
+      String name = "金融";
+      String deptName = "研发部";
+      String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
-      name  = unique_id;
-      String type = EntityType.COMPANY_DEPT.getName();
+      String type = "";
+      int changed = EntityType.INDUSTRY.getIndex();
+      switch (changed) {
+        case 5:
+          name  = unique_id;
+          type = EntityType.COMPANY_DEPT.getName();
+          break;
+        case 2:
+          type = EntityType.COMPANY.getName();
+          break;
+        case 4:
+          type = EntityType.CANDIDATE.getName();
+          break;
+        case 3:
+          type = EntityType.INDUSTRY.getName();
+          break;
+        case 0:
+          type = EntityType.MAJOR.getName();
+          break;
+        case 1:
+          type = EntityType.SCHOOL.getName();
+          break;
+        default:
+      }
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
             .addEntityReq(EntityIdRequest.newBuilder()
                 .addAllName(Arrays.asList(name))

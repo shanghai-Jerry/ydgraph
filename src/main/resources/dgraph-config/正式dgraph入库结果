@@ -8,20 +8,24 @@
 }
 
 "uids": {
-      "youchaojiang_one": "0x7b454d"
+      "youchaojiang_one": ""
     }
 
-
-
-"携程计算机技术（上海）有限公司" (0x23ded5) 下的 "技术运营部"（0x4ea8c0）
-
-"深圳市腾讯计算机系统有限公司" （0x31f19d） 下的 "研发部" <0x63569c>
 
 {
   set {
 
-   <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0) .
-   <0x7b454d> <candidate_dept> <0x63569c> (on_job=false,salary=26000.0) .
+   <> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0) .
+   <> <candidate_dept> <0x63569c> (on_job=false,salary=26000.0) .
 
   }
 }
+
+## 第二次unique_id使用MD5
+
+"携程计算机技术（上海）有限公司" (0x23afba) 下的 "技术运营部"（0x571fed）
+"深圳市腾讯计算机系统有限公司" （0x31e70e） 下的 "研发部" <0x78fb00>
+
+
+
+

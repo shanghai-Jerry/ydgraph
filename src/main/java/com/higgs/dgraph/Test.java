@@ -2,33 +2,24 @@ package com.higgs.dgraph;
 
 import com.google.protobuf.ByteString;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.enumtype.EntityType;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;
 import com.higgs.dgraph.node.DeptName;
+import com.higgs.dgraph.node.EntityNode;
 import com.higgs.dgraph.node.Industry;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
-import com.higgs.dgraph.node.School;
-import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.utils.FileUtils;
-import com.higgs.utils.TimeUtil;
-import com.higgs.utils.util;
-
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
@@ -203,8 +194,9 @@ public class Test {
     // test.test_list_type();
     // test.test_conut_byuid();
     // test.test_unkonw_format();
-    test.test_import();
+    // test.test_import();
     // test.test_delete_edges();
+
   }
 
 

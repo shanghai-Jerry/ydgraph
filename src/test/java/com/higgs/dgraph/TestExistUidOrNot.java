@@ -58,9 +58,9 @@ public class TestExistUidOrNot {
     CandidateQuery candidateQuery = new Gson().fromJson(res.getJson().toStringUtf8(),
         CandidateQuery.class);
     checkoutUid(candidateQuery, uids, errorUids);
-    // util.println("latency", res.getLatency().toString());
-    // util.println("resp", res.getJson().toStringUtf8());
-    // util.println("candidate", candidateQuery.getCandidates().get(0).getName());
+    // Util.println("latency", res.getLatency().toString());
+    // Util.println("resp", res.getJson().toStringUtf8());
+    // Util.println("candidate", candidateQuery.getCandidates().get(0).getName());
   }
 
   public void checkoutUid(CandidateQuery candidateQuery, List<String> queryUids, List<String>

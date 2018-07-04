@@ -1,0 +1,8 @@
+# 按公司统计部门数
+{
+  query (func:uid(0x31e70e)) {
+  uid
+  name
+  count(company_dept)
+ }
+}

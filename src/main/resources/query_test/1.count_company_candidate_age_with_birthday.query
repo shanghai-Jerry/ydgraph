@@ -1,0 +1,47 @@
+# 按公司部门数据, 统计候选人员分布，下级部门多，采用分页的形式，多次请求。
+{
+  ID as var(func:uid(0x31e70e)) {
+    uid
+    name
+    company_dept (first:2, offset: 1) {
+        one: ~candidate_dept @filter(gt(birthday, "1998")) {
+           a as count(birthday)
+        }
+        two: ~candidate_dept @filter(le(birthday, "1998") and gt(birthday, "1993")) {
+          b as count(birthday)
+        }
+        three:  ~candidate_dept @filter(le(birthday, "1993") and gt(birthday, "1988")) {
+          c as count(birthday)
+        }
+        four: ~candidate_dept @filter(le(birthday, "1988") and gt(birthday, "1983")) {
+           d as count(birthday)
+        }
+        five: ~candidate_dept @filter(le(birthday, "1983")) {
+          e as count(birthday)
+        }
+
+        da as sum(val(a))
+        db as sum(val(b))
+        dc as sum(val(c))
+        dd as sum(val(d))
+        de as sum(val(e))
+    }
+    ta as sum(val(da))
+    tb as sum(val(db))
+    tc as sum(val(dc))
+    td as sum(val(dd))
+    te as sum(val(de))
+  }
+
+
+  query(func:uid(ID)) {
+   uid
+   name
+   one:val(ta)
+   two:val(tb)
+   three:val(tc)
+   four:val(td)
+   five:val(te)
+  }
+
+}

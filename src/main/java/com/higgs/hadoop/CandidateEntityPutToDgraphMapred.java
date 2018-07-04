@@ -222,7 +222,7 @@ public class CandidateEntityPutToDgraphMapred {
           timeOutErrorCounter.increment(1L);
         }
       }
-      entityIdClient.putFeedEntityWithNames(candidateRet, type);
+      entityIdClient.putFeedEntityWithUidNamesMap(candidateRet, type);
       originSuccessCounter.increment(candidateRet.size());
       writeUidMap(mos, candidateRet);
     }

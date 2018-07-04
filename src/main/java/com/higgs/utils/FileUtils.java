@@ -135,7 +135,7 @@ public class FileUtils {
         }
       });
     } catch (IOException e) {
-      util.println("IOException", e.getMessage());
+      Util.println("IOException", e.getMessage());
     }
   }
 
@@ -147,7 +147,7 @@ public class FileUtils {
         readFiles(file.getPath(), dict);
       }
     } else {
-      // util.println("filePath", dirFile.getAbsolutePath());
+      // Util.println("filePath", dirFile.getAbsolutePath());
       readFile(dirFile.getAbsolutePath(), dict);
     }
   }

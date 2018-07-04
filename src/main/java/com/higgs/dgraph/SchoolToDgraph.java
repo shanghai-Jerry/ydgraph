@@ -83,7 +83,7 @@ public class SchoolToDgraph {
     init(filePath);
     Map<String,  List<String>> uidMap  = NodeUtil.insertEntity(dClient, this.schools);
     FileUtils.saveFile("src/main/resources/school_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
   public List<Label> getLabeledSchool(List<School> schools) {
@@ -109,7 +109,7 @@ public class SchoolToDgraph {
     System.out.println("get all schools :" + schools.size());
     Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, schools);
     FileUtils.saveFile("src/main/resources/school_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
     // NodeUtil.putEntity(dClient, getLabeledSchool(schools));
   }
 

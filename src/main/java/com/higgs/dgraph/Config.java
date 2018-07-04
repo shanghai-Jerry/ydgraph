@@ -8,7 +8,7 @@ public class Config {
   public static final List<String> LOCAL_HOST_NAME = Arrays.asList("127.0.0.1:9080");
 
   public static final List<String> addressList =  Arrays.asList(
-      // "172.20.0.8:9080"
+      "172.20.0.8:9080"
       // "172.20.0.9:9080"
       // "172.20.0.10:9080"
   );
@@ -45,19 +45,22 @@ public class Config {
           "parent_industry:uid .\n" +
           "candidate_company:uid .\n" +
           "candidate_school:uid .\n" +
-          "birthday: dateTime @index(year) . \n" +
-          "started_work_at:dateTime @index(year) . \n" +
-          "current_location_code: int ." +
-          "candidate_dept:uid"
+          "birthday: int @index(int) . \n" +
+          "started_work_at:int @index(int) . \n" +
+          "current_location_code: int @index(int) . \n" +
+          "candidate_dept:uid @reverse . \n" +
+          "annual_salary:float @index(float) . \n"
 
 
       ;
 
   public static String updateSchema =
-            "candidate_dept:uid .\n";
+            "annual_salary:float @index(float) .\n"
+
+      ;
 
   public static String checkSchema =
-      "name:string @index(hash) @upsert .\n"
+       "name:string .\n"
       ;
 
 }

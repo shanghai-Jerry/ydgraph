@@ -1,8 +1,13 @@
 # 按公司统计候选人的性别分布
-query withvar($a:string){
+query withvar($a:string, $page_size:int, $offset:int){
   query(func:uid($a)) {
-  ~candidate_company @groupby(gender) {
-    count(uid)
+    uid
+    name
+    company_dept (first:$page_size, offset:$offset){
+      name
+      count:~candidate_dept @groupby(gender) {
+        count(uid)
+      }
+    }
   }
- }
 }

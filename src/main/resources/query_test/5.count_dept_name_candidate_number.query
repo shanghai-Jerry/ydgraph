@@ -1,10 +1,11 @@
 # 按公司统计指定一个部门下的候选人总数, 可选择根据参数列表的顺序返回json结果
 {
- query(func:uid(0x1b948c)) {
-  uid
-  name
-  one:~candidate_company @facets(eq(dept_name, "音乐事业部")) {
-    count(uid)
-  }
- }
+    query(func:uid(0x31e70e)) {
+       uid
+       name
+       company_dept {
+         name
+         total_candidate:count(~candidate_dept)
+       }
+    }
 }

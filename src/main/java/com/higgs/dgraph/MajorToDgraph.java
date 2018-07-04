@@ -89,7 +89,7 @@ public class MajorToDgraph {
     init(dictPath);
     Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
   /**
@@ -104,7 +104,7 @@ public class MajorToDgraph {
     System.out.println("get all majors :" + majors.size());
     Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
     // NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 

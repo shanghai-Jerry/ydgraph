@@ -1,0 +1,12 @@
+# 统计公司指定部门下的总候选人数量
+
+ query withvar($a:string, $b:string) {
+     query(func:uid($a)) {
+       name
+       company_dept @filter(uid($b)){
+         name
+         total_candidate:count(~candidate_dept)
+       }
+
+     }
+  }

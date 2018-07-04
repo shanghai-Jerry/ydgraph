@@ -143,7 +143,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           if (source == 1) {
             // json object
             Map<String, List<String>> ret = NodeUtil.putEntity(dClient, companyList);
-            entityIdClient.putFeedEntityWithNames(ret, type);
+            entityIdClient.putFeedEntityWithUidNamesMap(ret, type);
             originSuccessCounter.increment(ret.size());
             writeUidMap(mos, ret);
           } else if (source == 2) {
@@ -159,7 +159,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
         if (source == 1) {
           // json object : need test
           Map<String, List<String>> ret = NodeUtil.putEntity(dClient, companyList);
-          entityIdClient.putFeedEntityWithNames(ret, type);
+          entityIdClient.putFeedEntityWithUidNamesMap(ret, type);
           originSuccessCounter.increment(ret.size());
           writeUidMap(mos, ret);
         } else if (source == 2) {
@@ -190,7 +190,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           timeOutErrorCounter.increment(1L);
         }
       }
-      entityIdClient.putFeedEntityWithNames(companyRet, type);
+      entityIdClient.putFeedEntityWithUidNamesMap(companyRet, type);
       originSuccessCounter.increment(companyRet.size());
       writeUidMap(mos, companyRet);
     }
@@ -363,7 +363,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
             Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
             // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
             // getLabeledCompany(companyList), type, checkUid);
-            entityIdClient.putFeedEntityWithNames(companyRet, type);
+            entityIdClient.putFeedEntityWithUidNamesMap(companyRet, type);
             if (companyRet.size() == 0) {
               writeOriginContentMap(mos, originContent);
               timeOutErrorCounter.increment(1L);

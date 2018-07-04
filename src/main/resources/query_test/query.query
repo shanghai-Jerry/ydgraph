@@ -1,3 +1,5 @@
+# all query queried
+
 {
   query(func:uid(0x427)) {
     uid
@@ -8,4 +10,153 @@
       name
     }
   }
+}
+# 根据uid(expand(_all_))
+
+{
+  query(func:uid(0x9a28fd)) {
+    expand(_all_) {
+      expand(_all_) {
+
+      }
+    }
+  }
+}
+
+# 根据候选人uid查
+
+{
+  query(func:uid(0x9a28fd)) {
+    expend(_all_)
+  }
+}
+
+
+# 根据公司uid查
+{
+   query(func:uid(0x31e70e)) {
+     name
+     company_dept @filter(uid(0x78fb00)){
+       uid
+       name
+     }
+   }
+ }
+
+
+ # groupby dept_name , also can filter with a specific  dept_name uid
+
+ {
+    query(func:uid(0x23ded5)) {
+      name
+      company_dept @groupby(name) {
+        count(uid)
+      }
+    }
+  }
+
+
+ # add facet filter
+
+  {
+     var(func:uid(0x23ded5)) {
+       name
+       company_dept @filter(uid(0x4ea8c0)){
+          ~candidate_dept @facets(eq(on_job,true)) {
+             a as count(unique_id) # facets filter 下的数量
+         }
+         b as sum(val(a)) # 各部门下的数量
+       }
+       c as sum(val())  # 公司下的数量
+     }
+     query(func:uid(0x23ded5)) {
+        name
+        val(c)
+      }
+   }
+
+
+# 按公司统计候选人的薪资分布
+{
+  query(func:uid(0x48c8d16)) {
+    name
+    number_one: ~candidate_company @facets(lt(salary,3000)) {
+      count(uid)
+    }
+    number_two: ~candidate_company @facets(ge(salary,3000) and lt(salary, 7000)) {
+      count(uid)
+    }
+    number_three: ~candidate_company @facets(ge(salary,7000) and lt(salary, 15000)) {
+      count(uid)
+    }
+    number_four: ~candidate_company @facets(ge(salary,15000) and lt(salary, 20000)) {
+      count(uid)
+    }
+    number_five: ~candidate_company @facets(ge(salary,20000) and lt(salary, 30000)) {
+      count(uid)
+    }
+    number_six: ~candidate_company @facets(ge(salary,30000))) {
+      count(uid)
+    }
+  }
+}
+
+# 另一种方式，可以获取到最高学历的那所学校
+{
+   var(func:uid(0x2ec64ef)) {
+    ~candidate_company {
+     c as uid
+   }
+  }
+  candi as var(func:uid(c)) @filter(has(candidate_school) and gt(count(candidate_school),1)){
+     uid
+     name
+  }
+  query(func:uid(candi), first:20) {
+    name
+    uid
+    candidate_school (first:1) @facets(orderdesc:degree_code,max_degree:degree_code) {
+      name
+    }
+  }
+}
+
+# 按候选人所属公司个数排序，获取公司信息
+{
+       var(func:has(candidate_company)) {
+           candidate_company {
+               CU as uid
+           }
+       }
+       var(func:uid(CU)) {
+          number as count(~candidate_company)
+       }
+       query(func:uid(number), orderdesc: val(number), first:2) {
+          candidate_company{
+             uid
+             name
+          }
+       }
+   }
+
+
+# birthday
+
+{
+  ID as var(func:uid(0x31e70e)) {
+    uid
+    name
+    company_dept {
+      ~candidate_dept @filter(not has(birthday)) {
+         a as count(unique_id)
+      }
+      dt as sum(val(a))
+    }
+    ct as sum(val(dt))
+  }
+  query(func:uid(ID)) {
+     uid
+     name
+     total:val(ct)
+   }
 }

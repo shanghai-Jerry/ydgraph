@@ -1,21 +1,46 @@
-query withvar($a:string, $b:string,$c:string,$d:string,$e:string) {
-  query(func:uid($a)) {
+# 按公司部门数据, 统计候选人员分布，下级部门多，采用分页的形式，多次请求。(首选要获取到总的部门数，才能确定page)
+query withvar($a:string, $b:string,$c:string,$d:string,$e:string,$page_size:int, $offset:int) {
+  ID as var(func:uid($a)) {
     uid
-    one: ~candidate_company @filter(gt(birthday, "$b")) {
-      count(uid)
-    }
-    two: ~candidate_company @filter(le(birthday, "$b") and gt(birthday, "$c")) {
-      count(uid)
-    }
-    three: ~candidate_company @filter(le(birthday, "$c") and gt(birthday, "$d")) {
-      count(uid)
-    }
-    four: ~candidate_company @filter(le(birthday, "$d") and gt(birthday, "$e")) {
-      count(uid)
-    }
-    five: ~candidate_company @filter(le(birthday, "$e")) {
-      count(uid)
-    }
+    name
+    company_dept (first:$page_size, offset: $offset) {
+        one: ~candidate_dept @filter(gt(birthday, "$b")) {
+           a as count(birthday)
+        }
+        two: ~candidate_dept @filter(le(birthday, "$b") and gt(birthday, "$c"))  {
+          b as count(birthday)
+        }
+        three:  ~candidate_dept @filter(le(birthday, "$c") and gt(birthday, "$d")) {
+          c as count(birthday)
+        }
+        four: ~candidate_dept @filter(le(birthday, "$d") and gt(birthday, "$e")) {
+           d as count(birthday)
+        }
+        five: ~candidate_dept @filter(le(birthday, "$e")) {
+          e as count(birthday)
+        }
 
+        da as sum(val(a))
+        db as sum(val(b))
+        dc as sum(val(c))
+        dd as sum(val(d))
+        de as sum(val(e))
+    }
+    ta as sum(val(da))
+    tb as sum(val(db))
+    tc as sum(val(dc))
+    td as sum(val(dd))
+    te as sum(val(de))
   }
+
+  query(func:uid(ID)) {
+   uid
+   name
+   one:val(ta)
+   two:val(tb)
+   three:val(tc)
+   four:val(td)
+   five:val(te)
+  }
+
 }

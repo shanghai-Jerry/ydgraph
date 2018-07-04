@@ -7,24 +7,7 @@
 
   
 
-# dgraph 启动配置
-
-## zero config : 
-{
-  "my": localhost:5080,
-  "replicas": 3
-}
-
-## server config: 
-
-{
-  "my": localhost:7080,
-  "lru_mb": 20000,
-  "replicas": 3,
-  "zero": localhost:5080
-}
-
-
+# dgraph 启动
 
 线上dgraph集群机器: ubuntu@172.20.0.8,9,10
 

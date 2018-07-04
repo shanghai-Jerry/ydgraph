@@ -2,13 +2,16 @@ package com.higgs.client;
 
 import com.google.gson.Gson;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.EntityNode;
 import com.higgs.utils.FileUtils;
+import com.higgs.utils.Util;
 import com.inmind.idmg.serving.dgrpah.query.rpc.DgraphQueryGrpc;
 import com.inmind.idmg.serving.dgrpah.query.rpc.QueryRequest;
 import com.inmind.idmg.serving.dgrpah.query.rpc.QueryRespond;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import kb.rpc.BatchEntityIdRequest;
@@ -68,13 +72,17 @@ public class DgraphQueryClient {
     try {
       QueryRequest request = QueryRequest.newBuilder()
           .setUniqueId("深圳市腾讯计算机系统有限公司")
-          .setQueryType(QueryRequest.QueryType.COMPANY_DEPTNAME_CANDIDATE_NUMBER)
+          .setQueryType(QueryRequest.QueryType.COMPANY_DEPTNAMES_CANDIDATE_MAX_DEGREE)
           .setUniqueIdType(QueryRequest.UniqueIdType.COMPANY)
-          .setDeptName("音乐事业部")
+          .setPage(0)
+          // .setPageSize(10)
+          .setDeptName("研发部")
           .build();
       QueryRespond queryRespond = client.query(request);
       String ret = queryRespond.getResultJson();
-      logger.info("ret:" + ret);
+      if (ret != null && !"".equals(ret)) {
+        Util.formatPrintJson(ret);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

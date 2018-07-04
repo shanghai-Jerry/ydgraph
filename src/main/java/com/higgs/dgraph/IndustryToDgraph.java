@@ -128,12 +128,12 @@ public class IndustryToDgraph {
     Map<String,  List<String>> parentMap = NodeUtil.insertEntity(dClient, getDistinctParentIndustry
         (industries));
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentMap);
-    entityIdClient.putFeedEntityWithNames(parentMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(parentMap, type);
     NodeUtil.putEntityUidWithNames(getParentIndustry(this.industries), parentMap);
     // 入库子industry 和 之前的关系
     Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, this.industries);
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
   public List<Label> getLabeledIndustry(List<Industry> industries) {
@@ -158,11 +158,11 @@ public class IndustryToDgraph {
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
     Map<String, List<String>> parentUidMap = NodeUtil.putEntity(dClient, parentsIndustry);
-    entityIdClient.putFeedEntityWithNames(parentUidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(parentUidMap, type);
     FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentUidMap);
     Map<String, List<String>> uidMap = NodeUtil.putEntity(dClient, industries);
     FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
-    entityIdClient.putFeedEntityWithNames(uidMap, type);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     Map<String, List<String>> labelMap = NodeUtil.putEntity(dClient, getLabeledIndustry(industries));
     FileUtils.saveFile("src/main/resources/industry_label_uid_map.txt", labelMap);

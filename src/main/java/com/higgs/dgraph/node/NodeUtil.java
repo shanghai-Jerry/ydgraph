@@ -45,6 +45,37 @@ public class NodeUtil {
 
   public static final long MURMUR_SEED = 0x7f3a21eaL;
 
+  public static List<String> ageUniqueIds = Arrays.asList("20岁以下", "20-25岁", "25-30岁", "30-35岁",
+      "35岁以上");
+
+  public static List<String> degreeUniques = Arrays.asList("未知","大专","本科","硕士","博士","博士后","MBA",
+      "大专以下");
+
+  public static List<String> genders = Arrays.asList("男", "女");
+
+  public static List<String> strings = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",
+      "15000-20000元	" +
+      "20000-30000元	","30000-50000元	","50000元以上");
+
+  public static List<String> seniors = Arrays.asList( "1年" , "1-2年"	, "2-3年", "3-5年"	, "5-10年"	,
+      "10年以上");
+
+  public static void initEntityNode(List<EntityNode> nodes, List<String>
+      list, String type,DClient dClient, EntityIdClient entityIdClient) {
+    int size = list.size();
+    for(int i = 0; i < size; i++) {
+      String string = list.get(i);
+      String unique = type + ":" + string;
+      EntityNode node = new EntityNode();
+      node.setName(string);
+      node.setUnique_id(unique);
+      node.setUnique_ids(Arrays.asList(unique));
+      nodes.add(node);
+    }
+    Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, nodes);
+    entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
+  }
+
   public static String formatPredicateValue(String value) {
     if (value != null) {
       return value

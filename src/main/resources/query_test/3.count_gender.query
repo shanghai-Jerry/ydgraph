@@ -1,8 +1,0 @@
-# 按公司统计候选人的性别分布
-{
-  query(func:uid(0x2f70d8c)) {
-  ~candidate_company @groupby(gender) {
-    count(uid)
-  }
- }
-}

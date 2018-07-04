@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +19,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import com.higgs.utils.FileUtils;
 import com.higgs.utils.TimeUtil;
-import com.higgs.utils.util;
-
-import org.apache.hadoop.hdfs.DFSClient;
+import com.higgs.utils.Util;
 
 
 /**
@@ -86,12 +83,12 @@ public class Demo {
     // queryWithVars seems not a good choice
     // 获取时间
     // res.getLatency()
-    System.out.println(res.getJson().toStringUtf8());
+    Util.formatPrintJson(res.getJson().toStringUtf8());
     parseLatency(res);
   }
   public void parseLatency(DgraphProto.Response res) {
     long processTime = res.getLatency().getProcessingNs();
-    util.println("latency:", res.getLatency().toString());
+    Util.println("latency:", res.getLatency().toString());
     logger.info("consume:" + TimeUtil.consumeTime(processTime / 1000/ 1000));
   }
   public void QueryCount() throws IOException {
@@ -108,15 +105,15 @@ public class Demo {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query_test/query_test.query")));
+          ("src/main/resources/query/8.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
     }
     System.out.println("querying ....\n" + query);
     Map<String, String> vars = new HashMap<>();
-    vars.put("$a", "0x3");
-    vars.put("$b", "ai");
+    vars.put("$a", "0x31e70e");
+    vars.put("$b", "0x78fb00");
     String queryFormat = String.format(query);
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
         //.query(queryFormat)
@@ -124,7 +121,8 @@ public class Demo {
     ;
     // 获取时间
     // res.getLatency()
-    System.out.println("result => \n" + res.getJson().toStringUtf8());
+    Util.formatPrintJson(res.getJson().toStringUtf8());
+    parseLatency(res);
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {

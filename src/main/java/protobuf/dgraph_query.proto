@@ -23,16 +23,21 @@ message QueryRequest {
     // 查询的类型定义
     enum QueryType {
         NONE = 0;
-        COMPANY_CANDIDATE_AGE = 1;
-        COMPANY_CANDIDATE_MAX_DEGREE=2;
-        COMPANY_CANDIDATE_GENDER=3;
-        COMPANY_CANDIDATE_SALARY=4;
-        COMPANY_DEPTNAME_CANDIDATE_NUMBER=5;
+        COMPANY_DEPTNAMES_CANDIDATE_AGE = 1;
+        COMPANY_DEPTNAMES_CANDIDATE_MAX_DEGREE=2;
+        COMPANY_DEPTNAMES_CANDIDATE_GENDER=3;
+        COMPANY_DEPTNAMES_CANDIDATE_SALARY=4;
+        COMPANY_DEPTNAMES_CANDIDATE_NUMBER=5;
+        COMPANY_DEPTNAME_NUMBER=6;
+        COMPANY_CANDIDATE_NUMBER=7;
+        COMPANY_DEPTNAME_CANDIDATE_NUMBER=8;
     }
     string unique_id=1;
     QueryType query_type=2;
     UniqueIdType unique_id_type=3;
     string dept_name=4;
+    int64 page_size=5;
+    int64 page=6;
 }
 
 message QueryRespond {
