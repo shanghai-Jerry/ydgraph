@@ -757,24 +757,26 @@ public class NodeUtil {
       List<SalaryNode> salaryNodes = candidate.getMonthly_salary();
       List<SalaryNode> anualyNodes = candidate.getAnnual_salary();
       for (SalaryNode salaryNode : salaryNodes) {
-        String desUid = salaryNode.getCompany_uid();
+        String company_uid = salaryNode.getCompany_uid();
+        String desUid = salaryNode.getUid();
         List<String> facets = new ArrayList<>();
-        if (filterFacet(desUid)) {
-          facets.add(String.format("company_uid=\"%s\"", desUid));
+        if (filterFacet(company_uid) && filterFacet(desUid)) {
+          facets.add(String.format("company_uid=\"%s\"", company_uid));
+          EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "monthly_salary", EdgeFacetPut
+              .PredicateType.UID, desUid, facets, true);
+          edgeFacetPuts.add(edgeFacetsPut);
         }
-        EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "monthly_salary", EdgeFacetPut
-            .PredicateType.UID, desUid, facets, true);
-        edgeFacetPuts.add(edgeFacetsPut);
       }
       for (SalaryNode salaryNode : anualyNodes) {
-        String desUid = salaryNode.getCompany_uid();
+        String company_uid = salaryNode.getCompany_uid();
+        String desUid = salaryNode.getUid();
         List<String> facets = new ArrayList<>();
-        if (filterFacet(desUid)) {
-          facets.add(String.format("company_uid=\"%s\"", desUid));
+        if (filterFacet(company_uid) && filterFacet(desUid)) {
+          facets.add(String.format("company_uid=\"%s\"", company_uid));
+          EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "annual_salary", EdgeFacetPut
+              .PredicateType.UID, desUid, facets, true);
+          edgeFacetPuts.add(edgeFacetsPut);
         }
-        EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "annual_salary", EdgeFacetPut
-            .PredicateType.UID, desUid, facets, true);
-        edgeFacetPuts.add(edgeFacetsPut);
       }
     }
     dClient.entityAddFacets(edgeFacetPuts);
