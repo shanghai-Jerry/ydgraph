@@ -35,6 +35,15 @@ public class EdgeFacetPut {
     this.facets = (facets);
   }
 
+  public EdgeFacetPut(String src, String predicate, EdgeFacetPut.PredicateType predicateType,
+                      String dst, List<String> facets, boolean isKnowSrcUid) {
+    this(src, predicate, predicateType, dst, facets);
+    if (isKnowSrcUid) {
+      this.uidSrc = src;
+      this.src = "";
+    }
+  }
+
   public String getSrc() {
     return src;
   }

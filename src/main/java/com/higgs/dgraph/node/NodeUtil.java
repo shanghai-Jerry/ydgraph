@@ -763,7 +763,7 @@ public class NodeUtil {
           facets.add(String.format("company_uid=\"%s\"", desUid));
         }
         EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "monthly_salary", EdgeFacetPut
-            .PredicateType.UID, desUid, facets);
+            .PredicateType.UID, desUid, facets, true);
         edgeFacetPuts.add(edgeFacetsPut);
       }
       for (SalaryNode salaryNode : anualyNodes) {
@@ -773,7 +773,7 @@ public class NodeUtil {
           facets.add(String.format("company_uid=\"%s\"", desUid));
         }
         EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "annual_salary", EdgeFacetPut
-            .PredicateType.UID, desUid, facets);
+            .PredicateType.UID, desUid, facets, true);
         edgeFacetPuts.add(edgeFacetsPut);
       }
     }

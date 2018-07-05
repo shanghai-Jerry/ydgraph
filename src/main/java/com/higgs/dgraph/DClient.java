@@ -362,6 +362,9 @@ public class  DClient {
       if (size != values.size() || edge_pred.size() != objectIds.size()) {
         logger.fatal("entity add with uid predicates length not equal values ");
       }
+      if (uid == null || "".equals(uid)) {
+        continue;
+      }
       for (int i = 0; i < size; i++) {
         DgraphProto.NQuad.Builder builder =
             DgraphProto.NQuad.newBuilder()
