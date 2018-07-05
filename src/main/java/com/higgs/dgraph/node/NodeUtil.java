@@ -675,12 +675,11 @@ public class NodeUtil {
     List<GenderNode> genderNodes = new ArrayList<>();
     List<SalaryNode> salaryNodes = new ArrayList<>();
     List<SalaryNode> annualSalaryNodes = new ArrayList<>();
-    List<SeniortyNode> seniortyNodes = new ArrayList<>();
+    List<SeniorityNode> seniorityNodes = new ArrayList<>();
 
     getSubNodes(candidateList, ageNodes, degreeNodes,genderNodes, salaryNodes,
-        annualSalaryNodes, seniortyNodes);
-    putSubNodesUid(entityIdClient,ageNodes,degreeNodes,genderNodes, salaryNodes, annualSalaryNodes,
-        seniortyNodes);
+        annualSalaryNodes, seniorityNodes);
+    putSubNodesUid(entityIdClient,ageNodes,degreeNodes,genderNodes, salaryNodes, annualSalaryNodes, seniorityNodes);
   }
 
   /**
@@ -691,19 +690,19 @@ public class NodeUtil {
    * @param genderNodes
    * @param salaryNodes
    * @param annualSalaryNodes
-   * @param seniortyNodes
+   * @param seniorityNodes
    */
   private static void getSubNodes(List<Candidate> candidateList, List<AgeNode> ageNodes,
                            List<DegreeNode> degreeNodes, List<GenderNode> genderNodes,
                            List<SalaryNode> salaryNodes, List<SalaryNode>
-                               annualSalaryNodes, List<SeniortyNode> seniortyNodes) {
+                               annualSalaryNodes, List<SeniorityNode> seniorityNodes) {
     for (Candidate candidate : candidateList) {
       ageNodes.add(candidate.getAge_node());
       degreeNodes.add(candidate.getDegree_node());
       genderNodes.add(candidate.getGender_node());
       salaryNodes.addAll(candidate.getMonthly_salary());
       annualSalaryNodes.addAll(candidate.getAnnual_salary());
-      seniortyNodes.add(candidate.getSeniorty_node());
+      seniorityNodes.add(candidate.getSeniorty_node());
     }
   }
 
@@ -715,17 +714,69 @@ public class NodeUtil {
    * @param genderNodes
    * @param salaryNodes
    * @param annualSalaryNodes
-   * @param seniortyNodes
+   * @param seniorityNodes
    */
   private static void putSubNodesUid(EntityIdClient entityIdClient,List<AgeNode> ageNodes,
                               List<DegreeNode> degreeNodes, List<GenderNode> genderNodes,
                               List<SalaryNode> salaryNodes, List<SalaryNode>
-                                  annualSalaryNodes, List<SeniortyNode> seniortyNodes) {
+                                  annualSalaryNodes, List<SeniorityNode> seniorityNodes) {
     entityIdClient.putEntityListUid(ageNodes, EntityType.AGE.getName());
     entityIdClient.putEntityListUid(degreeNodes, EntityType.DEGREE.getName());
     entityIdClient.putEntityListUid(genderNodes, EntityType.GENDER.getName());
     entityIdClient.putEntityListUid(salaryNodes, EntityType.SALARY.getName());
     entityIdClient.putEntityListUid(annualSalaryNodes, EntityType.ANNUAL.getName());
-    entityIdClient.putEntityListUid(seniortyNodes, EntityType.SENIORITY.getName());
+    entityIdClient.putEntityListUid(seniorityNodes, EntityType.SENIORITY.getName());
+  }
+
+  private static boolean filterFacet(Object value) {
+    if (value == null) {
+      return false;
+    } else if (value instanceof Integer || value instanceof Long) {
+
+    } else if (value instanceof String) {
+
+    } else if (value instanceof Double || value instanceof Float) {
+
+    } else if (value instanceof Boolean) {
+
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 额外的实体facets: 主要针对候选人薪资等
+   * @param dClient
+   * @param candidateList
+   */
+  private static void addCandidateSalayEdgeFacets(DClient dClient, List<Candidate> candidateList) {
+    List<EdgeFacetPut> edgeFacetPuts = new ArrayList<>();
+    for (Candidate candidate : candidateList) {
+      String candidateUid = candidate.getUid();
+      List<SalaryNode> salaryNodes = candidate.getMonthly_salary();
+      List<SalaryNode> anualyNodes = candidate.getAnnual_salary();
+      for (SalaryNode salaryNode : salaryNodes) {
+        String desUid = salaryNode.getCompany_uid();
+        List<String> facets = new ArrayList<>();
+        if (filterFacet(desUid)) {
+          facets.add(String.format("company_uid=\"%s\"", desUid));
+        }
+        EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "monthly_salary", EdgeFacetPut
+            .PredicateType.UID, desUid, facets);
+        edgeFacetPuts.add(edgeFacetsPut);
+      }
+      for (SalaryNode salaryNode : anualyNodes) {
+        String desUid = salaryNode.getCompany_uid();
+        List<String> facets = new ArrayList<>();
+        if (filterFacet(desUid)) {
+          facets.add(String.format("company_uid=\"%s\"", desUid));
+        }
+        EdgeFacetPut edgeFacetsPut = new EdgeFacetPut(candidateUid, "annual_salary", EdgeFacetPut
+            .PredicateType.UID, desUid, facets);
+        edgeFacetPuts.add(edgeFacetsPut);
+      }
+    }
+    dClient.entityAddFacets(edgeFacetPuts);
   }
 }

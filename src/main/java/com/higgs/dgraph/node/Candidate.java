@@ -51,7 +51,7 @@ public class Candidate extends EntityNode {
   // 月薪
   private List<SalaryNode> monthly_salary  = new ArrayList<>();
 
-  private SeniortyNode seniorty_node = new SeniortyNode();
+  private SeniorityNode seniorty_node = new SeniorityNode();
 
   public String getStarted_work_at() {
     return started_work_at;
@@ -117,11 +117,11 @@ public class Candidate extends EntityNode {
     this.monthly_salary = monthly_salary;
   }
 
-  public SeniortyNode getSeniorty_node() {
+  public SeniorityNode getSeniorty_node() {
     return seniorty_node;
   }
 
-  public void setSeniorty_node(SeniortyNode seniorty_node) {
+  public void setSeniorty_node(SeniorityNode seniorty_node) {
     this.seniorty_node = seniorty_node;
   }
 
@@ -221,7 +221,7 @@ public class Candidate extends EntityNode {
   }
 
   private void setSeniortyNode() {
-    SeniortyNode seniortyNode = new SeniortyNode();
+    SeniorityNode seniorityNode = new SeniorityNode();
     int seniortyRange = -1;
     int seniorty = getSeniorty();
     if (seniorty < 1) {
@@ -238,11 +238,11 @@ public class Candidate extends EntityNode {
       seniortyRange = 5;
     }
     if (seniortyRange < 0) {
-      this.setSeniorty_node(seniortyNode);
+      this.setSeniorty_node(seniorityNode);
       return;
     }
-    NodeUtil.getEntityNode(seniortyNode, seniortyRange, EntityType.SENIORITY.getIndex());
-    this.setSeniorty_node(seniortyNode);
+    NodeUtil.getEntityNode(seniorityNode, seniortyRange, EntityType.SENIORITY.getIndex());
+    this.setSeniorty_node(seniorityNode);
   }
 
   public SalaryNode getMonthlySalary(double salary) {

@@ -105,15 +105,15 @@ public class Demo {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query/8.query")));
+          ("src/main/resources/query/test.query")));
 
     } catch (IOException e) {
       e.printStackTrace();
     }
     System.out.println("querying ....\n" + query);
     Map<String, String> vars = new HashMap<>();
-    vars.put("$a", "0x31e70e");
-    vars.put("$b", "0x78fb00");
+    vars.put("$a", "0x998a17");
+    vars.put("$b", "false");
     String queryFormat = String.format(query);
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
         //.query(queryFormat)
@@ -242,8 +242,8 @@ public class Demo {
     DClient dClient = new DClient(Config.addressList);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    demo.QueryTest();
-    // demo.QueryDemo();
+    // demo.QueryTest();
+    demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
     // demo.edgeConnect();

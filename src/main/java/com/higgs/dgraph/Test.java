@@ -190,7 +190,7 @@ public class Test {
 
   private void subEntity() {
     Candidate candidate = new Candidate();
-    candidate.setGender("男");
+    candidate.setGender("其他");
     NodeUtil.dealingCandidatesSubNodes(Arrays.asList(candidate), client);
     GenderNode genderNode = candidate.getGender_node();
     logger.info("uid:" + genderNode.getUid());
@@ -205,6 +205,7 @@ public class Test {
     // test.test_unkonw_format();
     // test.test_import();
     // test.test_delete_edges();
+    test.subEntity();
   }
 
 

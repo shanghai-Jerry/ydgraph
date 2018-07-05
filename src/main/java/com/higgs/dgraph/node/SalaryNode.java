@@ -12,4 +12,13 @@ package com.higgs.dgraph.node;
  * <<licensetext>>
  */
 public class SalaryNode extends EntityNode {
+  private String company_uid;
+
+  public String getCompany_uid() {
+    return company_uid;
+  }
+
+  public void setCompany_uid(String company_uid) {
+    this.company_uid = company_uid;
+  }
 }

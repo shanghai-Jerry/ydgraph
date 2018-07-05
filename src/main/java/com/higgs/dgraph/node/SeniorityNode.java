@@ -11,5 +11,5 @@ package com.higgs.dgraph.node;
  *
  * <<licensetext>>
  */
-public class SeniortyNode extends EntityNode {
+public class SeniorityNode extends EntityNode {
 }

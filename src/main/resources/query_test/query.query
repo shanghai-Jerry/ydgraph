@@ -160,3 +160,13 @@
      total:val(ct)
    }
 }
+
+# facet
+
+{
+  query(func:uid(0x998a17)) {
+    candidate_school @facets(eq(on_edu,false)) @groupby(name) {
+      count(uid)
+    }
+  }
+}

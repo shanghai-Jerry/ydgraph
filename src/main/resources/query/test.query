@@ -1,0 +1,7 @@
+query withvar($a:string, $b:bool){
+  query(func:uid($a)) {
+    candidate_school @facets(eq(on_edu,$b)) @groupby(name) {
+      count(uid)
+    }
+  }
+}
