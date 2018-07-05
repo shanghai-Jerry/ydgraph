@@ -346,6 +346,84 @@ public class  DClient {
 
   /**
    * 形式: <uid> <> <>
+   * 优化： 应对value的特殊字符，此接口比:entityAdd(List<Nodeput> putList)更通用
+   */
+  public DgraphProto.Assigned entityAddWithUid(List<Nodeput> putList) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    int ids = putList.size();
+    List<DgraphProto.NQuad> quads = new ArrayList<DgraphProto.NQuad>();
+    for (int j = 0; j < ids; j++) {
+      String uid = putList.get(j).getUid();
+      List<String> predicates = putList.get(j).getPredicates();
+      List<Object> values = putList.get(j).getValueObjects();
+      List<String> edge_pred = putList.get(j).getEdge_predicates();
+      List<String> objectIds = putList.get(j).getObjectIds();
+      int size = predicates.size();
+      if (size != values.size() || edge_pred.size() != objectIds.size()) {
+        logger.fatal("entity add with uid predicates length not equal values ");
+      }
+      for (int i = 0; i < size; i++) {
+        DgraphProto.NQuad.Builder builder =
+            DgraphProto.NQuad.newBuilder()
+                .setSubject(uid)
+                .setPredicate(predicates.get(i));
+
+        Object value = values.get(i);
+        if (value instanceof Integer || value instanceof Long) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setIntVal(Long.valueOf(value
+              .toString())).build());
+        } else if (value instanceof String) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setStrVal((String) value).build());
+        } else if (value instanceof Double || value instanceof Float) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setDoubleVal(Double.valueOf(value
+              .toString())).build());
+        } else if (value instanceof Boolean) {
+          builder.setObjectValue(DgraphProto.Value.newBuilder().setBoolVal((Boolean) value).build());
+        } else if (value == null) {
+          // field 没有设置属性的过滤
+          continue;
+        } else {
+          // 需要处理predicate为uid类型，... todo
+          continue;
+        }
+        quads.add(builder.build());
+      }
+      // edge feed
+      for (int k = 0; k < edge_pred.size(); k++) {
+        DgraphProto.NQuad quad = DgraphProto.NQuad.newBuilder()
+            .setSubject(uid)
+            .setPredicate(edge_pred.get(k))
+            .setObjectId(objectIds.get(k))
+            .build();
+        quads.add(quad);
+      }
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(quads)
+        .build();
+    DgraphProto.Assigned ag = null;
+    try {
+      ag = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[entity add with uid Exception]:" + e.getMessage() + ", exception:" + e +
+          ", retryCounter:" + retryCounter.get());
+      if (e instanceof StatusRuntimeException) {
+        int code = ((StatusRuntimeException) e).getStatus().getCode().value();
+        logger.info("[StatusRuntimeException code value]:" + code);
+      }
+      ag = mutateRetry(mu, e);
+    } finally {
+      txn.discard();
+    }
+    if (ag == null) {
+      logger.info("[Final] Retry Error!!");
+    }
+    return ag;
+  }
+
+  /**
+   * 形式: <uid> <> <>
    * @param putList  node 属性的上一层抽象
    */
   public void entityAdd(List<Nodeput> putList) {
