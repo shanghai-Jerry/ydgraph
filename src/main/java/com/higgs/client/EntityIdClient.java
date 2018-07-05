@@ -270,7 +270,7 @@ public class EntityIdClient {
     }
   }
 
-  public <T extends EntityNode> void checkEntityListAndPutUid(List<T> entityReqs, String type) {
+  public <T extends EntityNode> void putEntityListUid(List<T> entityReqs, String type) {
     int outSize = entityReqs.size();
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
     for (int i = 0; i < outSize; i++) {
@@ -366,32 +366,59 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "金融";
+      String name = "100万以上";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.INDUSTRY.getIndex();
+      int changed = EntityType.ANNUAL.getIndex();
       switch (changed) {
-        case 5:
-          name  = unique_id;
-          type = EntityType.COMPANY_DEPT.getName();
+        case 1:
+          type = EntityType.SCHOOL.getName();
           break;
         case 2:
           type = EntityType.COMPANY.getName();
           break;
-        case 4:
-          type = EntityType.CANDIDATE.getName();
-          break;
         case 3:
           type = EntityType.INDUSTRY.getName();
           break;
-        case 0:
+        case 4:
+          type = EntityType.CANDIDATE.getName();
+          break;
+        case 5:
+          name  = unique_id;
+          type = EntityType.COMPANY_DEPT.getName();
+          break;
+        case 6:
           type = EntityType.MAJOR.getName();
           break;
-        case 1:
-          type = EntityType.SCHOOL.getName();
+        case 7:
+          type = EntityType.AGE.getName();
+          name = type + ":" + name;
           break;
+        case 8:
+          type = EntityType.DEGREE.getName();
+          name = type + ":" + name;
+          break;
+        case 9:
+          type = EntityType.GENDER.getName();
+          name = type + ":" + name;
+          break;
+
+        case 10:
+          type = EntityType.SENIORITY.getName();
+          name = type + ":" + name;
+          break;
+        case 11:
+          type = EntityType.SALARY.getName();
+          name = type + ":" + name;
+          break;
+        case 12:
+          type = EntityType.ANNUAL.getName();
+          name = type + ":" + name;
+          break;
+
+
         default:
       }
       BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()

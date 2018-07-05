@@ -53,7 +53,7 @@ public class EntityNode implements Serializable {
     this.pass = pass;
   }
 
-  String getUnique_id() {
+  public String getUnique_id() {
     return unique_id;
   }
 

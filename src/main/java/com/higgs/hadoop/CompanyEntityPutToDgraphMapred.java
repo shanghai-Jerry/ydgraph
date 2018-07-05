@@ -171,7 +171,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
 
     private void batchPut(List<Company> companyList, List<String> originContent, String type) {
       List<Industry> checkIndustries = getIndustry(companyList);
-      entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+      entityIdClient.putEntityListUid(checkIndustries, "行业");
       Map<String, List<String>> companyRet;
       if (checkUid > 0) {
         List<Company> newComapnyList = new ArrayList<>();
@@ -359,7 +359,7 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
           }
           if (batch >= setBatch) {
             List<Industry> checkIndustries = getIndustry(companyList);
-            entityIdClient.checkEntityListAndPutUid(checkIndustries, "行业");
+            entityIdClient.putEntityListUid(checkIndustries, "行业");
             Map<String, List<String>> companyRet = NodeUtil.insertEntity(dClient, companyList);
             // Map<String, String> ret = NodeUtil.insertEntity(dClient, entityIdClient,
             // getLabeledCompany(companyList), type, checkUid);

@@ -12,10 +12,12 @@ import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.enumtype.EntityType;
+import com.higgs.dgraph.node.AgeNode;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;
 import com.higgs.dgraph.node.DeptName;
 import com.higgs.dgraph.node.EntityNode;
+import com.higgs.dgraph.node.GenderNode;
 import com.higgs.dgraph.node.Industry;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
@@ -29,6 +31,8 @@ import io.vertx.core.logging.LoggerFactory;
  * Created by lolaliva on 2018/5/10.
  */
 public class Test {
+
+  Logger logger = LoggerFactory.getLogger(Test.class);
 
   DClient dClient = new DClient(Config.TEST_HOSTNAME);
 
@@ -184,10 +188,15 @@ public class Test {
     }
   }
 
+  private void subEntity() {
+    Candidate candidate = new Candidate();
+    candidate.setGender("男");
+    NodeUtil.dealingCandidatesSubNodes(Arrays.asList(candidate), client);
+    GenderNode genderNode = candidate.getGender_node();
+    logger.info("uid:" + genderNode.getUid());
+  }
 
   public static void main(String[] arg) {
-
-    Logger logger = LoggerFactory.getLogger(Test.class);
     DClient dClient = new DClient(Config.addressList);
     Test test = new Test(dClient);
     // String time = TimeUtil.consumeTime(30000 * 1000);
@@ -196,7 +205,6 @@ public class Test {
     // test.test_unkonw_format();
     // test.test_import();
     // test.test_delete_edges();
-
   }
 
 

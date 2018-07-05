@@ -25,6 +25,9 @@ import java.util.Map;
  */
 public class StartMain {
 
+  DClient dClient = new DClient(Config.addressList);
+  EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
+
   public void withJson() {
     SchoolToDgraph schoolToDgraph = new SchoolToDgraph();
     String dict = "src/main/resources/industry_dump_dict.txt";
@@ -38,25 +41,24 @@ public class StartMain {
     majorToDgraph.initWithJson(majorPath);
     System.out.println("finished");
   }
-  public static void main(String[] args) {
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
-    EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT_TEST);
+
+  public void init() {
+
     // 行业
     String dict = "src/main/resources/industry_dump_dict.txt";
     IndustryToDgraph industryToDgraph = new IndustryToDgraph(dClient, client);
     // with rdf
-    industryToDgraph.initWithRdf(dict);
+    // industryToDgraph.initWithRdf(dict);
 
     // 专业
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph(dClient, client);
-    majorToDgraph.initWithRdf(dictPath);
+    // majorToDgraph.initWithRdf(dictPath);
 
     // 学校
     SchoolToDgraph schoolToDgraph = new SchoolToDgraph(dClient, client);
     String schoolPath = "src/main/resources/school_dump_dict.txt";
-    schoolToDgraph.initWithRdf(schoolPath);
-
+    // schoolToDgraph.initWithRdf(schoolPath);
 
     // 年龄
     List<AgeNode> ageNodes = new ArrayList<>();
@@ -101,7 +103,7 @@ public class StartMain {
     uidMap = NodeUtil.insertEntity(dClient, genderNodes);
     client.putFeedEntityWithUidNamesMap(uidMap, EntityType.GENDER.getName());
 
-    // 薪资
+    // 薪资:月薪
     List<SalaryNode> salaryNodes = new ArrayList<>();
     List<String> strings = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",	"15000-20000元	" +
         "20000-30000元	","30000-50000元	","50000元以上");
@@ -116,11 +118,35 @@ public class StartMain {
     uidMap = NodeUtil.insertEntity(dClient, salaryNodes);
     client.putFeedEntityWithUidNamesMap(uidMap, EntityType.SALARY.getName());
 
+    // 薪资：年薪
+    List<SalaryNode> annualSalaryNodes = new ArrayList<>();
+    List<String>  annualSalary = Arrays.asList("10万以下","10-20万",	"20-30万",
+        "30-50万	", "50-100万","100万以上");
+    for (String salary: annualSalary) {
+      String unique = EntityType.ANNUAL.getName() + ":" + salary;
+      SalaryNode salaryNode = new SalaryNode();
+      salaryNode.setName(unique);
+      salaryNode.setUnique_id(unique);
+      salaryNode.setUnique_ids(Arrays.asList(unique));
+      annualSalaryNodes.add(salaryNode);
+    }
+    uidMap = NodeUtil.insertEntity(dClient, salaryNodes);
+    client.putFeedEntityWithUidNamesMap(uidMap, EntityType.ANNUAL.getName());
+
+
     // 工作年限
     List<String> seniors = Arrays.asList( "1年" , "1-2年"	, "2-3年", "3-5年"	, "5-10年"	, "10年以上");
     List<EntityNode> seniortyNodes = new ArrayList<>(seniors.size());
     NodeUtil.initEntityNode(seniortyNodes, seniors, EntityType.SENIORITY.getName(), dClient,
         client);
+
+
   }
+  public static void main(String[] args) {
+
+    StartMain startMain = new StartMain();
+  }
+
+
 
 }

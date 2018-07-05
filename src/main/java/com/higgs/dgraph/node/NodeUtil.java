@@ -22,6 +22,7 @@ import java.util.Set;
 import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.DClient;
 import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.enumtype.EntityType;
 import com.higgs.dgraph.put.EdgeFacetPut;
 import com.higgs.dgraph.put.Nodeput;
 import com.sangupta.murmur.Murmur2;
@@ -45,20 +46,95 @@ public class NodeUtil {
 
   public static final long MURMUR_SEED = 0x7f3a21eaL;
 
-  public static List<String> ageUniqueIds = Arrays.asList("20岁以下", "20-25岁", "25-30岁", "30-35岁",
+  public static List<String> ages = Arrays.asList("20岁以下", "20-25岁", "25-30岁", "30-35岁",
       "35岁以上");
 
-  public static List<String> degreeUniques = Arrays.asList("未知","大专","本科","硕士","博士","博士后","MBA",
+  public static List<String> degrees = Arrays.asList("未知","大专","本科","硕士","博士","博士后","MBA",
       "大专以下");
 
   public static List<String> genders = Arrays.asList("男", "女");
+  // 月薪
+  public static List<String> salaries = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",
+      "15000-20000元	", "20000-30000元","30000-50000元","50000元以上");
+  // 年薪
+  public static List<String>  annualSalary = Arrays.asList("10万以下","10-20万",	"20-30万",
+      "30-50万	", "50-100万","100万以上");
 
-  public static List<String> strings = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",
-      "15000-20000元	" +
-      "20000-30000元	","30000-50000元	","50000元以上");
 
   public static List<String> seniors = Arrays.asList( "1年" , "1-2年"	, "2-3年", "3-5年"	, "5-10年"	,
       "10年以上");
+
+  public static <T extends EntityNode> void getEntityNode(T node, int rangeIntent, int typeIndex) {
+    String type = "";
+    String item = "";
+    switch (typeIndex) {
+      case 1:
+        type = EntityType.SCHOOL.getName();
+        break;
+      case 2:
+        type = EntityType.COMPANY.getName();
+        break;
+      case 3:
+        type = EntityType.INDUSTRY.getName();
+        break;
+      case 4:
+        type = EntityType.CANDIDATE.getName();
+        break;
+      case 5:
+        type = EntityType.COMPANY_DEPT.getName();
+        break;
+      case 6:
+        type = EntityType.MAJOR.getName();
+        break;
+      case 7:
+        type = EntityType.AGE.getName();
+        if (rangeIntent >= ages.size()) {
+          return;
+        }
+        item = ages.get(rangeIntent);
+        break;
+      case 8:
+        type = EntityType.DEGREE.getName();
+        if (rangeIntent >= degrees.size()) {
+          return;
+        }
+        item = degrees.get(rangeIntent);
+        break;
+      case 9:
+        type = EntityType.GENDER.getName();
+        if (rangeIntent >= genders.size()) {
+          return;
+        }
+        item = genders.get(rangeIntent);
+        break;
+      case 10:
+        type = EntityType.SENIORITY.getName();
+        if (rangeIntent >= seniors.size()) {
+          return;
+        }
+        item = seniors.get(rangeIntent);
+        break;
+      case 11:
+        type = EntityType.SALARY.getName();
+        if (rangeIntent >= salaries.size()) {
+          return;
+        }
+        item = salaries.get(rangeIntent);
+        break;
+      case 12:
+        type = EntityType.ANNUAL.getName();
+        if (rangeIntent >= annualSalary.size()) {
+          return;
+        }
+        item = annualSalary.get(rangeIntent);
+        break;
+      default:
+    }
+    String unique = type + ":" + item;
+    node.setName(item);
+    node.setUnique_id(unique);
+    node.setUnique_ids(Arrays.asList(unique));
+  }
 
   public static void initEntityNode(List<EntityNode> nodes, List<String>
       list, String type,DClient dClient, EntityIdClient entityIdClient) {
@@ -585,5 +661,71 @@ public class NodeUtil {
     }
     Map<String, String> uidMap = entityIdClient.checkUidWithName(names, faceType);
     getFacetsUidSrc(uidMap, edgeFacetPutList);
+  }
+
+
+  /**
+   * 处理候选人的subEntity Uid
+   * @param candidateList
+   */
+  public static void dealingCandidatesSubNodes(List<Candidate> candidateList, EntityIdClient
+      entityIdClient) {
+    List<AgeNode> ageNodes = new ArrayList<>();
+    List<DegreeNode> degreeNodes = new ArrayList<>();
+    List<GenderNode> genderNodes = new ArrayList<>();
+    List<SalaryNode> salaryNodes = new ArrayList<>();
+    List<SalaryNode> annualSalaryNodes = new ArrayList<>();
+    List<SeniortyNode> seniortyNodes = new ArrayList<>();
+
+    getSubNodes(candidateList, ageNodes, degreeNodes,genderNodes, salaryNodes,
+        annualSalaryNodes, seniortyNodes);
+    putSubNodesUid(entityIdClient,ageNodes,degreeNodes,genderNodes, salaryNodes, annualSalaryNodes,
+        seniortyNodes);
+  }
+
+  /**
+   * 所有subEntityNode的获取
+   * @param candidateList
+   * @param ageNodes
+   * @param degreeNodes
+   * @param genderNodes
+   * @param salaryNodes
+   * @param annualSalaryNodes
+   * @param seniortyNodes
+   */
+  private static void getSubNodes(List<Candidate> candidateList, List<AgeNode> ageNodes,
+                           List<DegreeNode> degreeNodes, List<GenderNode> genderNodes,
+                           List<SalaryNode> salaryNodes, List<SalaryNode>
+                               annualSalaryNodes, List<SeniortyNode> seniortyNodes) {
+    for (Candidate candidate : candidateList) {
+      ageNodes.add(candidate.getAge_node());
+      degreeNodes.add(candidate.getDegree_node());
+      genderNodes.add(candidate.getGender_node());
+      salaryNodes.addAll(candidate.getMonthly_salary());
+      annualSalaryNodes.addAll(candidate.getAnnual_salary());
+      seniortyNodes.add(candidate.getSeniorty_node());
+    }
+  }
+
+  /**
+   * 检查subEntity's uid
+   * @param entityIdClient
+   * @param ageNodes
+   * @param degreeNodes
+   * @param genderNodes
+   * @param salaryNodes
+   * @param annualSalaryNodes
+   * @param seniortyNodes
+   */
+  private static void putSubNodesUid(EntityIdClient entityIdClient,List<AgeNode> ageNodes,
+                              List<DegreeNode> degreeNodes, List<GenderNode> genderNodes,
+                              List<SalaryNode> salaryNodes, List<SalaryNode>
+                                  annualSalaryNodes, List<SeniortyNode> seniortyNodes) {
+    entityIdClient.putEntityListUid(ageNodes, EntityType.AGE.getName());
+    entityIdClient.putEntityListUid(degreeNodes, EntityType.DEGREE.getName());
+    entityIdClient.putEntityListUid(genderNodes, EntityType.GENDER.getName());
+    entityIdClient.putEntityListUid(salaryNodes, EntityType.SALARY.getName());
+    entityIdClient.putEntityListUid(annualSalaryNodes, EntityType.ANNUAL.getName());
+    entityIdClient.putEntityListUid(seniortyNodes, EntityType.SENIORITY.getName());
   }
 }
