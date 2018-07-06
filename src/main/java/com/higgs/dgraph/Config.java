@@ -35,7 +35,7 @@ public class Config {
           "alias:string .\n" +
           "code:int . \n" +
           "type:string .  \n" +
-          "gender：string .\n " +
+          "gender:string .\n " +
           "eng_name:string . \n" +
           "location:string  .\n" +
           "legal_person:string .\n" +
@@ -43,12 +43,11 @@ public class Config {
           "company:uid .\n" +
           "industry:uid .\n" +
           "parent_industry:uid .\n" +
-          "candidate_company:uid .\n" +
           "candidate_school:uid .\n" +
+          "candidate_dept:uid @reverse . \n" +
           "birthday: int @index(int) . \n" +
           "started_work_at:int @index(int) . \n" +
           "current_location_code: int @index(int) . \n" +
-          "candidate_dept:uid @reverse . \n" +
           "annual_salary:float @index(float) . \n"
 
 

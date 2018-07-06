@@ -186,9 +186,9 @@ public class EntityNode implements Serializable {
             if ("getUnique_id".equals(methodName)) {
               String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
               String type = getDeclaredEdgeUid(value, value.getClass(), "getType");
-              if (uid != null && !"".equals(uid) && type != null && !"".equals(type)) {
+              if (uid != null && !"".equals(uid)) {
                 edges.add(name);
-                ids.add(type + ":" + uid);
+                ids.add(uid);
               }
             } else {
               String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
@@ -210,9 +210,9 @@ public class EntityNode implements Serializable {
                   if ("getUnique_id".equals(methodName)) {
                     String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
                     String type = getDeclaredEdgeUid(entityNode, entityNode.getClass(), "getType");
-                    if (uid != null && !"".equals(uid) && type != null && !"".equals(type)) {
+                    if (uid != null && !"".equals(uid)) {
                       edges.add(name);
-                      ids.add(type + ":" + uid);
+                      ids.add(uid);
                     }
                   } else {
                     String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);

@@ -1,0 +1,9 @@
+name:string  .
+unique_id:string .
+code:int .
+type:string .
+gender:string .
+industry:uid .
+parent_industry:uid .
+candidate_school:uid .
+candidate_dept:uid @reverse .

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.higgs.client.EntityIdClient;
@@ -205,7 +206,12 @@ public class Test {
     // test.test_unkonw_format();
     // test.test_import();
     // test.test_delete_edges();
-    test.subEntity();
+    // test.subEntity();
+    Pattern pattern= Pattern.compile("\\(\\d+\\.\\d+\\)");
+    String value = "(2001.1093)广州市越秀区佳马电脑经营部";
+    if (pattern.matcher(value).find()) {
+      test.logger.info("match");
+    }
   }
 
 
