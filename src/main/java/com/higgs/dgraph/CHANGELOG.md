@@ -54,6 +54,9 @@
 ## 2018.6.5
 
         * list type: schema中predicate声明为list type,重复赋值该predicate,不会覆盖
+
+## 2018.7.5
+        *  rdf文件所有实体的xid : type + : + unique_id
         
 
 
