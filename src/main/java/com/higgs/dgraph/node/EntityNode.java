@@ -183,13 +183,19 @@ public class EntityNode implements Serializable {
         if (value instanceof EntityNode) {
           // 绑定单个实体之间的关系
           if (!"".equals(methodName)) {
-            Util.println("  edge:", name);
-            String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
-            Util.println("  uid:", uid);
-            Util.println("  value:", value);
-            if (uid != null && !"".equals(uid)) {
-              edges.add(name);
-              ids.add(uid);
+            if ("getUnique_id".equals(methodName)) {
+              String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
+              String type = getDeclaredEdgeUid(value, value.getClass(), "getType");
+              if (uid != null && !"".equals(uid) && type != null && !"".equals(type)) {
+                edges.add(name);
+                ids.add(type + ":" + uid);
+              }
+            } else {
+              String uid = getDeclaredEdgeUid(value, value.getClass(), methodName);
+              if (uid != null && !"".equals(uid)) {
+                edges.add(name);
+                ids.add(uid);
+              }
             }
           }
         } else if (value instanceof List) {
@@ -198,14 +204,23 @@ public class EntityNode implements Serializable {
               // ..todo
             } else if (((List) value).get(0) instanceof  EntityNode ){
               // 绑定多个实体之间的关系
-              List<EntityNode> entityNodes = (List<EntityNode>)value;
-              for (EntityNode entityNode: entityNodes) {
-                String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
-                Util.println("  list uid:", uid);
-                Util.println("  list value:", entityNode);
-                if (uid != null && !"".equals(uid)) {
-                  edges.add(name);
-                  ids.add(uid);
+              List<EntityNode> entityNodes = (List<EntityNode>) value;
+              for (EntityNode entityNode : entityNodes) {
+                if (!"".equals(methodName)) {
+                  if ("getUnique_id".equals(methodName)) {
+                    String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
+                    String type = getDeclaredEdgeUid(entityNode, entityNode.getClass(), "getType");
+                    if (uid != null && !"".equals(uid) && type != null && !"".equals(type)) {
+                      edges.add(name);
+                      ids.add(type + ":" + uid);
+                    }
+                  } else {
+                    String uid = getDeclaredEdgeUid(entityNode, entityNode.getClass(), methodName);
+                    if (uid != null && !"".equals(uid)) {
+                      edges.add(name);
+                      ids.add(uid);
+                    }
+                  }
                 }
               }
             }

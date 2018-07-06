@@ -55,7 +55,7 @@ public class Config {
       ;
 
   public static String updateSchema =
-            "annual_salary:float @index(float) .\n"
+            "candidate_dept:uid @reverse . \n"
 
       ;
 

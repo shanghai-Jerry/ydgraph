@@ -108,6 +108,11 @@ public class MajorToDgraph {
     // NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 
+  public void generateRDF() {
+    List<String> entityNquads = NodeUtil.getEntityNquads(this.majors, new ArrayList<>());
+    FileUtils.saveFile("./major_rdf.txt",  entityNquads, false);
+  }
+
   public static void main(String[] args) {
     String dictPath = "src/main/resources/major_dict.txt";
     DClient dClient = new DClient(Config.TEST_HOSTNAME);

@@ -171,6 +171,11 @@ public class IndustryToDgraph {
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
+  public void generateRDF() {
+    List<String> entityNquads = NodeUtil.getEntityNquads(this.industries, new ArrayList<>());
+    FileUtils.saveFile("./industry_rdf.txt",  entityNquads, false);
+  }
+
   public static void main(String[] args) {
     String dict = "src/main/resources/industry_dump_dict.txt";
     IndustryToDgraph industryToDgraph = new IndustryToDgraph();

@@ -15,6 +15,16 @@ public class Nodeput {
   private List<String> edge_predicates;
   private List<String> objectIds;
 
+  private String type;
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
   public String getUniqueId() {
     return uniqueId;
   }

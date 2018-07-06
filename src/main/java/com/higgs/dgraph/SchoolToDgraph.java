@@ -112,6 +112,10 @@ public class SchoolToDgraph {
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
     // NodeUtil.putEntity(dClient, getLabeledSchool(schools));
   }
+  public void generateRDF() {
+    List<String> entityNquads = NodeUtil.getEntityNquads(this.schools, new ArrayList<>());
+    FileUtils.saveFile("./school_rdf.txt",  entityNquads, false);
+  }
 
   public static void main(String[] args) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
