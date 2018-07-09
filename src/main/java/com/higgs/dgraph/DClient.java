@@ -826,6 +826,31 @@ public class  DClient {
     return ret;
 
   }
+  public <T extends EntityNode> DgraphProto.Assigned getAssignedUid(List<T> entities) {
+    List<String> stringList = new ArrayList<>();
+    for (T item : entities) {
+      String unique_id = item.getUnique_id();
+      String nquad = attrFormat(unique_id, "unique_id", unique_id, false);
+      stringList.add(nquad);
+    }
+    DgraphProto.Assigned assigned = null;
+    List<ByteString> newEdges = new ArrayList<>();
+    for (String edge : stringList) {
+      newEdges.add(ByteString.copyFromUtf8(edge));
+    }
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .setSetNquads(ByteString.copyFrom(newEdges))
+        .build();
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    try {
+      assigned = txn.mutate(mu);
+    }  catch (Exception e) {
+      logger.info("[getAssignedUid exception] => " + e.getMessage());
+    } finally {
+    }
+    return assigned;
+  }
+
   public static void main(final String[] args) {
     // ...todo
   }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.amazonaws.services.dynamodbv2.xspec.L;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
@@ -22,6 +23,7 @@ import com.higgs.dgraph.node.GenderNode;
 import com.higgs.dgraph.node.Industry;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
+import com.higgs.dgraph.node.NquadUtil;
 import com.higgs.utils.FileUtils;
 
 import io.dgraph.DgraphProto;
@@ -197,8 +199,25 @@ public class Test {
     logger.info("uid:" + genderNode.getUid());
   }
 
+  private void test_pre_uid() {
+    DeptName deptName = new DeptName();
+    String dept_name1 = "DEPTONE";
+    deptName.setName(dept_name1);
+    deptName.setUnique_id(dept_name1);
+    List<DeptName> deptNameList = new ArrayList<>();
+    deptNameList.add(deptName);
+    Map<String, String> assignedUidMap =  NodeUtil.getAssignedUid(dClient, deptNameList);
+    logger.info("uid:" + assignedUidMap.get(dept_name1));
+    Map<String, List<String>> companyRet = NodeUtil.putEnitityAssignedUid(assignedUidMap, deptNameList);
+    logger.info("ret size::" + companyRet.size() + "," + deptNameList.get(0).getUid());
+    NodeUtil.putFacetAssignedUid(assignedUidMap, new ArrayList<>());
+    List<String> entityNquads = NquadUtil.getEntityNquads(deptNameList, new ArrayList<>());
+    FileUtils.saveFile("src/main/resources/test_dir/uid_nquad.txt", entityNquads, true);
+
+  }
+
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Test test = new Test(dClient);
     // String time = TimeUtil.consumeTime(30000 * 1000);
     // test.test_list_type();
@@ -212,6 +231,8 @@ public class Test {
     if (pattern.matcher(value).find()) {
       test.logger.info("match");
     }
+
+    test.test_pre_uid();
   }
 
 

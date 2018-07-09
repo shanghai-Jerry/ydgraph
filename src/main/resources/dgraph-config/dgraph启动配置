@@ -63,6 +63,12 @@ sudo rm -rf  zero/*
 
 nohup dgraph server -p /data/youcj/export/out/0/p -w w9 --lru_mb 20000 --query_edge_limit 20000000 --zero localhost:5080 > info2 &
 
+nohup dgraph server -p /data/dgraph/export/out/0/p -w w9 --lru_mb 20000 --query_edge_limit 20000000 --zero localhost:5080 > info2 &
+
+dgraph bulk -r company.rdf  -s company.schema -j 4 --map_shards=4 --reduce_shards=1 --http localhost:8001 --zero=localhost:5080
+
+
+curl localhost:8080/admin/export &
 
 1.模拟数据集:新增两个候选人的数据
 {

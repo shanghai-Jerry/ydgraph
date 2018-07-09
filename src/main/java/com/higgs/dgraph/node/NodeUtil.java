@@ -481,6 +481,9 @@ public class NodeUtil {
       uidMap) {
     for (T entityNode : entityNodes) {
       List<String> uniqueIdList = entityNode.getUnique_ids();
+      if (uniqueIdList.size() == 0) {
+        uniqueIdList = Arrays.asList(entityNode.getUnique_id());
+      }
       for (String unique_id : uniqueIdList) {
         if (!"".equals(unique_id) && uidMap.containsKey(unique_id)) {
           entityNode.setUid(uidMap.get(unique_id));
@@ -965,5 +968,29 @@ public class NodeUtil {
     nQuands.addAll(hasFacetsNquads);
     return nQuands;
 
+  }
+
+  public static void putFacetAssignedUid(Map<String, String> assignedUidsMap,
+                                         List<EdgeFacetPut> edgeFacetPutList) {
+    NodeUtil.getFacetsUidSrc(assignedUidsMap, edgeFacetPutList);
+  }
+
+  public static  <T extends EntityNode> Map<String, List<String>> putEnitityAssignedUid(Map<String, String>
+                                                                                            assignedUidsMap, List<T> list) {
+    Map<String, List<String>> uidMap = new HashMap<>();
+    NodeUtil.putEntityUid(list, assignedUidsMap);
+    NodeUtil.uidReMapping(assignedUidsMap, list, uidMap);
+    return uidMap;
+  }
+
+  @Deprecated
+  public static <T extends EntityNode> Map<String, String> getAssignedUid(DClient dClient, List<T> list) {
+    DgraphProto.Assigned assigned = dClient.getAssignedUid(list);
+    Map<String, String> uidMap = new HashMap<>();
+    if (assigned != null) {
+      Map<String, String> assignedUidsMap = assigned.getUidsMap();
+      return assignedUidsMap;
+    }
+    return uidMap;
   }
 }

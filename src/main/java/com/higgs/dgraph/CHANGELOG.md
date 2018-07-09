@@ -90,7 +90,8 @@
 
     ` curl localhost:8080/admin/export &` 导出database
 
-    如果想要reuse导出db的uid， 请保留zw和w目录，指定新生成的out目录下的p重新serverll
+    如果想要reuse导出db的uid? 并指定新生成的out目录下的p重新server？ 如何操作? 需要保留zw和w目录么
+
 
     详细情况参考：https://docs.dgraph.io/deploy/#export-database
 
