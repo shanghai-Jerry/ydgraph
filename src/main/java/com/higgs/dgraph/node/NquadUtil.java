@@ -16,7 +16,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * Copyright (c) 2018 devops
  *
- * 已知uid的rdf格式
+ * 已知uid的rdf格式, 好像bulk loader不支持用户自分配的uid
  *
  * <<licensetext>>
  */

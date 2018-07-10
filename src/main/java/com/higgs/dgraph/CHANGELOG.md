@@ -56,7 +56,11 @@
         * list type: schema中predicate声明为list type,重复赋值该predicate,不会覆盖
 
 ## 2018.7.5
-        *  rdf文件所有实体的xid : type + : + unique_id
+
+        *  rdf文件所有实体的xid : type + : + unique_id （NodeUtil.getEntityNquads()）
+
+        *  先使用bulk loader导入，然后导出database, 通过导出的rdf绑定外部id和uid之前的关系
+
         
 
 
@@ -79,6 +83,11 @@
 
     * facets的属性是覆盖式的，不是新增式的， 如果先前存在的属性，在修改facets时没有加入，那么先前属性就不存在了。
 
+    * rdf file中nquad格式的facets:
+        eg  _:候选人:26689f2b8292170d4221d03844295ea5 <candidate_dept>
+        _:公司部门:7a9cfaf8eaec9aebc890b94a292717af (on_job=false,started_at=20010-10-01T00:00:00.000Z,ended_at=2012-12-01T00:00:00.000Z,salary=0.0) ."
+
+      dataTime 要用引号包起来 （started_at="20010-10-01T00:00:00.000Z"), 不然解析不了
 
 # 4. export dgraph database
 

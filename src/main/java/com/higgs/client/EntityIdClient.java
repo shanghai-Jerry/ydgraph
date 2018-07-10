@@ -361,12 +361,12 @@ public class EntityIdClient {
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT);
+        Config.ENTITY_ID_SERVICE_PORT_TEST);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "携程计算机技术（上海）有限公司";
+      String name = "c9301a2caf3422927fa318f777a73312";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);

@@ -1,5 +1,5 @@
-name:string  .
-unique_id:string .
+name:string @index(term) .
+unique_id:string @index(term).
 code:int .
 type:string .
 gender:string .

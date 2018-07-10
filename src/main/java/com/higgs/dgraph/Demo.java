@@ -247,7 +247,7 @@ public class Demo {
     // demo.init();
     // demo.deleteEdge();
     // demo.edgeConnect();
-    demo.alterSchema();
+    // demo.alterSchema();
     // demo.alterUpsertScheam();
     // demo.initDegreeUid();
     System.out.println("finished");

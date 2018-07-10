@@ -23,7 +23,7 @@ public class Config {
 
   public static final int ENTITY_ID_SERVICE_PORT = 26544;
 
-  public static final int ENTITY_ID_SERVICE_PORT_TEST = 26545;
+  public static final int ENTITY_ID_SERVICE_PORT_TEST = 26543;
 
   // 批次小一点速度快一些，但是不能太小
   public  static  int batch = 200;

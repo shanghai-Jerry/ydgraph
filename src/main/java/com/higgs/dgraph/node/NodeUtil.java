@@ -152,17 +152,6 @@ public class NodeUtil {
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
-  public static String formatPredicateValue(String value) {
-    if (value != null) {
-      return value
-          .replace("\\", "/")
-          .replace("\n", "")
-          .replace("\"", "")
-          .trim();
-    }
-    return "";
-  }
-
   public static String formatName(String name) {
     if (name != null) {
       return name.trim();
@@ -992,5 +981,22 @@ public class NodeUtil {
       return assignedUidsMap;
     }
     return uidMap;
+  }
+
+  public static String formatPredicateValue(String value) {
+    if (value != null) {
+      return  value.replace("\n", "")
+          .replace(">", "")
+          .replace( "\"", "")
+          .replace(",", "")
+          .replace("\t", "")
+          .replace("\\", "")
+          .replace("\b", "")
+          .replace("\r", "")
+          .replace("\f", "")
+          .replace("'", "")
+          .trim();
+    }
+    return "";
   }
 }
