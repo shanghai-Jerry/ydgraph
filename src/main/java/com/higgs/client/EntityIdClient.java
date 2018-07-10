@@ -361,7 +361,7 @@ public class EntityIdClient {
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT_TEST);
+        Config.ENTITY_ID_SERVICE_PORT);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {

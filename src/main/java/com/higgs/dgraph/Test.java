@@ -2,23 +2,14 @@ package com.higgs.dgraph;
 
 import com.google.protobuf.ByteString;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import com.amazonaws.services.dynamodbv2.xspec.L;
-import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.del.NodeDel;
-import com.higgs.dgraph.enumtype.EntityType;
-import com.higgs.dgraph.node.AgeNode;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;
 import com.higgs.dgraph.node.DeptName;
-import com.higgs.dgraph.node.EntityNode;
 import com.higgs.dgraph.node.GenderNode;
 import com.higgs.dgraph.node.Industry;
 import com.higgs.dgraph.node.Label;
@@ -26,7 +17,14 @@ import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.NquadUtil;
 import com.higgs.utils.FileUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import io.dgraph.DgraphProto;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -61,7 +59,7 @@ public class Test {
   private void test_seven() {
     NodeDel nodeDel = new NodeDel();
     nodeDel.setUniqueId("llb00000000000000000000000100192");
-    NodeUtil.deleteEntity(dClient, client, Arrays.asList(nodeDel),"候选人");
+    NodeUtil.deleteEntity(dClient, client, Arrays.asList(nodeDel), "候选人");
   }
 
   protected void test_concurrently() {
@@ -70,7 +68,7 @@ public class Test {
     label.setName("");
   }
 
-  private void test_conut_byuid () {
+  private void test_conut_byuid() {
     demo.dropSchema();
     DeptName deptName = new DeptName();
     String dept_name1 = "DEPTONE";
@@ -119,17 +117,16 @@ public class Test {
 
   private void test_unkonw_format() {
     String uniqueId = "??平县?\u0000?\u0000?\u0000??\u0000??裰行?\u0000?增庄分销?\u0000";
-    DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String
-        .format("_:%s", uniqueId)).setPredicate("name")
-        .setObjectValue(DgraphProto.Value.newBuilder().setStrVal(uniqueId).build())
-        ;
+    DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String.format
+        ("_:%s", uniqueId)).setPredicate("name").setObjectValue(DgraphProto.Value.newBuilder()
+        .setStrVal(uniqueId).build());
     DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().addSet(builder.build()).build();
     DgraphProto.Assigned ag = null;
     DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
     try {
       ag = txn.mutate(mu);
       txn.commit();
-    }  catch (Exception e) {
+    } catch (Exception e) {
     } finally {
       txn.discard();
     }
@@ -151,14 +148,13 @@ public class Test {
     for (String edge : rdf) {
       newEdges.add(ByteString.copyFromUtf8(edge));
     }
-    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
-        .setSetNquads(ByteString.copyFrom(newEdges))
-        .build();
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFrom
+        (newEdges)).build();
     DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
     try {
       assigned = txn.mutate(mu);
       txn.commit();
-    }  catch (Exception e) {
+    } catch (Exception e) {
     } finally {
       txn.discard();
     }
@@ -175,9 +171,9 @@ public class Test {
 
   private void test_delete_edges() {
     String uid = "0x3";
-    DgraphProto.NQuad nQuad = DgraphProto.NQuad.newBuilder().setSubject(String
-        .format(uid)).setPredicate("name")
-        .setObjectValue(DgraphProto.Value.newBuilder().setStrVal("_STAR_ALL").build()).build();
+    DgraphProto.NQuad nQuad = DgraphProto.NQuad.newBuilder().setSubject(String.format(uid))
+        .setPredicate("name").setObjectValue(DgraphProto.Value.newBuilder().setStrVal
+            ("_STAR_ALL").build()).build();
 
     DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().addDel(nQuad).build();
 
@@ -185,7 +181,7 @@ public class Test {
     try {
       txn.mutate(mutation);
       txn.commit();
-    }  catch (Exception e) {
+    } catch (Exception e) {
     } finally {
       txn.discard();
     }
@@ -206,14 +202,30 @@ public class Test {
     deptName.setUnique_id(dept_name1);
     List<DeptName> deptNameList = new ArrayList<>();
     deptNameList.add(deptName);
-    Map<String, String> assignedUidMap =  NodeUtil.getAssignedUid(dClient, deptNameList);
+    Map<String, String> assignedUidMap = NodeUtil.getAssignedUid(dClient, deptNameList);
     logger.info("uid:" + assignedUidMap.get(dept_name1));
-    Map<String, List<String>> companyRet = NodeUtil.putEnitityAssignedUid(assignedUidMap, deptNameList);
+    Map<String, List<String>> companyRet = NodeUtil.putEnitityAssignedUid(assignedUidMap,
+        deptNameList);
     logger.info("ret size::" + companyRet.size() + "," + deptNameList.get(0).getUid());
     NodeUtil.putFacetAssignedUid(assignedUidMap, new ArrayList<>());
     List<String> entityNquads = NquadUtil.getEntityNquads(deptNameList, new ArrayList<>());
     FileUtils.saveFile("src/main/resources/test_dir/uid_nquad.txt", entityNquads, true);
 
+  }
+
+  private void encode_string() {
+    StringBuilder stringBuilder = new StringBuilder();
+    ObjectMapper mapper = new ObjectMapper();
+    stringBuilder.append("fsfs").append("\n").append("fsdsdss");
+    try {
+      String encodeString = mapper.writeValueAsString(stringBuilder.toString());
+      logger.info("msg:" + encodeString + "," + encodeString.replace("\\n", ""));
+      System.out.println(encodeString);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.encode();
   }
 
   public static void main(String[] arg) {
@@ -226,13 +238,13 @@ public class Test {
     // test.test_import();
     // test.test_delete_edges();
     // test.subEntity();
-    Pattern pattern= Pattern.compile("\\(\\d+\\.\\d+\\)");
+    Pattern pattern = Pattern.compile("\\(\\d+\\.\\d+\\)");
     String value = "(2001.1093)广州市越秀区佳马电脑经营部";
     if (pattern.matcher(value).find()) {
       test.logger.info("match");
     }
 
-    test.test_pre_uid();
+    // test.test_pre_uid();
   }
 
 
