@@ -169,13 +169,15 @@ public class Test {
     }
   }
 
-  private void test_delete_edges() {
+  private void test_set_nuqad() {
     String uid = "0x3";
+    String data = "1) On the manifest details page add a search option to find:\n" + "a) Major " +
+        "Client\n" + "b) Consignee\n" + "c) Forwarder\n" + "d) Mfst#\n" + "e) Arrival Date\n" + "f) Invoice\n" + "g) HBL";
     DgraphProto.NQuad nQuad = DgraphProto.NQuad.newBuilder().setSubject(String.format(uid))
         .setPredicate("name").setObjectValue(DgraphProto.Value.newBuilder().setStrVal
-            ("_STAR_ALL").build()).build();
+            (data).build()).build();
 
-    DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().addDel(nQuad).build();
+    DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().addSet(nQuad).build();
 
     DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
     try {
@@ -213,21 +215,6 @@ public class Test {
 
   }
 
-  private void encode_string() {
-    StringBuilder stringBuilder = new StringBuilder();
-    ObjectMapper mapper = new ObjectMapper();
-    stringBuilder.append("fsfs").append("\n").append("fsdsdss");
-    try {
-      String encodeString = mapper.writeValueAsString(stringBuilder.toString());
-      logger.info("msg:" + encodeString + "," + encodeString.replace("\\n", ""));
-      System.out.println(encodeString);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.encode();
-  }
-
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Test test = new Test(dClient);
@@ -243,7 +230,7 @@ public class Test {
     if (pattern.matcher(value).find()) {
       test.logger.info("match");
     }
-
+    // test.test_set_nuqad();
     // test.test_pre_uid();
   }
 

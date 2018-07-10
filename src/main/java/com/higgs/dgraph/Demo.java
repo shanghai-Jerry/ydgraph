@@ -15,6 +15,8 @@ import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.Person;
 import io.dgraph.DgraphProto;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import com.higgs.utils.FileUtils;
@@ -83,7 +85,10 @@ public class Demo {
     // queryWithVars seems not a good choice
     // 获取时间
     // res.getLatency()
-    Util.formatPrintJson(res.getJson().toStringUtf8());
+    // Util.formatPrintJson(res.getJson().toStringUtf8());
+    JsonObject jsonObject = new JsonObject(res.getJson().toStringUtf8());
+    String name = jsonObject.getJsonArray("query", new JsonArray()).getJsonObject(0).getString("name");
+    logger.info("name:" + name);
     parseLatency(res);
   }
   public void parseLatency(DgraphProto.Response res) {
@@ -239,10 +244,10 @@ public class Demo {
   }
 
   public static void main(String[] arg) {
-    DClient dClient = new DClient(Config.addressList);
+    DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Demo demo = new Demo(dClient);
     // demo.dropSchema();
-    // demo.QueryTest();
+    demo.QueryTest();
     // demo.QueryDemo();
     // demo.init();
     // demo.deleteEdge();
