@@ -1084,4 +1084,8 @@ public class NodeUtil {
     }
     return "";
   }
+
+  public String getId(String type, String unique_id) {
+    return type + ":"+ unique_id;
+  }
 }

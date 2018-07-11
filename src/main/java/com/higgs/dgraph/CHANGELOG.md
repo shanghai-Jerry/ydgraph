@@ -60,10 +60,10 @@
         *  rdf文件所有实体的xid : type + : + unique_id （NodeUtil.getEntityNquads()）
 
         *  先使用bulk loader导入，然后导出database, 通过导出的rdf绑定外部id和uid之前的关系
+        
+            EntityNode:getId: Add type to unique_id, this is for exported database remapping uid
 
         
-
-
 
 # 3. 发现问题
 
@@ -99,8 +99,10 @@
 
     ` curl localhost:8080/admin/export &` 导出database
 
-    如果想要reuse导出db的uid? 并指定新生成的out目录下的p重新server？ 如何操作? 需要保留zw和w目录么
-
+    如果想要reuse导出db的uid? 并指定新生成的out目录下的p重新server？ 如何操作? 需要保留zw和w目录么 --- 暂时不支持
+ 
+    Note:想要快速恢复数据：通过exported数据重新导入，然后在导出，通过再导出的数据绑定数据的uid
+    
 
     详细情况参考：https://docs.dgraph.io/deploy/#export-database
 

@@ -8,6 +8,7 @@ import com.higgs.dgraph.node.EntityNode;
 import com.higgs.dgraph.node.GenderNode;
 import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.SalaryNode;
+import com.higgs.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,107 @@ public class StartMain {
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     majorToDgraph.initWithJson(majorPath);
     System.out.println("finished");
+  }
+
+  public void initWithRDFfile(String industryDict, String majorDict, String schoolDict, String
+      out) {
+    // with rdf
+    // 行业
+    IndustryToDgraph industryToDgraph = new IndustryToDgraph();
+    industryToDgraph.initIndustry(industryDict, true);
+    industryToDgraph.generateRDF(out);
+    // 专业
+    MajorToDgraph majorToDgraph = new MajorToDgraph();
+    majorToDgraph.init(majorDict, true);
+    majorToDgraph.generateRDF(out);
+    // 学校
+    SchoolToDgraph schoolToDgraph = new SchoolToDgraph();
+    schoolToDgraph.init(schoolDict, true);
+    schoolToDgraph.generateRDF(out);
+    // 年龄
+    List<AgeNode>  ageNodes = new ArrayList<>();
+    for (String age : NodeUtil.ages) {
+      AgeNode ageNode = new AgeNode();
+      String unique = age.trim();
+      ageNode.setName(age);
+      ageNode.setType(EntityType.AGE.getName());
+      ageNode.setUnique_id(EntityType.AGE.getName() + ":" + NodeUtil.generateEntityUniqueId
+          (unique));
+      ageNode.setUnique_ids(Arrays.asList(unique));
+      ageNodes.add(ageNode);
+    }
+    List<String> entityNquads = NodeUtil.getEntityNquads(ageNodes, new ArrayList<>());
+    FileUtils.saveFile(out+ "/age_rdf.txt",  entityNquads, false);
+
+    // 学历
+    List<DegreeNode> degreeNodes = new ArrayList<>();
+    for(String degree : NodeUtil.degrees) {
+      String uniqueid = degree.trim();
+      DegreeNode degreeNode = new DegreeNode();
+      degreeNode.setName(degree);
+      degreeNode.setType(EntityType.DEGREE.getName());
+      degreeNode.setUnique_id(EntityType.DEGREE.getName() + ":" + NodeUtil.generateEntityUniqueId
+          (uniqueid));
+      degreeNode.setUnique_ids(Arrays.asList(uniqueid));
+      degreeNodes.add(degreeNode);
+    }
+    entityNquads = NodeUtil.getEntityNquads(degreeNodes, new ArrayList<>());
+    FileUtils.saveFile(out + "/degree_rdf.txt",  entityNquads, false);
+    // 性别
+    List<GenderNode> genderNodes = new ArrayList<>();
+    for(String gender : NodeUtil.genders) {
+      String unique = gender.trim();
+      GenderNode genderNode = new GenderNode();
+      genderNode.setName(gender);
+      genderNode.setType(EntityType.GENDER.getName());
+      genderNode.setUnique_id(EntityType.GENDER.getName() + ":" + NodeUtil.generateEntityUniqueId
+          (unique));
+      genderNode.setUnique_ids(Arrays.asList(unique));
+      genderNodes.add(genderNode);
+    }
+    entityNquads = NodeUtil.getEntityNquads(genderNodes, new ArrayList<>());
+    FileUtils.saveFile(out + "/gender_rdf.txt",  entityNquads, false);
+    // 薪资
+    List<SalaryNode> salaryNodes = new ArrayList<>();
+    for (String salary : NodeUtil.salaries) {
+      String unique = salary.trim();
+      SalaryNode salaryNode = new SalaryNode();
+      salaryNode.setName(unique);
+      salaryNode.setType(EntityType.SALARY.getName());
+      salaryNode.setUnique_id(EntityType.SALARY.getName() + ":" + NodeUtil.generateEntityUniqueId
+          (unique));
+      salaryNode.setUnique_ids(Arrays.asList(unique));
+      salaryNodes.add(salaryNode);
+    }
+    entityNquads = NodeUtil.getEntityNquads(salaryNodes, new ArrayList<>());
+    FileUtils.saveFile(out + "/monthlySalary_rdf.txt",  entityNquads, false);
+    // 薪资：年薪
+    List<SalaryNode> annualSalaryNodes = new ArrayList<>();
+    for (String salary: NodeUtil.annualSalary) {
+      String unique = salary.trim();
+      SalaryNode salaryNode = new SalaryNode();
+      salaryNode.setName(unique);
+      salaryNode.setType(EntityType.ANNUAL.getName());
+      salaryNode.setUnique_id(EntityType.ANNUAL.getName() + ":" + NodeUtil.generateEntityUniqueId
+          (unique));
+      salaryNode.setUnique_ids(Arrays.asList(unique));
+      annualSalaryNodes.add(salaryNode);
+    }
+    entityNquads = NodeUtil.getEntityNquads(annualSalaryNodes, new ArrayList<>());
+    FileUtils.saveFile(out+ "/annualSalary_rdf.txt",  entityNquads, false);
+    // 工作年限
+    List<EntityNode> seniortyNodes = new ArrayList<>();
+    for (String senior : NodeUtil.seniors) {
+      String unique = senior.trim();
+      EntityNode entityNode = new EntityNode();
+      entityNode.setType(EntityType.SENIORITY.getName());
+      entityNode.setUnique_id(EntityType.SENIORITY.getName() + ":" + NodeUtil
+          .generateEntityUniqueId(unique));
+      entityNode.setUnique_ids(Arrays.asList(unique));
+      seniortyNodes.add(entityNode);
+    }
+    entityNquads = NodeUtil.getEntityNquads(seniortyNodes, new ArrayList<>());
+    FileUtils.saveFile(out + "/seniors_rdf.txt",  entityNquads, false);
   }
 
   public void update() {

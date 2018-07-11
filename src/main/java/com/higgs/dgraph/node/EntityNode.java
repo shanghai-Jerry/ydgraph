@@ -109,6 +109,11 @@ public class EntityNode implements Serializable {
     this.uid = uid;
   }
 
+  // getId: Add type to unique_id, this is for exported database remapping uid
+  public String getId(String type, String unique_id) {
+    return type + ":"+ unique_id;
+  }
+
   private boolean checkPredicateValue(Object predicate) {
     if(predicate == null) {
       return false;

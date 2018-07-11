@@ -2,17 +2,19 @@ package com.higgs.dgraph;
 
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.node.Industry;
 import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
+import com.higgs.utils.FileUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import com.higgs.utils.FileUtils;
 
 /**
  * User: JerryYou
@@ -32,7 +34,7 @@ public class IndustryToDgraph {
   private List<Industry> industries = new ArrayList<>();
 
   public IndustryToDgraph() {
-    dClient = new DClient(Config.TEST_HOSTNAME);
+    dClient = new DClient(Config.addressList);
     entityIdClient = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
   }
 
@@ -65,7 +67,7 @@ public class IndustryToDgraph {
     return parents;
   }
 
-  public void getIndustry(List<String> dictLines, List<Industry> industries) {
+  public void getIndustry(List<String> dictLines, List<Industry> industries, Boolean isRDF) {
     String type = "行业";
     for (String line : dictLines) {
       Industry industry = new Industry();
@@ -83,7 +85,12 @@ public class IndustryToDgraph {
       List<String> industryNames = new ArrayList<>();
       industryNames.add(code);
       industryNames.add(name);
-      industry.setUnique_id(name);
+      if (isRDF) {
+        industry.setUnique_id(type + ":" + NodeUtil.generateEntityUniqueId(name));
+      } else {
+        industry.setUnique_id(name);
+      }
+
       industry.setUnique_ids(industryNames);
       industry.setCode(Integer.parseInt(code));
       industry.setName(name);
@@ -93,17 +100,22 @@ public class IndustryToDgraph {
       parentIndustryNames.add(pName);
       parentIndustryNames.add(pCode);
       partentIndustry.setUnique_ids(parentIndustryNames);
-      partentIndustry.setUnique_id(pName);
+      if (isRDF) {
+        partentIndustry.setUnique_id(type + ":" + NodeUtil.generateEntityUniqueId(pName));
+      } else {
+        partentIndustry.setUnique_id(pName);
+      }
       partentIndustry.setCode(Integer.parseInt(pCode));
+      partentIndustry.setName(pName);
       industry.setParent_industry(partentIndustry);
       industries.add(industry);
     }
   }
 
-  public void initIndustry(String dictPath) {
+  public void initIndustry(String dictPath, boolean isRDF) {
     List<String> dictLines = new ArrayList<>();
     FileUtils.readFiles(dictPath, dictLines);
-    getIndustry(dictLines, industries);
+    getIndustry(dictLines, industries, isRDF);
   }
 
   public void linkIndustry(Map<String, String> parentIndustryMap, Map<String, String> industryMap) {
@@ -120,20 +132,24 @@ public class IndustryToDgraph {
     logger.info("industry:" + new Gson().toJson(industries.get(0)));
     // NodeUtil.addEntityEdge(dClient, industries);
   }
+
   //
-  public void initWithRdf(String dictPath) {
+  public void initWithRdf(String dictPath, boolean isRDF) {
     String type = "行业";
-    initIndustry(dictPath);
+    initIndustry(dictPath, isRDF);
     // 入库parentIndstry
-    Map<String,  List<String>> parentMap = NodeUtil.insertEntity(dClient, getDistinctParentIndustry
-        (industries));
-    FileUtils.saveFile("src/main/resources/parent_industry_uid_map.txt", parentMap);
-    entityIdClient.putFeedEntityWithUidNamesMap(parentMap, type);
+    Map<String, List<String>> parentMap = NodeUtil.insertEntity(dClient,
+        getDistinctParentIndustry(industries));
     NodeUtil.putEntityUidWithNames(getParentIndustry(this.industries), parentMap);
+    entityIdClient.putFeedEntityWithUidNamesMap(parentMap, type);
     // 入库子industry 和 之前的关系
-    Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, this.industries);
-    FileUtils.saveFile("src/main/resources/industry_uid_map.txt", uidMap);
+    Map<String, List<String>> uidMap = NodeUtil.insertEntity(dClient, this.industries);
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
+  }
+
+  public void generateRDF(String out) {
+    List<String> entityNquads = NodeUtil.getEntityNquads(this.industries, new ArrayList<>());
+    FileUtils.saveFile(out + "/industry_rdf.txt", entityNquads, false);
   }
 
   public List<Label> getLabeledIndustry(List<Industry> industries) {
@@ -153,7 +169,7 @@ public class IndustryToDgraph {
     List<String> dictLines = new ArrayList<>();
     List<Industry> industries = new ArrayList<>();
     FileUtils.readFiles(dictPath, dictLines);
-    getIndustry(dictLines, industries);
+    getIndustry(dictLines, industries, true);
     logger.info("industries size:" + industries.size());
     long startTime = System.currentTimeMillis();
     List<Industry> parentsIndustry = getDistinctParentIndustry(industries);
@@ -171,17 +187,13 @@ public class IndustryToDgraph {
     System.out.println("spend time:" + (endStart - startTime) + " ms");
   }
 
-  public void generateRDF() {
-    List<String> entityNquads = NodeUtil.getEntityNquads(this.industries, new ArrayList<>());
-    FileUtils.saveFile("./industry_rdf.txt",  entityNquads, false);
-  }
-
   public static void main(String[] args) {
-    String dict = "src/main/resources/industry_dump_dict.txt";
+    if (args.length < 1) {
+      System.err.println("Usage : <Industry_dict_path>");
+      System.exit(-1);
+    }
+    String dict = args[0];
     IndustryToDgraph industryToDgraph = new IndustryToDgraph();
-    // with json
-    // industryToDgraph.initWithJson(dict, needCheck);
-    // with rdf
-    industryToDgraph.initWithRdf(dict);
+    industryToDgraph.initWithRdf(dict, true);
   }
 }

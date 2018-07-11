@@ -1,18 +1,18 @@
 package com.higgs.dgraph;
 
+
+import com.higgs.client.EntityIdClient;
+import com.higgs.dgraph.node.Major;
+import com.higgs.dgraph.node.NodeUtil;
+import com.higgs.utils.FileUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.higgs.client.EntityIdClient;
-
-import com.higgs.dgraph.node.Label;
-import com.higgs.dgraph.node.Major;
-import com.higgs.dgraph.node.NodeUtil;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import com.higgs.utils.FileUtils;
 
 /**
  * User: JerryYou
@@ -30,7 +30,7 @@ public class MajorToDgraph {
   private List<Major> majors = new ArrayList<>();
 
   public MajorToDgraph() {
-    dClient = new DClient(Config.TEST_HOSTNAME);
+    dClient = new DClient(Config.addressList);
     entityIdClient = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT);
   }
 
@@ -39,7 +39,7 @@ public class MajorToDgraph {
     this.entityIdClient = entityIdClient;
   }
 
-  public void getMajor(List<String> dictLines, List<Major> majors) {
+  public void getMajor(List<String> dictLines, List<Major> majors, boolean isRdf) {
     for (String line : dictLines) {
       List<String> names = new ArrayList<String>();
       Major major = new Major();
@@ -54,7 +54,11 @@ public class MajorToDgraph {
         major.setName(name);
         major.setCode(codeInt);
         major.setType("专业");
-        major.setUnique_id(name);
+        if (isRdf) {
+          major.setUnique_id("专业" + ":" + NodeUtil.generateEntityUniqueId(name));
+        } else  {
+          major.setUnique_id(name);
+        }
         major.setUnique_ids(Arrays.asList(code, name));
         names.add(name);
         if (codeInt == 0) {
@@ -65,32 +69,26 @@ public class MajorToDgraph {
     }
   }
 
-  public void init(String dictPath) {
+  public void init(String dictPath, boolean isRdf) {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
-    getMajor(dictLines, this.majors);
+    getMajor(dictLines, this.majors, isRdf);
   }
 
-  public List<Label> getLabeledMajor(List<Major> majors) {
-    List<Label> labelList = new ArrayList<>();
-    for (Major major : majors) {
-      Label label = new Label();
-      label.setUid("0x118d");
-      label.setMajor(major);
-      labelList.add(label);
-    }
-    return labelList;
-  }
 
-  public void initWithRdf(String dictPath) {
-    // .. todo
+  public void initWithRdf(String dictPath,  boolean isRdf) {
     String type = "专业";
-    init(dictPath);
+    init(dictPath, isRdf);
     Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, majors);
-    FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
+
+  public void generateRDF(String out) {
+    List<String> entityNquads = NodeUtil.getEntityNquads(this.majors, new ArrayList<>());
+    FileUtils.saveFile(out + "/major_rdf.txt",  entityNquads, false);
+  }
+
 
   /**
    * this way is better and faster than NQuad, you'd better try this muc h more.
@@ -100,7 +98,7 @@ public class MajorToDgraph {
     List<String> dictLines = new ArrayList<String>();
     List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
-    getMajor(dictLines, majors);
+    getMajor(dictLines, majors, true);
     System.out.println("get all majors :" + majors.size());
     Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
@@ -108,18 +106,14 @@ public class MajorToDgraph {
     // NodeUtil.putEntity(dClient, getLabeledMajor(majors));
   }
 
-  public void generateRDF() {
-    List<String> entityNquads = NodeUtil.getEntityNquads(this.majors, new ArrayList<>());
-    FileUtils.saveFile("./major_rdf.txt",  entityNquads, false);
-  }
 
   public static void main(String[] args) {
-    String dictPath = "src/main/resources/major_dict.txt";
-    DClient dClient = new DClient(Config.TEST_HOSTNAME);
-    EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST, Config.ENTITY_ID_SERVICE_PORT_TEST);
-    MajorToDgraph majorToDgraph = new MajorToDgraph(dClient, client);
-    // majorToDgraph.initWithJson(dictPath);
-    // majorToDgraph.initWithRdf(dictPath);
-    majorToDgraph.initWithRdf(dictPath);
+    if (args.length < 1) {
+      System.err.println("Usage : <Industry_dict_path>");
+      System.exit(-1);
+    }
+    String dict = args[0];
+    MajorToDgraph majorToDgraph = new MajorToDgraph();
+    majorToDgraph.initWithRdf(dict, true);
   }
 }

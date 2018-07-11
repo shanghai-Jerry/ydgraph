@@ -70,7 +70,7 @@ public class DgraphQueryClient {
   }
 
   public static void main(String[] args) throws Exception {
-    DgraphQueryClient client = new DgraphQueryClient(Config.LOCAL_HOST_NAME, Config.DGRAPH_QUERY_PORT);
+    DgraphQueryClient client = new DgraphQueryClient(Config.DGRAPH_QUERY_HOST, Config.DGRAPH_QUERY_PORT);
     try {
       QueryRequest request = QueryRequest.newBuilder()
           .setUniqueId("深圳市腾讯计算机系统有限公司")
@@ -78,7 +78,7 @@ public class DgraphQueryClient {
           .setUniqueIdType(QueryRequest.UniqueIdType.COMPANY)
           // .setPage(0)
           // .setPageSize(10)
-          .setDeptName("研发部")
+          .setDeptName("运营部")
           .build();
       QueryRespond queryRespond = client.query(request);
       String ret = queryRespond.getResultJson();
