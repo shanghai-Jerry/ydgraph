@@ -1,0 +1,12 @@
+# 统计公司指定部门下的总候选人数量
+
+ {
+     query(func:uid(%s)) {
+       name
+       company_dept @filter(uid(%s)){
+         name
+         total_candidate:count(~candidate_dept)
+       }
+
+     }
+  }

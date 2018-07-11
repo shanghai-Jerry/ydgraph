@@ -42,6 +42,91 @@ public class StartMain {
     System.out.println("finished");
   }
 
+  public void update() {
+
+    // 年龄
+    List<AgeNode> ageNodes = new ArrayList<>();
+    List<String> ageUniqueIds = Arrays.asList("20岁以下", "20-25岁", "25-30岁", "30-35岁",
+        "35岁以上");
+    for (String age : ageUniqueIds) {
+      AgeNode ageNode = new AgeNode();
+      String unique = EntityType.AGE.getName() + ":" + age;
+      ageNode.setName(age);
+      ageNode.setUnique_id(unique);
+      ageNode.setUnique_ids(Arrays.asList(unique));
+      ageNodes.add(ageNode);
+    }
+    client.putEntityListUid(ageNodes, EntityType.AGE.getName());
+    NodeUtil.updateEntity(dClient, ageNodes);
+
+    // 学历
+    List<DegreeNode> degreeNodes = new ArrayList<>();
+    List<String> degreeUniques = Arrays.asList("未知","大专","本科","硕士","博士","博士后","MBA","大专以下");
+    for(String degree : degreeUniques) {
+      String uniqueid = EntityType.DEGREE.getName() + ":" + degree;
+      DegreeNode degreeNode = new DegreeNode();
+      degreeNode.setName(degree);
+      degreeNode.setUnique_id(uniqueid);
+      degreeNode.setUnique_ids(Arrays.asList(uniqueid));
+      degreeNodes.add(degreeNode);
+    }
+    client.putEntityListUid(degreeNodes, EntityType.DEGREE.getName());
+    NodeUtil.updateEntity(dClient, degreeNodes);
+
+    // 性别
+    List<GenderNode> genderNodes = new ArrayList<>();
+    List<String> genders = Arrays.asList("男", "女");
+    for(String gender : genders) {
+      String unique = EntityType.GENDER.getName() + ":" + gender;
+      GenderNode genderNode = new GenderNode();
+      genderNode.setName(gender);
+      genderNode.setUnique_id(unique);
+      genderNode.setUnique_ids(Arrays.asList(unique));
+      genderNodes.add(genderNode);
+    }
+    client.putEntityListUid(genderNodes, EntityType.GENDER.getName());
+
+    NodeUtil.updateEntity(dClient, genderNodes);
+
+    // 薪资:月薪
+    List<SalaryNode> salaryNodes = new ArrayList<>();
+    List<String> strings = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",	"15000-20000元	" +
+        "20000-30000元	","30000-50000元	","50000元以上");
+    for (String salary: strings) {
+      String unique = EntityType.SALARY.getName() + ":" + salary;
+      SalaryNode salaryNode = new SalaryNode();
+      salaryNode.setName(unique);
+      salaryNode.setUnique_id(unique);
+      salaryNode.setUnique_ids(Arrays.asList(unique));
+      salaryNodes.add(salaryNode);
+    }
+    client.putEntityListUid(salaryNodes, EntityType.SALARY.getName());
+
+    NodeUtil.updateEntity(dClient, salaryNodes);
+
+    // 薪资：年薪
+    List<SalaryNode> annualSalaryNodes = new ArrayList<>();
+    List<String>  annualSalary = Arrays.asList("10万以下","10-20万",	"20-30万",
+        "30-50万	", "50-100万","100万以上");
+    for (String salary: annualSalary) {
+      String unique = EntityType.ANNUAL.getName() + ":" + salary;
+      SalaryNode salaryNode = new SalaryNode();
+      salaryNode.setName(unique);
+      salaryNode.setUnique_id(unique);
+      salaryNode.setUnique_ids(Arrays.asList(unique));
+      annualSalaryNodes.add(salaryNode);
+    }
+    client.putEntityListUid(annualSalaryNodes, EntityType.ANNUAL.getName());
+
+    NodeUtil.updateEntity(dClient, annualSalaryNodes);
+
+    // 工作年限
+    List<String> seniors = Arrays.asList( "1年" , "1-2年"	, "2-3年", "3-5年"	, "5-10年"	, "10年以上");
+    List<EntityNode> seniortyNodes = new ArrayList<>(seniors.size());
+    NodeUtil.updateEntityNode(seniortyNodes, seniors, EntityType.SENIORITY.getName(), dClient,
+        client);
+
+  }
   public void init() {
 
     // 行业
@@ -145,6 +230,7 @@ public class StartMain {
   public static void main(String[] args) {
 
     StartMain startMain = new StartMain();
+    startMain.update();
   }
 
 

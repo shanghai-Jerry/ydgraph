@@ -1,0 +1,16 @@
+# 按公司统计的候选人总数
+{
+ ID as var (func:uid(%s)) {
+  uid
+  name
+  company_dept {
+    a as count(~candidate_dept)
+  }
+  total as sum(val(a))
+ }
+ query(func:uid(ID)) {
+   name
+   uid
+   total_candidate:val(total)
+ }
+}

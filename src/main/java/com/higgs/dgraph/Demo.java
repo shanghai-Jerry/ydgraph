@@ -1,6 +1,18 @@
 package com.higgs.dgraph;
 
 
+import com.higgs.client.dgrpah.DgraphClient;
+import com.higgs.dgraph.node.EntityNode;
+import com.higgs.dgraph.node.Label;
+import com.higgs.dgraph.node.NodeUtil;
+import com.higgs.dgraph.node.Person;
+import com.higgs.utils.FileUtils;
+import com.higgs.utils.TimeUtil;
+import com.higgs.utils.Util;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,19 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.higgs.client.dgrpah.DgraphClient;
-import com.higgs.dgraph.node.EntityNode;
-import com.higgs.dgraph.node.Label;
-import com.higgs.dgraph.node.NodeUtil;
-import com.higgs.dgraph.node.Person;
 import io.dgraph.DgraphProto;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import com.higgs.utils.FileUtils;
-import com.higgs.utils.TimeUtil;
-import com.higgs.utils.Util;
 
 
 /**
@@ -39,7 +41,8 @@ public class Demo {
   // produ client ip : 172.20.0.8
   // test client ip : 172.20.0.68
   private static final Logger logger = LoggerFactory.getLogger(Demo.class);
-  private DClient dClient;
+
+  private static DClient dClient = new DClient(Config.addressList);
 
   public Demo() {
     dClient = new DClient(Config.TEST_VM_HOSTNAME);
@@ -69,28 +72,6 @@ public class Demo {
     return persons;
   }
 
-  public void QueryTest() {
-    String query = "";
-    try {
-      query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query_test/query_test.query")));
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    query = String.format(query);
-    DgraphProto.Response res = dClient.getDgraphClient()
-        .newTransaction()
-        .query(query);
-    // queryWithVars seems not a good choice
-    // 获取时间
-    // res.getLatency()
-    // Util.formatPrintJson(res.getJson().toStringUtf8());
-    JsonObject jsonObject = new JsonObject(res.getJson().toStringUtf8());
-    String name = jsonObject.getJsonArray("query", new JsonArray()).getJsonObject(0).getString("name");
-    logger.info("name:" + name);
-    parseLatency(res);
-  }
   public void parseLatency(DgraphProto.Response res) {
     long processTime = res.getLatency().getProcessingNs();
     Util.println("latency:", res.getLatency().toString());
@@ -103,31 +84,6 @@ public class Demo {
     DgraphProto.Response res = dClient.getDgraphClient().newTransaction().query(query);
     // 获取时间
     System.out.println(res.getJson().toStringUtf8());
-  }
-  @Deprecated
-  public void QueryDemo() {
-    // Query
-    String query = "";
-    try {
-      query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/query/test.query")));
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    System.out.println("querying ....\n" + query);
-    Map<String, String> vars = new HashMap<>();
-    vars.put("$a", "0x998a17");
-    vars.put("$b", "false");
-    String queryFormat = String.format(query);
-    DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
-        //.query(queryFormat)
-        .queryWithVars(query, vars)
-    ;
-    // 获取时间
-    // res.getLatency()
-    Util.formatPrintJson(res.getJson().toStringUtf8());
-    parseLatency(res);
   }
 
   public DgraphProto.Assigned feedEntities(String entities) {
@@ -145,6 +101,7 @@ public class Demo {
   public void dropSchema() {
     dClient.dropSchema();
   }
+
   public void init() {
     long value = Long.parseLong("0x1780e".substring(2), 16);
     String hexValue = Long.toHexString(98951);
@@ -241,6 +198,56 @@ public class Demo {
     labellease.setUid("0x00");
     Map<String, List<String>> uid = NodeUtil.insertEntity(dClient, Arrays.asList(labellease));
     FileUtils.saveFile("src/main/resources/lease_label_uid_map.txt", uid);
+  }
+
+
+  @Deprecated
+  public void QueryTest() {
+    String query = "";
+    try {
+      query = new String(Files.readAllBytes(Paths.get
+          ("src/main/resources/query_test/query_test.query")));
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    query = String.format(query);
+    DgraphProto.Response res = dClient.getDgraphClient()
+        .newTransaction()
+        .query(query);
+    // queryWithVars seems not a good choice
+    // 获取时间
+    // res.getLatency()
+    Util.formatPrintJson(res.getJson().toStringUtf8());
+    parseLatency(res);
+    // JsonObject jsonObject = new JsonObject(res.getJson().toStringUtf8());
+    //String name = jsonObject.getJsonArray("query", new JsonArray()).getJsonObject(0).getString("name");
+    // logger.info("name:" + name);
+  }
+  @Deprecated
+  public void QueryDemo() {
+    // Query
+    String query = "";
+    try {
+      query = new String(Files.readAllBytes(Paths.get
+          ("src/main/resources/query/test.query")));
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    System.out.println("querying ....\n" + query);
+    Map<String, String> vars = new HashMap<>();
+    vars.put("$a", "0x998a17");
+    vars.put("$b", "false");
+    String queryFormat = String.format(query);
+    DgraphProto.Response res = dClient.getDgraphClient().newTransaction()
+        //.query(queryFormat)
+        .queryWithVars(query, vars)
+        ;
+    // 获取时间
+    // res.getLatency()
+    Util.formatPrintJson(res.getJson().toStringUtf8());
+    parseLatency(res);
   }
 
   public static void main(String[] arg) {

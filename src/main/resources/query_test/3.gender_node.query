@@ -1,0 +1,16 @@
+{
+  var(func:uid(0x23d419)) {
+    company_dept @filter(uid(0x758e7a)){
+      ~candidate_dept @groupby(gender_node) {
+        a as count(uid)
+      }
+      # dept_total as sum(val(a))
+    }
+    # com_total as sum(val(dept_total))
+  }
+  query(func:uid(a)) {
+    uid
+    name
+    total:val(a)
+  }
+}

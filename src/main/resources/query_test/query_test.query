@@ -1,7 +1,7 @@
 {
-  query(func:uid(0x3)) {
+  query(func:uid(0x23d419)) {
     uid
     name
-    unique_id
+
   }
 }

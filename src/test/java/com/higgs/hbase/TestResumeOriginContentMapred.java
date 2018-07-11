@@ -121,16 +121,17 @@ public class TestResumeOriginContentMapred extends Configured implements Tool {
     String input = args[0];
     String confDir = args[1];
     String tableName = args[2];
-    System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");
+    System.setProperty("java.security.krb5.conf", confDir + "/hadoop-config/krb5.conf");
     Configuration conf = new Configuration();
-    conf.addResource(confDir + "/core-site.xml");
-    conf.addResource(confDir + "/hdfs-site.xml");
-    conf.addResource(confDir + "/hbase-site.xml");
-    conf.addResource(confDir + "/yarn-site.xml");
+    conf.addResource(confDir + "/hadoop-config/core-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hdfs-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hbase-site.xml");
+    conf.addResource(confDir + "/hadoop-config/yarn-site.xml");
     conf.set("mapreduce.reduce.shuffle.memory.limit.percent", "0.25");
     UserGroupInformation.setConfiguration(conf);
     try {
-      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM", confDir + "/krb5.keytab");
+      UserGroupInformation.loginUserFromKeytab("idmg@WGQ.HIGGS.COM", confDir + "/hadoop-config" +
+          "/krb5.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }

@@ -64,6 +64,7 @@ public class DgraphQueryClient {
   }
 
   public void shutdown() throws InterruptedException {
+
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
@@ -72,9 +73,9 @@ public class DgraphQueryClient {
     try {
       QueryRequest request = QueryRequest.newBuilder()
           .setUniqueId("深圳市腾讯计算机系统有限公司")
-          .setQueryType(QueryRequest.QueryType.COMPANY_DEPTNAMES_CANDIDATE_MAX_DEGREE)
+          .setQueryType(QueryRequest.QueryType.COMPANY_DEPTNAMES_CANDIDATE_SALARY)
           .setUniqueIdType(QueryRequest.UniqueIdType.COMPANY)
-          .setPage(0)
+          // .setPage(0)
           // .setPageSize(10)
           .setDeptName("研发部")
           .build();

@@ -366,12 +366,13 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "c9301a2caf3422927fa318f777a73312";
+      String name = "10-20万";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.COMPANY.getIndex();
+      int changed = EntityType.ANNUAL.getIndex();
+      logger.info("changed:" + changed);
       switch (changed) {
         case 1:
           type = EntityType.SCHOOL.getName();

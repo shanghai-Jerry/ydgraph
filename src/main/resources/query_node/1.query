@@ -1,0 +1,14 @@
+{
+  var(func:uid(%s)) {
+    company_dept %s {
+      ~candidate_dept @groupby(age_node) {
+        a as count(uid)
+      }
+    }
+  }
+  query(func:uid(a)) {
+    uid
+    name
+    total:val(a)
+  }
+}

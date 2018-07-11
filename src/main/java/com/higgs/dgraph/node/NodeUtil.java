@@ -46,23 +46,23 @@ public class NodeUtil {
 
   public static final long MURMUR_SEED = 0x7f3a21eaL;
 
-  public static List<String> ages = Arrays.asList("20岁以下", "20-25岁", "25-30岁", "30-35岁",
+  public static List<String> ages = Arrays.asList("未知","20岁以下", "20-25岁", "25-30岁", "30-35岁",
       "35岁以上");
 
   public static List<String> degrees = Arrays.asList("未知","大专","本科","硕士","博士","博士后","MBA",
       "大专以下");
 
-  public static List<String> genders = Arrays.asList("男", "女");
-  // 月薪
-  public static List<String> salaries = Arrays.asList("3000元以下","3000-7000元",	"7000-15000元",
+  public static List<String> genders = Arrays.asList("未知","男", "女");
+
+  public static List<String> salaries = Arrays.asList("未知", "3000元以下","3000-7000元",	"7000-15000元",
       "15000-20000元	", "20000-30000元","30000-50000元","50000元以上");
+
   // 年薪
-  public static List<String>  annualSalary = Arrays.asList("10万以下","10-20万",	"20-30万",
-      "30-50万	", "50-100万","100万以上");
+  public static List<String>  annualSalary = Arrays.asList("未知","10万以下","10-20万",	"20-30万",
+      "30-50万", "50-100万","100万以上");
 
-
-  public static List<String> seniors = Arrays.asList( "1年" , "1-2年"	, "2-3年", "3-5年"	, "5-10年"	,
-      "10年以上");
+  public static List<String> seniors = Arrays.asList("未知","1年" , "1-2年"	, "2-3年", "3-5年"	,
+      "5-10年"	, "10年以上");
 
   public static <T extends EntityNode> void getEntityNode(T node, int rangeIntent, int typeIndex) {
     String type = "";
@@ -152,6 +152,22 @@ public class NodeUtil {
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
+  public static void updateEntityNode(List<EntityNode> nodes, List<String>
+      list, String type,DClient dClient, EntityIdClient entityIdClient) {
+    int size = list.size();
+    for(int i = 0; i < size; i++) {
+      String string = list.get(i);
+      String unique = type + ":" + string;
+      EntityNode node = new EntityNode();
+      node.setName(string);
+      node.setUnique_id(unique);
+      node.setUnique_ids(Arrays.asList(unique));
+      nodes.add(node);
+    }
+    entityIdClient.putEntityListUid(nodes, type);
+    NodeUtil.updateEntity(dClient, nodes);
+  }
+
   public static String formatName(String name) {
     if (name != null) {
       return name.trim();
@@ -203,6 +219,75 @@ public class NodeUtil {
     byte[] bytes = src.getBytes();
     long murmurId = Murmur2.hash64(bytes, bytes.length, MURMUR_SEED);
     return String.valueOf(murmurId);
+  }
+
+  public static <T extends EntityNode> int updateEntity(DClient dClient, List<T> list) {
+    // 只更新存在uid的实体
+    Map<String, List<String>> uidMap = new HashMap<>();
+    List<Nodeput> newPutList = new ArrayList<>();
+    for (T item : list) {
+      List<String> pres = new ArrayList<String>();
+      List<Object> values = new ArrayList<>();
+      List<String> edge_pres = new ArrayList<String>();
+      List<String> objectIds = new ArrayList<String>();
+      Nodeput dput = new Nodeput();
+      String uid = item.getUid();
+      if (uid != null && !"".equals(uid)) {
+        item.getAttrValueMap(pres, values);
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setPredicates(pres);
+        dput.setValueObjects(values);
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
+        dput.setUid(uid);
+        newPutList.add(dput);
+      }
+    }
+
+    if (newPutList.size() > 0) {
+      DgraphProto.Assigned ag = dClient.entityAdd(newPutList);
+      if (ag != null) {
+        return newPutList.size();
+      }
+    }
+    return 0;
+  }
+
+  public static <T extends EntityNode> int updateEntity(DClient dClient,
+                                                        List<T> list,
+                                                        List<EdgeFacetPut> edgeFacetPutList) {
+    // 只更新存在uid的实体，包括edgeFacets
+    Map<String, List<String>> uidMap = new HashMap<>();
+    List<Nodeput> newPutList = new ArrayList<>();
+    for (T item : list) {
+      List<String> pres = new ArrayList<String>();
+      List<Object> values = new ArrayList<>();
+      List<String> edge_pres = new ArrayList<String>();
+      List<String> objectIds = new ArrayList<String>();
+      Nodeput dput = new Nodeput();
+      String uid = item.getUid();
+      if (uid != null && !"".equals(uid)) {
+        item.getAttrValueMap(pres, values);
+        item.getEdgeValueMap(edge_pres, objectIds, "getUid");
+        dput.setUniqueId(item.getUnique_id());
+        dput.setPredicates(pres);
+        dput.setValueObjects(values);
+        dput.setEdge_predicates(edge_pres);
+        dput.setObjectIds(objectIds);
+        dput.setUid(uid);
+        newPutList.add(dput);
+      }
+    }
+    if (newPutList.size() > 0) {
+      DgraphProto.Assigned ag = dClient.entityAdd(newPutList);
+      // 补充facets, uidSrc要提前完成填充
+      dClient.entityAddFacets(edgeFacetPutList);
+      if (ag != null) {
+        return newPutList.size();
+      }
+    }
+    return 0;
   }
 
   public static <T extends EntityNode> Map<String, List<String>> insertEntity(DClient dClient,

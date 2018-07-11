@@ -304,18 +304,18 @@ public class CandidateEntityPutToDgraphMapred {
     conf.setInt("checkUid", Integer.valueOf(args[6]));
     conf.setInt("source", Integer.valueOf(args[7]));
     conf.setInt("reduceNum", Integer.valueOf(args[7]));
-    conf.addResource(confDir + "/core-site.xml");
-    conf.addResource(confDir + "/hdfs-site.xml");
-    conf.addResource(confDir + "/hbase-site.xml");
-    conf.addResource(confDir + "/yarn-site.xml");
+    conf.addResource(confDir + "/hadoop-config/core-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hdfs-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hbase-site.xml");
+    conf.addResource(confDir + "/hadoop-config/yarn-site.xml");
     // java.lang.NoSuchMethodError: com.google.protobuf
     // conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST, true);
     conf.setLong("mapreduce.input.fileinputformat.split.maxsize", 1024L * 1024 * 1024);
     conf.set("mapreduce.reduce.shuffle.memory.limit.percent", "0.25");
-    System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");
+    System.setProperty("java.security.krb5.conf", confDir + "/hadoop-config/krb5.conf");
     try {
       UserGroupInformation.loginUserFromKeytab("mindcube@WGQ.HIGGS.COM",
-          confDir + "/krb5_mindcube.keytab");
+          confDir + "/hadoop-config/krb5_mindcube.keytab");
     } catch (IOException e) {
       logger.info("key tab error:" + e.getMessage());
     }

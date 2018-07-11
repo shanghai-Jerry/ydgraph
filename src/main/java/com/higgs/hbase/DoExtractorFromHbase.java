@@ -116,10 +116,10 @@ public class DoExtractorFromHbase extends Configured implements Tool {
     String confDir = args[6];
     // System.setProperty("java.security.krb5.conf", confDir + "/krb5.conf");
     logger.info("tableName is:" + mapTableName + ", Output is:" + output);
-    conf.addResource(confDir + "/core-site.xml");
-    conf.addResource(confDir + "/hdfs-site.xml");
-    conf.addResource(confDir + "/hbase-site.xml");
-    conf.addResource(confDir + "/yarn-site.xml");
+    conf.addResource(confDir + "/hadoop-config/core-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hdfs-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hbase-site.xml");
+    conf.addResource(confDir + "/hadoop-config/yarn-site.xml");
     conf.set("mapreduce.reduce.shuffle.memory.limit.percent", "0.25");
     conf.set("map_columnFamily", mapColumnFamily);
     conf.set("map_quality", mapQualify);

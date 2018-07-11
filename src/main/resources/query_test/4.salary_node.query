@@ -1,0 +1,18 @@
+{
+  var(func:uid(0x23d419)) {
+    num as math(1)
+    company_dept @filter(uid(0x758e7a)){
+      ~candidate_dept {
+       monthly_salary @facets(eq(company_uid, "0x758e7a")) {
+        sum as math(num)
+       }
+      }
+    }
+  }
+
+  query(func:uid(sum)) {
+    uid
+    name
+    total:val(sum)
+  }
+}

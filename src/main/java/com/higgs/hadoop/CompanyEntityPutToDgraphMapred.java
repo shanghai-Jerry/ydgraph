@@ -427,10 +427,10 @@ public class CompanyEntityPutToDgraphMapred extends Configured implements Tool {
     conf.setInt("checkUid", Integer.valueOf(args[6]));
     conf.setInt("source", Integer.valueOf(args[7]));
     conf.setInt("reduceNum", Integer.valueOf(args[7]));
-    conf.addResource(confDir + "/core-site.xml");
-    conf.addResource(confDir + "/hdfs-site.xml");
-    conf.addResource(confDir + "/hbase-site.xml");
-    conf.addResource(confDir + "/yarn-site.xml");
+    conf.addResource(confDir + "/hadoop-config/core-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hdfs-site.xml");
+    conf.addResource(confDir + "/hadoop-config/hbase-site.xml");
+    conf.addResource(confDir + "/hadoop-config/yarn-site.xml");
     // java.lang.NoSuchMethodError: com.google.protobuf
     // conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST, true);
     conf.setLong("mapreduce.input.fileinputformat.split.maxsize", 256L * 1024 * 1024);

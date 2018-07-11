@@ -429,10 +429,15 @@ public class  DClient {
    * 形式: <uid> <> <>
    * @param putList  node 属性的上一层抽象
    */
-  public void entityAdd(List<Nodeput> putList) {
+  /**
+   * 形式: <uid> <> <>
+   */
+  public DgraphProto.Assigned entityAdd(List<Nodeput> putList) {
+    int ids = putList.size();
     StringBuffer stringBuffer = new StringBuffer();
     List<String> stringList = new ArrayList<>();
-    for (Nodeput nodeput : putList) {
+    for (int j = 0; j < ids; j++) {
+      Nodeput nodeput = putList.get(j);
       String uid = nodeput.getUid();
       List<String> predicates = nodeput.getPredicates();
       List<Object> values = nodeput.getValueObjects();
@@ -441,7 +446,6 @@ public class  DClient {
       if (edge_pred.size() != objectIds.size()) {
         logger.fatal("entity add predicates edge length not equal values ");
       }
-      // 属性值重新修改
       int size = predicates.size();
       if (size != values.size()) {
         logger.fatal("entity add predicates attr length not equal values ");
@@ -462,10 +466,11 @@ public class  DClient {
         stringList.add(result);
       }
     }
+    DgraphProto.Assigned ag = null;
     if (stringList.size() > 0) {
-      logger.info("entityAdd multiplyEdgesMutation =====> ");
-      multiplyEdgesMutation(stringList, true);
+      ag = multiplyEdgesMutation(stringList, true);
     }
+    return ag;
   }
 
   /**
