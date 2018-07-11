@@ -1,4 +1,6 @@
-package com.higgs.dgraph;
+package demo;
+
+import com.higgs.dgraph.DClient;
 
 import java.util.List;
 

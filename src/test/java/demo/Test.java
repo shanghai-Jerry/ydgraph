@@ -1,9 +1,12 @@
-package com.higgs.dgraph;
+package demo;
 
 import com.google.protobuf.ByteString;
 
 import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
+import com.higgs.dgraph.Config;
+import com.higgs.dgraph.DClient;
+import com.higgs.dgraph.Demo;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.Candidate;
 import com.higgs.dgraph.node.Company;
