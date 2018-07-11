@@ -14,7 +14,7 @@
     * 最后入库外层的实体对象
 
 
-# 1.2 以rdf格式的方式
+# 1.2 以RDF格式的方式
   子实体支持单个实体对象或者List<EntityNode>的方式
   同样需要建立对应的实体json对象，不过入库的时候会抽取其中的关系和属性值进行入库。
     不是以整个json对象直接入库，见：NodeUtil.insertEntity
@@ -62,6 +62,8 @@
         *  先使用bulk loader导入，然后导出database, 通过导出的rdf绑定外部id和uid之前的关系
         
             EntityNode:getId: Add type to unique_id, this is for exported database remapping uid
+
+        *  参考: importrdf
 
         
 

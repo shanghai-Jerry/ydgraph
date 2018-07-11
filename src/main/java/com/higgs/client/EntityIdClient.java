@@ -47,6 +47,10 @@ public class EntityIdClient {
     this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
   }
 
+  public EntityIdClient(String hostAndPort) {
+    this(ManagedChannelBuilder.forAddress(hostAndPort.split(":")[0], Integer.parseInt(hostAndPort.split(":")[1])).usePlaintext(true));
+  }
+
   public EntityIdClient(ManagedChannelBuilder<?> channelBuilder) {
     channel = channelBuilder.build();
     blockingStub = EntityIdServiceGrpc.newBlockingStub(channel);
@@ -94,7 +98,7 @@ public class EntityIdClient {
    * @param map
    */
   @Deprecated
-  public void putFeedEntity(Map<String, String> map, String type) {
+  public void putFeedEntityWithUidNameMap(Map<String, String> map, String type) {
     Set<Map.Entry<String, String>> entrySet=  map.entrySet();
     Iterator<Map.Entry<String, String>> iterator = entrySet.iterator();
     int batch = 0;

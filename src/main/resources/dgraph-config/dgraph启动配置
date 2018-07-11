@@ -58,7 +58,7 @@ sudo rm -rf  zero/*
 
 # bulk loader
 
- dgraph bulk  -r kb.rdf.gz -s kb.schema -j 4 --map_shards=4 --reduce_shards=1 --http localhost:8001 --zero=localhost:5080
+dgraph bulk  -r kb.rdf.gz -s kb.schema -j 4 --map_shards=4 --reduce_shards=1 --http localhost:8001 --zero=localhost:5080
 
 nohup dgraph server -p /data/youcj/export/out/0/p -w w9 --lru_mb 20000 --query_edge_limit 20000000 --zero localhost:5080 > info2 &
 
