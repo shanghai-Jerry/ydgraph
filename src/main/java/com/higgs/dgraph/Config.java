@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Config {
 
-  public static final List<String> LOCAL_HOST_NAME = Arrays.asList("127.0.0.1:9080");
+  public static final String LOCAL_HOST_NAME = "127.0.0.1";
 
   public static final List<String> addressList =  Arrays.asList(
       "172.20.0.8:9080"
@@ -17,13 +17,16 @@ public class Config {
 
   public static final List<String> TEST_HOSTNAME = Arrays.asList("172.20.0.14:9080");
 
+  // 公司归一化服务地址: 172.20.0.14:26544
   public static final String ENTITY_ID_HOST = "172.20.0.14";
-
-  // 公司归一化服务地址: 172.20.0.14:26543
 
   public static final int ENTITY_ID_SERVICE_PORT = 26544;
 
   public static final int ENTITY_ID_SERVICE_PORT_TEST = 26543;
+  // Dgraph query server
+  public static final String DGRAPH_QUERY_HOST = "172.20.0.14";
+
+  public static final int DGRAPH_QUERY_PORT = 26549;
 
   // 批次小一点速度快一些，但是不能太小
   public  static  int batch = 200;

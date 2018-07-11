@@ -6,11 +6,11 @@
   company_dept {
     a as count(~candidate_dept)
   }
-  total as sum(val(a))
+  total_number as sum(val(a))
  }
- query(func:uid(ID)) {
+ query(func:uid(ID), orderdesc:val(total_number)) {
    name
    uid
-   total_candidate:val(total)
+   total:val(total_number)
  }
 }

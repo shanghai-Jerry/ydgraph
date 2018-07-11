@@ -1,8 +1,8 @@
 # 统计公司的部门数
 {
   query (func:uid(%s)) {
-  uid
-  name
-  dept_number:count(company_dept)
+    uid
+    name
+    dept_number:count(company_dept)
  }
 }

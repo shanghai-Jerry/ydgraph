@@ -6,7 +6,7 @@
       }
     }
   }
-  query(func:uid(a)) {
+  query(func:uid(a),orderdesc:val(a)) {
     uid
     name
     total:val(a)

@@ -3,6 +3,7 @@ package com.higgs.client;
 import com.google.gson.Gson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.higgs.dgraph.Config;
 import com.higgs.dgraph.del.NodeDel;
 import com.higgs.dgraph.node.EntityNode;
 import com.higgs.utils.FileUtils;
@@ -69,7 +70,7 @@ public class DgraphQueryClient {
   }
 
   public static void main(String[] args) throws Exception {
-    DgraphQueryClient client = new DgraphQueryClient("127.0.0.1", 26549);
+    DgraphQueryClient client = new DgraphQueryClient(Config.LOCAL_HOST_NAME, Config.DGRAPH_QUERY_PORT);
     try {
       QueryRequest request = QueryRequest.newBuilder()
           .setUniqueId("深圳市腾讯计算机系统有限公司")

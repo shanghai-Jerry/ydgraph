@@ -4,11 +4,11 @@
        ~candidate_dept @groupby(degree_node) {
          a as count(uid)
        }
-       # dept_total as sum(val(a))
+
      }
-     # com_total as sum(val(dept_total))
+
    }
-   query(func:uid(a)) {
+   query(func:uid(a),orderdesc:val(a)) {
      uid
      name
      total:val(a)

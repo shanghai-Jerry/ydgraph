@@ -1,7 +1,7 @@
 {
   var(func:uid(%s)) {
     num as math(1)
-    company_dept @filter(uid(%s)){
+    company_dept %s {
       ~candidate_dept {
        annual_salary %s {
         sum as math(num)
@@ -10,7 +10,7 @@
     }
   }
 
-  query(func:uid(sum)) {
+  query(func:uid(sum),orderdesc:val(sum)) {
     uid
     name
     total:val(sum)
