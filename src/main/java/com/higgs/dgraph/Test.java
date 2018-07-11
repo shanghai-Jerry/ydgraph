@@ -2,8 +2,6 @@ package com.higgs.dgraph;
 
 import com.google.protobuf.ByteString;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.higgs.client.EntityIdClient;
 import com.higgs.client.dgrpah.DgraphClient;
 import com.higgs.dgraph.del.NodeDel;
@@ -12,7 +10,6 @@ import com.higgs.dgraph.node.Company;
 import com.higgs.dgraph.node.DeptName;
 import com.higgs.dgraph.node.GenderNode;
 import com.higgs.dgraph.node.Industry;
-import com.higgs.dgraph.node.Label;
 import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.NquadUtil;
 import com.higgs.utils.FileUtils;
@@ -21,10 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import io.dgraph.DgraphProto;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -49,26 +44,20 @@ public class Test {
 
   }
 
-  private void test_list_type() {
+  private void putWithJsonFormat() {
     Industry industry = new Industry();
     industry.setUnique_ids(Arrays.asList("1", "2"));
     industry.setUid("0x3d");
     NodeUtil.putEntity(dClient, Arrays.asList(industry));
   }
 
-  private void test_seven() {
+  private void deleteNodeEdgeInDgraph() {
     NodeDel nodeDel = new NodeDel();
     nodeDel.setUniqueId("llb00000000000000000000000100192");
     NodeUtil.deleteEntity(dClient, client, Arrays.asList(nodeDel), "候选人");
   }
 
-  protected void test_concurrently() {
-    Label label = new Label();
-    label.setUnique_id("label_test");
-    label.setName("");
-  }
-
-  private void test_conut_byuid() {
+  private void putWithRDF() {
     demo.dropSchema();
     DeptName deptName = new DeptName();
     String dept_name1 = "DEPTONE";
@@ -115,7 +104,7 @@ public class Test {
 
   }
 
-  private void test_unkonw_format() {
+  private void putWithNquad() {
     String uniqueId = "??平县?\u0000?\u0000?\u0000??\u0000??裰行?\u0000?增庄分销?\u0000";
     DgraphProto.NQuad.Builder builder = DgraphProto.NQuad.newBuilder().setSubject(String.format
         ("_:%s", uniqueId)).setPredicate("name").setObjectValue(DgraphProto.Value.newBuilder()
@@ -138,7 +127,7 @@ public class Test {
 
   }
 
-  private void test_import() {
+  private void putWithNquadWithFacets() {
     List<String> rdf = new ArrayList<>();
     rdf.add(" <0x7b454d> <candidate_dept> <0x4ea8c0> (on_job=true,salary=18000.0) .\n");
     rdf.add(" <0x7b454d> <candidate_dept> <0x63569c> (on_job=false,salary=26000.0) .\n ");
@@ -161,35 +150,7 @@ public class Test {
     FileUtils.saveFiles("src/main/resources/test_dir/test_import_uid.txt", assigned.getUidsMap());
   }
 
-  private void test_concurrently_insert() {
-    List<String> rdf = new ArrayList<>();
-    rdf.add("_:p2 <name> \"p1\"^^<xs:string> .");
-    for (int i = 0; i < 100; i++) {
-
-    }
-  }
-
-  private void test_set_nuqad() {
-    String uid = "0x3";
-    String data = "1) On the manifest details page add a search option to find:\n" + "a) Major " +
-        "Client\n" + "b) Consignee\n" + "c) Forwarder\n" + "d) Mfst#\n" + "e) Arrival Date\n" + "f) Invoice\n" + "g) HBL";
-    DgraphProto.NQuad nQuad = DgraphProto.NQuad.newBuilder().setSubject(String.format(uid))
-        .setPredicate("name").setObjectValue(DgraphProto.Value.newBuilder().setStrVal
-            (data).build()).build();
-
-    DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().addSet(nQuad).build();
-
-    DgraphClient.Transaction txn = this.dClient.getDgraphClient().newTransaction();
-    try {
-      txn.mutate(mutation);
-      txn.commit();
-    } catch (Exception e) {
-    } finally {
-      txn.discard();
-    }
-  }
-
-  private void subEntity() {
+  private void handleSubEntityUid() {
     Candidate candidate = new Candidate();
     candidate.setGender("其他");
     NodeUtil.dealingCandidatesSubNodes(Arrays.asList(candidate), client);
@@ -197,7 +158,7 @@ public class Test {
     logger.info("uid:" + genderNode.getUid());
   }
 
-  private void test_pre_uid() {
+  private void prepareUid() {
     DeptName deptName = new DeptName();
     String dept_name1 = "DEPTONE";
     deptName.setName(dept_name1);
@@ -217,22 +178,15 @@ public class Test {
 
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
+    Logger logger = LoggerFactory.getLogger(Test.class);
     Test test = new Test(dClient);
     // String time = TimeUtil.consumeTime(30000 * 1000);
-    // test.test_list_type();
-    // test.test_conut_byuid();
-    // test.test_unkonw_format();
-    // test.test_import();
-    // test.test_delete_edges();
-    // test.subEntity();
-    Pattern pattern = Pattern.compile("\\(\\d+\\.\\d+\\)");
-    String value = "(2001.1093)广州市越秀区佳马电脑经营部";
-    if (pattern.matcher(value).find()) {
-      test.logger.info("match");
-    }
-    // test.test_set_nuqad();
-    // test.test_pre_uid();
+    // test.putWithJsonFormat();
+    // test.putWithRDF();
+    // test.putWithNquad();
+    // test.putWithNquadWithFacets();
+    // test.handleSubEntityUid();
+    // test.prepareUid();
   }
-
 
 }
