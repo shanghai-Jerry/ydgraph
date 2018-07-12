@@ -17,10 +17,13 @@ import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.NquadUtil;
 import com.higgs.utils.FileUtils;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
@@ -179,6 +182,159 @@ public class Test {
 
   }
 
+
+  private boolean compare(char c) {
+    long r = (byte) c & 0xFF;
+    if (r >= 0xC0 && r <= 0xD6) {
+      return true;
+    }
+    if (r >= 0xD8 && r <= 0xF6) {
+      return true;
+    }
+    if (r >= 0xF8 && r <= 0x2FF) {
+      return true;
+    }
+    if (r >= 0x370 && r <= 0x37D) {
+      return true;
+    }
+    if ( r >= 0x37F && r <= 0x1FFF){
+      return true;
+    }
+    if ( r >= 0x200C && r <= 0x200D){
+      return true;
+    }
+    if ( r >= 0x2070 && r <= 0x218){
+      return true;
+    }
+    if ( r >= 0x2C00 && r <= 0X2FE){
+      return true;
+    }
+    if ( r >= 0x3001 && r <= 0xD7FF){
+      return true;
+    }
+    if ( r >= 0xF900 && r <= 0xFDCF){
+      return true;
+    }
+    if ( r >= 0xFDF0 && r <= 0xFFFD){
+      return true;
+    }
+    if ( r >= 0x10000 && r <= 0xEFFFF){
+      return true;
+    }
+    if(r >= 0x300 && r <= 0x36F) {
+      return  true;
+    }
+    if(r >= 0x203F && r <= 0x2040) {
+      return  true;
+    }
+    if (r == 0xB7) {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean isPNCharsU(String src) {
+    int len = src.length();
+    for (int i = 0; i < len; i++) {
+      char c = src.charAt(i);
+      logger.info("c=" + c +",r:" + Long.toHexString((byte) c & 0xFF));
+      if (c >= 'a' && c <= 'z') {
+        continue;
+      } else if (c >= 'A' && c <= 'Z') {
+        continue;
+      } else if (compare(c)) {
+        continue;
+      } else if (c == '_' || c == ':') {
+        continue;
+      } else if (c >= '0' && c <= '9') {
+        continue;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean compareLexLiteral(char c) {
+    long r = (byte) c & 0xFF;
+    if (r == 0x22 || r == 0x5C || r == 0xA || r == 0xD) {
+      return false;
+    }
+    return true;
+  }
+
+  public Pattern pattern = Pattern.compile("\\\\");
+
+  public boolean lexLiteral(String src) {
+    int len = src.length();
+    if (pattern.matcher(src).find()) {
+      return false;
+    }
+    for (int i = 0; i < len; i++) {
+      char c = src.charAt(i);
+      logger.info("c=" + c +",r:" + Long.toHexString((byte) c & 0xFF));
+      if (compareLexLiteral(c)) {
+        continue;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean isPNChar(char c) {
+    return true;
+  }
+ /*
+  * Convert byte[] to hex string.这里我们可以将byte转换成int，然后利用Integer.toHexString(int)来转换成16进制字符串。
+  * @param src byte[] data
+  * @return hex string
+  */
+  public static String bytesToHexString(byte[] src){
+    StringBuilder stringBuilder = new StringBuilder();
+    if (src == null || src.length <= 0) {
+      return null;
+    }
+    for (int i = 0; i < src.length; i++) {
+      int v = src[i] & 0xFF;
+      String hv = Integer.toHexString(v);
+      if (hv.length() < 2) {
+        stringBuilder.append(0);
+      }
+      stringBuilder.append(hv);
+      stringBuilder.append("-");
+    }
+    return stringBuilder.toString();
+  }
+
+  /**
+   * Convert hex string to byte[]
+   * @param hexString the hex string
+   * @return byte[]
+   */
+  public static byte[] hexStringToBytes(String hexString) {
+    if (hexString == null || hexString.equals("")) {
+      return null;
+    }
+    hexString = hexString.toUpperCase();
+    int length = hexString.length() / 2;
+    char[] hexChars = hexString.toCharArray();
+    byte[] d = new byte[length];
+    for (int i = 0; i < length; i++) {
+      int pos = i * 2;
+      d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
+    }
+    return d;
+  }
+  /**
+   * Convert char to byte
+   * @param c char
+   * @return byte
+   */
+  private static byte charToByte(char c) {
+    return (byte) "0123456789ABCDEF".indexOf(c);
+  }
+
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Logger logger = LoggerFactory.getLogger(Test.class);
@@ -190,6 +346,19 @@ public class Test {
     // test.putWithNquadWithFacets();
     // test.handleSubEntityUid();
     // test.prepareUid();
+    String txt = "服";
+
+    String hex = bytesToHexString(txt.getBytes());
+    logger.info("hex:" + hex+ ",val:" + txt);
+    if (test.lexLiteral(txt)) {
+      logger.info("matched");
+    }
+
+    try {
+      logger.info("convert:" + new String(hexStringToBytes("200D"), "utf-8"));
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
   }
 
 }
