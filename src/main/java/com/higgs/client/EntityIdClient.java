@@ -332,6 +332,63 @@ public class EntityIdClient {
     return rep;
   }
 
+  private List<String> getIds(List<String> names, String type) {
+    List<String> ids = new ArrayList<>();
+    for (String name : names) {
+      ids.add(type + ":" + name);
+    }
+    return ids;
+  }
+
+  private BatchEntityIdResponse entityLinkSimple(String name, String type, boolean useId) {
+    BatchEntityIdResponse rep = null;
+    BatchEntityIdRequest batchEntityIdRequest;
+    if (useId) {
+      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
+          .addEntityReq(EntityIdRequest.newBuilder()
+              .addAllName(getIds(Arrays.asList(name), type))
+              .setType(type).build())
+          .build();
+    } else {
+      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
+          .addEntityReq(EntityIdRequest.newBuilder()
+              .addAllName(Arrays.asList(name))
+              .setType(type).build())
+          .build();
+    }
+    try {
+      rep = blockingStub.entityLinkSimple(batchEntityIdRequest);
+    } catch (StatusRuntimeException e) {
+      logger.error("entityLinkSimple rpc failed: {0}", e.getStatus());
+    }
+    return rep;
+  }
+
+  private BatchEntityIdResponse entityLinkSimple(List<String> names, String type, boolean useId) {
+    BatchEntityIdResponse rep = null;
+    BatchEntityIdRequest batchEntityIdRequest;
+    if (useId) {
+      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
+          .addEntityReq(EntityIdRequest.newBuilder()
+              .addAllName(getIds(names, type))
+              .setType(type).build())
+          .build();
+    } else {
+      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
+          .addEntityReq(EntityIdRequest.newBuilder()
+              .addAllName(names)
+              .setType(type).build())
+          .build();
+    }
+    try {
+      rep = blockingStub.entityLinkSimple(batchEntityIdRequest);
+    } catch (StatusRuntimeException e) {
+      logger.error("entityLinkSimple rpc failed: {0}", e.getStatus());
+    }
+    return rep;
+  }
+
+
   private Map<String, List<String>> reMappingName(String uidMapDict) {
     Map<String, List<String>> uidMap = new HashMap<>();
     FileUtils.readUidMapDict(uidMapDict, uidMap);
@@ -365,17 +422,17 @@ public class EntityIdClient {
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT);
+        Config.ENTITY_ID_SERVICE_PORT_TEST);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "10-20万";
+      String name = "ecd83e0c7a139dba3450b6c28160b422";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.ANNUAL.getIndex();
+      int changed = EntityType.COMPANY.getIndex();
       logger.info("changed:" + changed);
       switch (changed) {
         case 1:

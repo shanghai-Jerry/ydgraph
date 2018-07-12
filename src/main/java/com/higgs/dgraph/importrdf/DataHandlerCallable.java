@@ -61,11 +61,11 @@ public class DataHandlerCallable implements Callable<Long> {
         if (valueMap.containsKey(uid)) {
           logger.info("WFK, it's not possible!!");
         } else {
-          valueMap.put(uid, unique_id);
+          valueMap.put(uid, value);
         }
       } else {
         Map<String, String> valueMap = new HashMap<>();
-        valueMap.put(uid, unique_id);
+        valueMap.put(uid, value);
         formatMap.put(type, valueMap);
       }
     }

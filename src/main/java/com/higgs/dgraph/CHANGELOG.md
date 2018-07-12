@@ -64,6 +64,8 @@
             EntityNode:getId: Add type to unique_id, this is for exported database remapping uid
 
         *  参考: importrdf
+        
+        所有实体最好是通过：type:unique_id = id的形式检查是否存在uid
 
         
 
