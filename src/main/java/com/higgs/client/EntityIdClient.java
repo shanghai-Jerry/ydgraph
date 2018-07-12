@@ -61,7 +61,7 @@ public class EntityIdClient {
   }
   /**
    * 写入实体id服务,支持多个names
-   * @param map
+   * @param map uid -> names
    */
   public void putFeedEntityWithUidNamesMap(Map<String, List<String>> map, String type) {
     Set<Map.Entry<String, List<String>>> entrySet=  map.entrySet();
@@ -95,7 +95,7 @@ public class EntityIdClient {
 
   /**
    * 写入实体id服务，only with single name
-   * @param map
+   * @param map uid -> name
    */
   @Deprecated
   public void putFeedEntityWithUidNameMap(Map<String, String> map, String type) {
@@ -107,9 +107,9 @@ public class EntityIdClient {
       Map.Entry<String, String> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue();
-      entityIdRequestList.add(EntityIdRequest.newBuilder().addName(key)
+      entityIdRequestList.add(EntityIdRequest.newBuilder().addName(value)
           .setType(type)
-          .setId(Long.parseLong(value.substring(2), 16)).build());
+          .setId(Long.parseLong(key.substring(2), 16)).build());
       batch++;
       if (batch > 200) {
         batch = 0;

@@ -1,4 +1,4 @@
-package com.higgs.dgraph.export;
+package com.higgs.dgraph.bulk;
 
 import com.higgs.dgraph.DClient;
 import com.higgs.dgraph.node.NodeUtil;

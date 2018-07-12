@@ -1,10 +1,10 @@
-package com.higgs.dgraph.export;
-
+package com.higgs.dgraph.bulk;
 
 import com.higgs.dgraph.DClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.dgraph.DgraphProto;
 import io.vertx.core.logging.Logger;
@@ -19,7 +19,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * <<licensetext>>
  */
-public class DataHandlerRunnable implements Runnable {
+public class DataHandlerCallable implements Callable<Long> {
 
   private List<String> data;
 
@@ -29,9 +29,9 @@ public class DataHandlerRunnable implements Runnable {
 
   private long successedEdges = 0;
 
-  private static final Logger logger = LoggerFactory.getLogger(DataHandlerRunnable.class);
+  private static final Logger logger = LoggerFactory.getLogger(DataHandlerCallable.class);
 
-  public DataHandlerRunnable(DClient dClient, List<String> data) {
+  public DataHandlerCallable(DClient dClient, List<String> data) {
     this.dClient = dClient;
     this.data = data;
   }
@@ -42,7 +42,7 @@ public class DataHandlerRunnable implements Runnable {
     }
   }
 
-  private void processor() {
+  private long processor() {
     long started = System.currentTimeMillis();
     List<String> formatRdf = new ArrayList<>();
     formatRdf(this.data, formatRdf);
@@ -56,11 +56,12 @@ public class DataHandlerRunnable implements Runnable {
     long end = System.currentTimeMillis();
     logger.info("map:" + Thread.currentThread().getId() + ", successedEdges:" + successedEdges +
         ", errorNumber:" + errorNumber + ", spend:" + (end - started) + " ms/" + size);
-
+    this.data.clear();
+    formatRdf.clear();
+    return successedEdges;
   }
-
   @Override
-  public void run() {
-    processor();
+  public Long call() throws Exception {
+    return processor();
   }
 }

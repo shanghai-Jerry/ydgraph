@@ -101,8 +101,10 @@ public class BulkFeedEntityLoader {
       Scanner sc = new Scanner(gzipInputStream);
       while (sc.hasNextLine()) {
         String line = sc.nextLine();
-        rdf.add(line);
-        batch++;
+        if (line.contains("<unique_id>")) {
+          rdf.add(line);
+          batch++;
+        }
         if (batch >= batchSize) {
           tasks++;
           loading(rdf);
@@ -124,8 +126,10 @@ public class BulkFeedEntityLoader {
       BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(rdfDir)));
       String line = bufferedReader.readLine();
       while (line != null) {
-        rdf.add(line + "\n");
-        batch++;
+        if (line.contains("<unique_id>")) {
+          rdf.add(line);
+          batch++;
+        }
         if (batch >= batchSize) {
           tasks++;
           loading(rdf);
@@ -163,7 +167,7 @@ public class BulkFeedEntityLoader {
     logger.info("eserver:" + eserver + ", rdf:" + rdfDir + ", batchSize:" + batchSize);
     BulkFeedEntityLoader bulkFeedEntityLoader = new BulkFeedEntityLoader(eserver, numberThread);
     try {
-      bulkFeedEntityLoader.processFile(rdfDir, batchSize, numberThread);
+      bulkFeedEntityLoader.processFiles(rdfDir, batchSize, numberThread);
     } catch (IOException e) {
       logger.info("[BulkFeedEntityLoader] => " + e.getMessage());
     }
