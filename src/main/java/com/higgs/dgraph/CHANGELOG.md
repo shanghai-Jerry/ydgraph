@@ -101,12 +101,25 @@
 
    * 在leader node 节点运行，导出database
 
-    ```
-    curl localhost:8080/admin/export &
+
+      curl localhost:8080/admin/export & 
     
-    ```
-   如果想要reuse导出db的uid? 并指定新生成的out目录下的p重新server？ 如何操作? 需要保留zw和w目录么 --- 暂时不支持
- 
+   多台server机器的话，只要在一台上运行导出命令，所有机器都会一起export数据。
+   
+   eg:
+   
+    server1: dgraph-1-2018-07-11-17-55.rdf.gz, dgraph-1-2018-07-11-17-55.schema.gz
+    server2: dgraph-2-2018-07-11-17-55.rdf.gz, dgraph-2-2018-07-11-17-55.rdf.gz
+    server3: dgraph-3-2018-07-11-17-55.rdf.gz, dgraph-3-2018-07-11-17-55.schema.gz
+    ....
+    ....
+    
+   
+   当replica=1, 每台机器上的数据是独立的，不重复的.
+   
+   当replica=3, 大于1的时候，每台机器上的数据分布有待确认？ 
+    
+    
    Note:想要快速恢复数据：通过exported数据重新导入，然后在导出，通过再导出的数据绑定数据的uid
     
    详细情况参考：https://docs.dgraph.io/deploy/#export-database
