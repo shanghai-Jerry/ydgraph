@@ -1,4 +1,4 @@
-1. Dgraph入库的操作流程
+# Dgraph入库的操作流程
 
 现有操作流程介绍
 
@@ -100,9 +100,10 @@
        http://localhost:6080/state
 
    * 在leader node 节点运行，导出database
-
-
-      curl localhost:8080/admin/export & 
+   
+   ```
+   curl localhost:8080/admin/export &
+   ```
     
    多台server机器的话，只要在一台上运行导出命令，所有机器都会一起export数据。
    
@@ -123,6 +124,7 @@
    Note:想要快速恢复数据：通过exported数据重新导入，然后在导出，通过再导出的数据绑定数据的uid
     
    详细情况参考：https://docs.dgraph.io/deploy/#export-database
+   
 
 
 
