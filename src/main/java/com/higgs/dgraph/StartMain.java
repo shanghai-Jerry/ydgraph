@@ -43,6 +43,14 @@ public class StartMain {
     System.out.println("finished");
   }
 
+  /**
+   * 生成一些基础实体的rdf文件
+   * ID => type:MD5
+   * @param industryDict
+   * @param majorDict
+   * @param schoolDict
+   * @param out
+   */
   public void initWithRDFfile(String industryDict, String majorDict, String schoolDict, String
       out) {
     // with rdf
@@ -144,6 +152,9 @@ public class StartMain {
     FileUtils.saveFile(out + "/seniors_rdf.txt",  entityNquads, false);
   }
 
+  /**
+   * 更新一些基础实体的信息
+   */
   public void update() {
 
     // 年龄
@@ -229,23 +240,27 @@ public class StartMain {
         client);
 
   }
-  public void init() {
 
+  /**
+   * ID => type:unique_id
+   * 初始化一些基础实体
+   */
+  public void init() {
     // 行业
     String dict = "src/main/resources/industry_dump_dict.txt";
     IndustryToDgraph industryToDgraph = new IndustryToDgraph(dClient, client);
     // with rdf
-    // industryToDgraph.initWithRdf(dict);
+    industryToDgraph.initWithRdf(dict,true);
 
     // 专业
     String dictPath = "src/main/resources/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph(dClient, client);
-    // majorToDgraph.initWithRdf(dictPath);
+    majorToDgraph.initWithRdf(dictPath, true);
 
     // 学校
     SchoolToDgraph schoolToDgraph = new SchoolToDgraph(dClient, client);
     String schoolPath = "src/main/resources/school_dump_dict.txt";
-    // schoolToDgraph.initWithRdf(schoolPath);
+    schoolToDgraph.initWithRdf(schoolPath, true);
 
     // 年龄
     List<AgeNode> ageNodes = new ArrayList<>();
