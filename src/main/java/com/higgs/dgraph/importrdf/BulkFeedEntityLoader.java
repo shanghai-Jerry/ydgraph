@@ -149,7 +149,8 @@ public class BulkFeedEntityLoader {
       handleResult(tasks, batchSize);
     }
     executor.shutdown();
-    logger.info(rdfDir + " => total tasks:" + tasks);
+    logger.info("total spend:" + TimeUtil.consumeTime(totalTime.get()) + ", totalCount:" + counter.get());
+    logger.info(rdfDir + " => last tasks:" + tasks);
   }
 
 
