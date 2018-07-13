@@ -42,6 +42,7 @@ message QueryRequest {
 
 message QueryRespond {
     string result_json=1;
+    uint64 processing_ns = 2;
 }
 
 

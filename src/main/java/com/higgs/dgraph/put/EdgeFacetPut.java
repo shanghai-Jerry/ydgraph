@@ -28,11 +28,11 @@ public class EdgeFacetPut {
   private List<String> facets = new ArrayList<>();
   public EdgeFacetPut(String src, String predicate, EdgeFacetPut.PredicateType predicateType,
                       String dst, List<String> facets) {
-    this.src = (src);
+    this.src = src;
     this.predicate = predicate;
     this.predicateType = predicateType;
     this.dst = dst;
-    this.facets = (facets);
+    this.facets = facets;
   }
 
   public EdgeFacetPut(String src, String predicate, EdgeFacetPut.PredicateType predicateType,

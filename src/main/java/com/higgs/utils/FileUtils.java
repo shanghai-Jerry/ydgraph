@@ -23,7 +23,27 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+
 public class FileUtils {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+  /**
+   * 读取对应的quey语句文件
+   *
+   * @param filePath fileName对应QueryType的枚举值
+   * @return query
+   * @throws IOException 读取文件异常
+   */
+  public static String readQueryFile(String filePath) {
+    try {
+      return new String(Files.readAllBytes(Paths.get(filePath)));
+    } catch (IOException e) {
+      LOGGER.info("[readQueryFile error] => " + e.getMessage());
+    }
+    return "";
+  }
 
   public static void readUidMapDict(String filePath, Map<String, List<String>> uidMap) {
     BufferedReader reader = null;

@@ -219,7 +219,7 @@ public class EntityIdClient {
     return uidMap;
   }
 
-  public  List<String> checkUidListWithName(List<String> names, String type) {
+  public  List<String> getUidListWithName(List<String> names, String type) {
     List<String> uids = new ArrayList<>();
     int outSize = names.size();
     List<EntityIdRequest> entityIdRequestList = new ArrayList<EntityIdRequest>();
@@ -415,24 +415,24 @@ public class EntityIdClient {
     List<String> uids = new ArrayList<>();
     FileUtils.readFile(src, lines);
     getNames(lines, names);
-    List<String> uid = this.checkUidListWithName(names, "公司");
+    List<String> uid = this.getUidListWithName(names, "公司");
     getUids(uid, uids);
     FileUtils.saveFile(dst, uids, false);
   }
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT_TEST);
+        Config.ENTITY_ID_SERVICE_PORT);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "ecd83e0c7a139dba3450b6c28160b422";
+      String name = "atm00000000000000000000000832807";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.COMPANY.getIndex();
+      int changed = EntityType.CANDIDATE.getIndex();
       logger.info("changed:" + changed);
       switch (changed) {
         case 1:

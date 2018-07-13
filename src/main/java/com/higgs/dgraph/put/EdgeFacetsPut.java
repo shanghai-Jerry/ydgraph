@@ -3,7 +3,7 @@ package com.higgs.dgraph.put;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Deprecated
 public class EdgeFacetsPut {
 
   public enum PredicateType {
