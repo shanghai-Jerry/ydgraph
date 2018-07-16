@@ -1,0 +1,28 @@
+syntax = "proto3";
+package kb.rpc.dept;
+
+option java_multiple_files = true;
+
+service DeptNormService {
+    rpc normDept(BatchDeptRequest) returns (BatchDeptResponse) {
+    };
+}
+
+message DeptRequest{
+    string name=1;
+}
+message BatchDeptRequest{
+    repeated DeptRequest dept_req=1;
+}
+
+message DeptResponse{
+    string normed=1;
+    int64 code=2;
+    //　是否归一成功
+    bool  ok=3;
+    string msg=4;
+}
+
+message BatchDeptResponse{
+    repeated DeptResponse dept_res=1;
+}
