@@ -335,6 +335,15 @@ public class Test {
     return (byte) "0123456789ABCDEF".indexOf(c);
   }
 
+  protected Pattern natureCodePattern = Pattern.compile("^\\d+$");
+
+  protected boolean filterCompanyNatureCode(String natureCode) {
+    if (natureCode == null || "".equals(natureCode) || "空".equals(natureCode)) {
+      return false;
+    }
+    return !natureCodePattern.matcher(natureCode.trim()).matches();
+  }
+
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Logger logger = LoggerFactory.getLogger(Test.class);
@@ -346,19 +355,10 @@ public class Test {
     // test.putWithNquadWithFacets();
     // test.handleSubEntityUid();
     // test.prepareUid();
-    String txt = "服";
+    String txt = "4546645";
+    Boolean match = test.filterCompanyNatureCode(txt);
+    logger.info("match:" + match);
 
-    String hex = bytesToHexString(txt.getBytes());
-    logger.info("hex:" + hex+ ",val:" + txt);
-    if (test.lexLiteral(txt)) {
-      logger.info("matched");
-    }
-
-    try {
-      logger.info("convert:" + new String(hexStringToBytes("200D"), "utf-8"));
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-    }
   }
 
 }

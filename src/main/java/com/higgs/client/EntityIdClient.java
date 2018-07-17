@@ -335,7 +335,7 @@ public class EntityIdClient {
   private List<String> getIds(List<String> names, String type) {
     List<String> ids = new ArrayList<>();
     for (String name : names) {
-      ids.add(type + ":" + name);
+      ids.add(type + ":" + NodeUtil.generateEntityUniqueId(name));
     }
     return ids;
   }
@@ -427,12 +427,12 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "atm00000000000000000000000832807";
+      String name = "10";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.CANDIDATE.getIndex();
+      int changed = EntityType.COMPANY.getIndex();
       logger.info("changed:" + changed);
       switch (changed) {
         case 1:

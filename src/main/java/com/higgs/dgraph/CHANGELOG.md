@@ -48,7 +48,9 @@
 
 ## 2018.5.29
    * uidReMapping的时候如果获取unique_ids为空时， 使用unique_id;
+   
    * 增加对实体unique_id的检查: NodeUtil.checkUniqueId
+   
    * 支持添加facet
 
 ## 2018.6.5
@@ -57,15 +59,16 @@
 
 ## 2018.7.5
 
-   *  rdf文件所有实体的xid : type + : + unique_id （NodeUtil.getEntityNquads()）
-
    *  先使用bulk loader导入，然后导出database, 通过导出的rdf绑定外部id和uid之前的关系
         
       EntityNode:getId: Add type to unique_id, this is for exported database remapping uid
 
    *  参考: importrdf
         
-      所有实体最好是通过：type:unique_id = id的形式检查是否存在uid
+      所有实体统一使用：xid => type:NodeUtil.generateEntityUniqueId() = id的形式检查是否存在对应的uid
+      
+      注意事项:
+        
 
         
 
