@@ -155,7 +155,7 @@ public class BulkFeedEntityLoader {
     int batch = 0;
     List<String> rdf = new ArrayList<>();
     if (rdfDir.endsWith("rdf.gz")) {
-      // TODO ... 存在编码的读取问题
+      // FIX ... 修复编码的读取问题
       GZIPInputStream gzipInputStream = new GZIPInputStream(new FileInputStream(new File(rdfDir)));
       InputStreamReader isr = new InputStreamReader(gzipInputStream, "UTF-8");
       BufferedReader bufferedReader = new BufferedReader(isr);
