@@ -17,12 +17,16 @@ import com.higgs.dgraph.node.NodeUtil;
 import com.higgs.dgraph.node.NquadUtil;
 import com.higgs.utils.FileUtils;
 
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import io.dgraph.DgraphProto;
@@ -355,10 +359,62 @@ public class Test {
     // test.putWithNquadWithFacets();
     // test.handleSubEntityUid();
     // test.prepareUid();
-    String txt = "4546645";
-    Boolean match = test.filterCompanyNatureCode(txt);
-    logger.info("match:" + match);
-
+    String dept = "/Users/devops/Documents/知识图谱/dept_name_resume.txt";
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(dept, dict);
+    Set<String> keys = new HashSet<>();
+    List<String> result = new ArrayList<>();
+    List<String> filter = Arrays.asList("分公司", "办公室", "集团", "公司", "其他", "兼职", "初中", "未填写", "元/月");
+    for (String line : dict) {
+      boolean needF = false;
+      String []sp = line.split("\\u0001");
+      if (sp.length == 2) {
+        String key = sp[0];
+        for (String f : filter) {
+          if (key.contains(f)) {
+            needF = true;
+            break;
+          }
+        }
+        if (needF) {
+          continue;
+        }
+        int frq = Integer.parseInt(sp[1]);
+        if (frq >= 1000) {
+          String formatKey = key.toLowerCase()
+              .replace("部", "")
+              .replace("部门", "")
+              .replace("中心", "")
+              .replace("科", "")
+              .replace("门","")
+              .replace("一", "")
+              .replace("二", "")
+              .trim();
+          if (formatKey.length() >=2) {
+            keys.add(formatKey);
+          }
+        }
+      }
+    }
+    int index = 0;
+    for (String key : keys) {
+      List<String> diff = Arrays.asList("办", "处");
+      boolean need = true;
+      for(String end : diff) {
+        if (key.endsWith(end)) {
+          need = false;
+        }
+      }
+      if (need) {
+        String rep = index + "\t" + key + "部" + "\t" + key;
+        result.add(rep);
+      } else {
+        String rep = index + "\t" + key + "\t" + key;
+        result.add(rep);
+      }
+      index++;
+    }
+    FileUtils.saveFile("/Users/devops/Documents/部门归一化/dept_dict_enhance_s.txt", result, false);
   }
 
 }
