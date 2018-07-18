@@ -99,6 +99,7 @@ public class BulkLoader {
     int tasks = 0;
     List<String> rdf = new ArrayList<>();
     if (rdfDir.endsWith("rdf.gz")) {
+      // TODO ... 存在编码的读取问题
       GZIPInputStream gzipInputStream =  new GZIPInputStream(new FileInputStream(new File(rdfDir)));
       Scanner sc = new Scanner(gzipInputStream);
       while(sc.hasNextLine()) {
