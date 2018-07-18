@@ -66,6 +66,10 @@ public class DemoTest {
     //String name = jsonObject.getJsonArray("query", new JsonArray()).getJsonObject(0).getString("name");
     // logger.info("name:" + name);
   }
+  @Test
+  public void test () {
+    logger.info("res:" + 20* 1.0/ (20 * 2));
+  }
 
   @Test
   public void queryDemo() {

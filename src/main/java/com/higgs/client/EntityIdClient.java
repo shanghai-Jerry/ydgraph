@@ -332,45 +332,32 @@ public class EntityIdClient {
     return rep;
   }
 
-  private List<String> getIds(List<String> names, String type) {
+  private List<String> getIds(List<String> names, String type, boolean md5) {
     List<String> ids = new ArrayList<>();
-    for (String name : names) {
-      ids.add(type + ":" + NodeUtil.generateEntityUniqueId(name));
+    if (md5) {
+      for (String name : names) {
+        ids.add(type + ":" + NodeUtil.generateEntityUniqueId(name));
+      }
+    } else {
+      for (String name : names) {
+        ids.add(type + ":" + name);
+      }
     }
+
     return ids;
   }
 
-  private BatchEntityIdResponse entityLinkSimple(String name, String type, boolean useId) {
-    BatchEntityIdResponse rep = null;
-    BatchEntityIdRequest batchEntityIdRequest;
-    if (useId) {
-      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
-          .addEntityReq(EntityIdRequest.newBuilder()
-              .addAllName(getIds(Arrays.asList(name), type))
-              .setType(type).build())
-          .build();
-    } else {
-      batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
-          .addEntityReq(EntityIdRequest.newBuilder()
-              .addAllName(Arrays.asList(name))
-              .setType(type).build())
-          .build();
-    }
-    try {
-      rep = blockingStub.entityLinkSimple(batchEntityIdRequest);
-    } catch (StatusRuntimeException e) {
-      logger.error("entityLinkSimple rpc failed: {0}", e.getStatus());
-    }
-    return rep;
+  private BatchEntityIdResponse entityLinkSimple(String name, String type, boolean useId, boolean md5) {
+    return entityLinkSimple(Arrays.asList(name), type, useId, md5);
   }
 
-  private BatchEntityIdResponse entityLinkSimple(List<String> names, String type, boolean useId) {
+  private BatchEntityIdResponse entityLinkSimple(List<String> names, String type, boolean useId, boolean md5) {
     BatchEntityIdResponse rep = null;
     BatchEntityIdRequest batchEntityIdRequest;
     if (useId) {
       batchEntityIdRequest = BatchEntityIdRequest.newBuilder()
           .addEntityReq(EntityIdRequest.newBuilder()
-              .addAllName(getIds(names, type))
+              .addAllName(getIds(names, type, md5))
               .setType(type).build())
           .build();
     } else {
@@ -420,74 +407,78 @@ public class EntityIdClient {
     FileUtils.saveFile(dst, uids, false);
   }
 
+  public String chooseType(int changed, String name, String unique_id) {
+    String type = "";
+    switch (changed) {
+      case 1:
+        type = EntityType.SCHOOL.getName();
+        break;
+      case 2:
+        type = EntityType.COMPANY.getName();
+        break;
+      case 3:
+        type = EntityType.INDUSTRY.getName();
+        break;
+      case 4:
+        type = EntityType.CANDIDATE.getName();
+        break;
+      case 5:
+        type = EntityType.COMPANY_DEPT.getName();
+        break;
+      case 6:
+        type = EntityType.MAJOR.getName();
+        break;
+      case 7:
+        type = EntityType.AGE.getName();
+        break;
+      case 8:
+        type = EntityType.DEGREE.getName();
+        break;
+      case 9:
+        type = EntityType.GENDER.getName();
+        name = type + ":" + name;
+        break;
+
+      case 10:
+        type = EntityType.SENIORITY.getName();
+        break;
+      case 11:
+        type = EntityType.SALARY.getName();
+
+        break;
+      case 12:
+        type = EntityType.ANNUAL.getName();
+        break;
+
+      default:
+    }
+    if (!"".equals(unique_id)) {
+      return type + ":" + unique_id;
+    }
+    return type + ":" + name;
+  }
+
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT);
+        Config.ENTITY_ID_SERVICE_PORT_TEST);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "10";
+      String name = "携程计算机技术（上海）有限公司";
       String deptName = "研发部";
       String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
       logger.info("dept:" + unique_id);
       String type = "";
-      int changed = EntityType.COMPANY.getIndex();
+      int changed = EntityType.COMPANY_DEPT.getIndex();
       logger.info("changed:" + changed);
-      switch (changed) {
-        case 1:
-          type = EntityType.SCHOOL.getName();
-          break;
-        case 2:
-          type = EntityType.COMPANY.getName();
-          break;
-        case 3:
-          type = EntityType.INDUSTRY.getName();
-          break;
-        case 4:
-          type = EntityType.CANDIDATE.getName();
-          break;
-        case 5:
-          name  = unique_id;
-          type = EntityType.COMPANY_DEPT.getName();
-          break;
-        case 6:
-          type = EntityType.MAJOR.getName();
-          break;
-        case 7:
-          type = EntityType.AGE.getName();
-          name = type + ":" + name;
-          break;
-        case 8:
-          type = EntityType.DEGREE.getName();
-          name = type + ":" + name;
-          break;
-        case 9:
-          type = EntityType.GENDER.getName();
-          name = type + ":" + name;
-          break;
-
-        case 10:
-          type = EntityType.SENIORITY.getName();
-          name = type + ":" + name;
-          break;
-        case 11:
-          type = EntityType.SALARY.getName();
-          name = type + ":" + name;
-          break;
-        case 12:
-          type = EntityType.ANNUAL.getName();
-          name = type + ":" + name;
-          break;
-
-
-        default:
-      }
-      BatchEntityIdResponse rep = client.entityLinkSimple(BatchEntityIdRequest.newBuilder()
-            .addEntityReq(EntityIdRequest.newBuilder()
-                .addAllName(Arrays.asList(name))
-                .setType(type).build())
-          .build());
+      // switch
+      String res = client.chooseType(changed, name, unique_id);
+      String [] split = res.split(":");
+      type = split[0];
+      String key = split[1];
+      logger.info("res =>" + res);
+      BatchEntityIdResponse rep = client.entityLinkSimple(key, type,true, false);
       if (rep != null) {
         EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
         long id = entityIdResponse.getId();
