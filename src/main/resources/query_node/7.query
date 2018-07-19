@@ -3,8 +3,11 @@
  ID as var (func:uid(%s)) {
   uid
   name
-  company_dept {
-    a as count(~candidate_dept)
+  company_dept %s {
+    ~candidate_dept %s {
+       number as count(unique_id)
+    }
+    a as sum(val(number))
   }
   total_number as sum(val(a))
  }

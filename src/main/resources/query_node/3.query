@@ -1,7 +1,7 @@
 {
   var(func:uid(%s)) {
     company_dept %s {
-      ~candidate_dept @groupby(gender_node) {
+      ~candidate_dept %s @groupby(gender_node) {
         a as count(uid)
       }
     }

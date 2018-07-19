@@ -465,12 +465,12 @@ public class EntityIdClient {
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      for (String name : Arrays.asList("印刷媒体设计与制作")) {
+      for (String name : Arrays.asList("深圳市腾讯计算机系统有限公司")) {
         String deptName = "研发部";
         String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
         logger.info("dept:" + unique_id);
         String type = "";
-        int changed = EntityType.MAJOR.getIndex();
+        int changed = EntityType.COMPANY.getIndex();
         logger.info("changed:" + changed);
         // switch
         String res = client.chooseType(changed, name, "");

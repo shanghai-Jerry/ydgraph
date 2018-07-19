@@ -4,7 +4,10 @@
        name
        company_dept %s {
          name
-         total_candidate as count(~candidate_dept)
+         ~candidate_dept %s {
+             number as count(unique_id)
+         }
+         total_candidate as sum(val(number))
        }
      }
      query(func:uid(total_candidate)) {

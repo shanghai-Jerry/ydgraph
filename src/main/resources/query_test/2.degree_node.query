@@ -1,6 +1,6 @@
 {
-   var(func:uid(0x23d419)) {
-     company_dept @filter(uid(0x758e7a)){
+   var(func:uid(0x25c)) {
+     company_dept @filter(uid(0x1ef2389)){
        ~candidate_dept @groupby(degree_node) {
          a as count(uid)
        }

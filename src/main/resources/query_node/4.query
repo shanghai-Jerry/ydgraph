@@ -2,7 +2,7 @@
   var(func:uid(%s)) {
     num as math(1)
     company_dept %s {
-      ~candidate_dept {
+      ~candidate_dept %s {
        annual_salary %s {
         sum as math(num)
        }
