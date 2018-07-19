@@ -460,34 +460,35 @@ public class EntityIdClient {
 
   public static void main(String[] args) throws Exception {
     EntityIdClient client = new EntityIdClient(Config.ENTITY_ID_HOST,
-        Config.ENTITY_ID_SERVICE_PORT_TEST);
+        Config.ENTITY_ID_SERVICE_PORT);
     //client.getNameUids("/Users/devops/Documents/知识图谱/company/unknow_format_company.txt","src/main/resources/test_dir/unknow_format_uid.txt");
     // client.reMappingName("/Users/devops/Documents/知识图谱/candidate/00/uidmap/part-m-00000");
     try {
 
-      String name = "携程计算机技术（上海）有限公司";
-      String deptName = "研发部";
-      String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
-      logger.info("dept:" + unique_id);
-      String type = "";
-      int changed = EntityType.COMPANY_DEPT.getIndex();
-      logger.info("changed:" + changed);
-      // switch
-      String res = client.chooseType(changed, name, unique_id);
-      String [] split = res.split(":");
-      type = split[0];
-      String key = split[1];
-      logger.info("res =>" + res);
-      BatchEntityIdResponse rep = client.entityLinkSimple(key, type,true, false);
-      if (rep != null) {
-        EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
-        long id = entityIdResponse.getId();
-        String values = "0x" + Long.toHexString(id);
-        boolean ok = entityIdResponse.getOk();
-        String msg = entityIdResponse.getMsg();
-        String matchName = entityIdResponse.getMatchedName();
-        System.out.println("id/value:" + id + "," + values + ",ok:" + ok + ",msg:" + msg + "," +
-            "matchName:" + matchName);
+      for (String name : Arrays.asList("印刷媒体设计与制作")) {
+        String deptName = "研发部";
+        String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
+        logger.info("dept:" + unique_id);
+        String type = "";
+        int changed = EntityType.MAJOR.getIndex();
+        logger.info("changed:" + changed);
+        // switch
+        String res = client.chooseType(changed, name, "");
+        String [] split = res.split(":");
+        type = split[0];
+        String key = split[1];
+        logger.info("res =>" + res);
+        BatchEntityIdResponse rep = client.entityLinkSimple(key, type,true, true);
+        if (rep != null) {
+          EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
+          long id = entityIdResponse.getId();
+          String values = "0x" + Long.toHexString(id);
+          boolean ok = entityIdResponse.getOk();
+          String msg = entityIdResponse.getMsg();
+          String matchName = entityIdResponse.getMatchedName();
+          System.out.println("id/value:" + id + "," + values + ",ok:" + ok + ",msg:" + msg + "," +
+              "matchName:" + matchName);
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();

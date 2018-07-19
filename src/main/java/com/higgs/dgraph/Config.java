@@ -8,9 +8,9 @@ public class Config {
   public static final String LOCAL_HOST_NAME = "127.0.0.1";
 
   public static final List<String> addressList =  Arrays.asList(
-      "172.20.0.8:9080"
-      // "172.20.0.9:9080"
-      // "172.20.0.10:9080"
+      "172.20.0.8:9080",
+      "172.20.0.9:9080",
+      "172.20.0.10:9080"
   );
 
   public static final List<String> TEST_VM_HOSTNAME = Arrays.asList("172.20.0.68:9080");

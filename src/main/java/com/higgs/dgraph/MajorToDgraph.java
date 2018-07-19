@@ -4,6 +4,7 @@ package com.higgs.dgraph;
 import com.higgs.client.EntityIdClient;
 import com.higgs.dgraph.node.Major;
 import com.higgs.dgraph.node.NodeUtil;
+import com.higgs.dgraph.node.School;
 import com.higgs.utils.FileUtils;
 
 import java.util.ArrayList;
@@ -56,10 +57,11 @@ public class MajorToDgraph {
         major.setType("专业");
         if (isRdf) {
           major.setUnique_id("专业" + ":" + NodeUtil.generateEntityUniqueId(name));
-        } else  {
+          major.setUnique_ids(Arrays.asList("专业" + ":" +NodeUtil.generateEntityUniqueId(code), "专业" + ":" +NodeUtil.generateEntityUniqueId(name)));
+        } else {
           major.setUnique_id(name);
+          major.setUnique_ids(Arrays.asList(code, name));
         }
-        major.setUnique_ids(Arrays.asList(code, name));
         names.add(name);
         if (codeInt == 0) {
           continue;
@@ -71,48 +73,39 @@ public class MajorToDgraph {
 
   public void init(String dictPath, boolean isRdf) {
     List<String> dictLines = new ArrayList<String>();
-    List<Major> majors = new ArrayList<Major>();
     FileUtils.readFiles(dictPath, dictLines);
     getMajor(dictLines, this.majors, isRdf);
   }
 
 
-  public void initWithRdf(String dictPath,  boolean isRdf) {
+  public void initWithRdf(String dictPath, boolean isRdf) {
     String type = "专业";
     init(dictPath, isRdf);
-    Map<String,  List<String>> uidMap = NodeUtil.insertEntity(dClient, majors);
+    Map<String, List<String>> uidMap = NodeUtil.insertEntity(dClient, majors);
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
   }
 
   public void generateRDF(String out) {
     List<String> entityNquads = NodeUtil.getEntityNquads(this.majors, new ArrayList<>());
-    FileUtils.saveFile(out + "/major_rdf.txt",  entityNquads, false);
+    FileUtils.saveFile(out + "/major_rdf.txt", entityNquads, false);
   }
 
-
-  /**
-   * this way is better and faster than NQuad, you'd better try this muc h more.
-   */
-  public void initWithJson(String dictPath) {
+  public void initWithJson(String filePath) {
     String type = "专业";
     List<String> dictLines = new ArrayList<String>();
-    List<Major> majors = new ArrayList<Major>();
-    FileUtils.readFiles(dictPath, dictLines);
+    List<Major> majors = new ArrayList<>();
+    FileUtils.readFiles(filePath, dictLines);
     getMajor(dictLines, majors, true);
     System.out.println("get all majors :" + majors.size());
     Map<String,  List<String>> uidMap = NodeUtil.putEntity(dClient, majors);
     FileUtils.saveFile("src/main/resources/major_uid_map.txt", uidMap);
     entityIdClient.putFeedEntityWithUidNamesMap(uidMap, type);
-    // NodeUtil.putEntity(dClient, getLabeledMajor(majors));
+    // NodeUtil.putEntity(dClient, getLabeledSchool(schools));
   }
 
 
   public static void main(String[] args) {
-    if (args.length < 1) {
-      System.err.println("Usage : <Industry_dict_path>");
-      System.exit(-1);
-    }
-    String dict = args[0];
+    String dict = "src/main/resources/dict/major_dict.txt";
     MajorToDgraph majorToDgraph = new MajorToDgraph();
     majorToDgraph.initWithRdf(dict, true);
   }
