@@ -19,6 +19,8 @@ zero 配置文件 /usr/local/etc/dgraph-zero.json
 
 server 配置文件  /usr/local/etc/dgraph-server.json
 
+service 配置： /lib/systemd/system
+
 # systemctl
 server_systemd_unit_name: dgraph-server
 zero_systemd_unit_name:dgraph-zero
