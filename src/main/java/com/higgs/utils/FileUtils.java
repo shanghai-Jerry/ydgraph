@@ -255,6 +255,57 @@ public class FileUtils {
       }
     }
   }
+  public static void saveFiles(String filePath, List<String> dict) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
+      int count = 0;
+      for (String line : dict) {
+        printWriter.write(line);
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
+  public static void saveFileWith(String filePath, Map<String, Integer> map) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
+      Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
+      Iterator<Map.Entry<String, Integer>> iterator = entrySet.iterator();
+      int count = 0;
+      while (iterator.hasNext()) {
+        Map.Entry<String, Integer> entry = iterator.next();
+        String key = entry.getKey();
+        String value = entry.getValue().toString();
+        printWriter.write(key + "\t" + value );
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
   public static void saveFile(String filePath, List<String> stringList, boolean isAppend) {
     PrintWriter printWriter = null;
     try {
