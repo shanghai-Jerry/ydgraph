@@ -70,6 +70,8 @@ dgraph bulk -r company.rdf  -s company.schema -j 4 --map_shards=4 --reduce_shard
 
 curl localhost:8080/admin/export &
 
+172.20.0.8:6080/state
+
 * 公司数据
   format 公司中的特殊字符（） - pass
 
