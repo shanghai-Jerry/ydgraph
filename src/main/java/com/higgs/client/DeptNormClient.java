@@ -69,7 +69,7 @@ public class DeptNormClient {
   public static void main(String[] args) throws Exception {
     DeptNormClient client = new DeptNormClient("172.20.0.14", 26550);
     List<DeptRequest> deptRequestList = new ArrayList<>();
-    List<String> depts = Arrays.asList("搜索应用部门", "人力资源", "人事部门", "战略投资");
+    List<String> depts = Arrays.asList("搜索应用部门", "人力资源", "人事部门", "战略投资", "财务");
     for (String dept : depts) {
       deptRequestList.add(DeptRequest.newBuilder().setName(dept).build());
     }

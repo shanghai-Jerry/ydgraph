@@ -1,6 +1,7 @@
 package com.higgs.etl;
 
 import com.higgs.utils.FileUtils;
+import com.higgs.utils.Util;
 import com.lieluobo.kaka.KakaTokenizer;
 import com.lieluobo.kaka.WordT;
 
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -28,6 +30,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * <<licensetext>>
  */
+
 public class DeptDict {
 
   Logger logger = LoggerFactory.getLogger(DeptDict.class);
@@ -109,14 +112,28 @@ public class DeptDict {
     FileUtils.saveFile("src/main/resources/dict/dept_dict_enhance_s.txt", result, false);
   }
 
-  private String checkSuffix(String seg) {
-    List<String> suffix = Arrays.asList("部门", "部", "科", "门");
+  Pattern pattern = Pattern.compile("^\\d++$");
+  private boolean checkSuffix(String seg) {
+    List<String> suffixs = Arrays.asList("部门", "部");
     // List<String> suffix = Arrays.asList("办", "处", "院", "部门", "部", "中心", "科", "门");
     String finalSeg = seg;
-    for (String s : suffix) {
-      if (finalSeg.endsWith(s)) {
-        logger.info("checkSuffix seg => " + seg);
-        finalSeg = finalSeg.replace(seg, "");
+    for (String suffix : suffixs) {
+      if (finalSeg.endsWith(suffix)) {
+         finalSeg = finalSeg.replace(suffix, "");
+      }
+    }
+    if (finalSeg.length() <= 1) {
+      return false;
+    }
+    return true && !pattern.matcher(finalSeg).find();
+  }
+
+  public String deleteSuffix(String key) {
+    List<String> suffixs = Arrays.asList("部门", "部");
+    String finalSeg = key;
+    for (String suffix : suffixs) {
+      if (finalSeg.endsWith(suffix)) {
+        finalSeg = finalSeg.replace(suffix, "");
       }
     }
     return finalSeg;
@@ -125,58 +142,54 @@ public class DeptDict {
   public void deptNameSegment() {
     List<String> dict = new ArrayList<>();
     FileUtils.readFile(this.filePath, dict);
-    Set<String> keys = new HashSet<>();
     Map<String, Integer> dictMap = new HashMap<>();
-    List<String> segments = new ArrayList<>();
     for (String line : dict) {
       String []sp = line.split("\\u0001");
       if (sp.length == 2) {
         String key = sp[0].toLowerCase();
         int frq = Integer.parseInt(sp[1]);
         if (frq >= 200) {
-          keys.add(key);
+          // keys.add(line);
+          List<String> segs = this.tokenizer.tokenizeString(key, false);
+          for (String seg : segs) {
+            if (!checkSuffix(seg)) {
+              continue;
+            }
+            seg = deleteSuffix(seg);
+            if (dictMap.containsKey(seg)) {
+              int number = dictMap.get(seg);
+              dictMap.put(seg, number + frq);
+            } else {
+              dictMap.put(seg, frq);
+            }
+          }
         }
       } else  {
         logger.info("error length => " + line);
       }
     }
-    for (String key : keys) {
-      List<String> segs = this.tokenizer.tokenizeString(key, false);
-      segments.addAll(segs);
-    }
-    for (String raw : segments) {
-      String seg = checkSuffix(raw);
-      if  (seg.length() <= 1) {
-        continue;
-      }
-      if (dictMap.containsKey(seg)) {
-        int number = dictMap.get(seg);
-        dictMap.put(seg, number + 1);
-      } else {
-        dictMap.put(seg, 1);
-      }
-    }
-    FileUtils.saveFileWith("src/main/resources/dict/dept_dict_enhance.txt", dictMap);
-    generatDict(dictMap);
+    Map<String, Integer> sorted = Util.sortMapByValue(dictMap);
+    FileUtils.saveFileWith("src/main/resources/dict/dept_dict_enhance.txt", sorted);
+    generateDict(sorted);
   }
 
-  private void generatDict(Map<String, Integer> map) {
+  private void generateDict(Map<String, Integer> map) {
     List<String> dict = new ArrayList<>();
-    List<String> suffix = Arrays.asList("办", "处", "院", "中心");
+    List<String> suffix = Arrays.asList("办", "处", "院", "中心", "会", "科", "室", "层", "部");
     Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
     Iterator<Map.Entry<String, Integer>> iterator = entrySet.iterator();
     while (iterator.hasNext()) {
       Map.Entry<String, Integer> entry = iterator.next();
       String key = entry.getKey();
       String value = entry.getValue().toString();
-      boolean needAddSuffic = true;
+      boolean needAddSuffix = true;
       for (String s : suffix) {
         if (key.endsWith(s)) {
-          needAddSuffic = false;
+          needAddSuffix = false;
           break;
         }
       }
-      if (needAddSuffic) {
+      if (needAddSuffix) {
         dict.add(value + "\t" + key + "部" + "\t" + key);
       } else {
         dict.add(value + "\t" + key + "\t" + key);
@@ -190,7 +203,7 @@ public class DeptDict {
   }
 
   public void kakaSegment() {
-    ArrayList<WordT> segs = this.tokenizer.tokenizeWithPosition("营销管理");
+    ArrayList<WordT> segs = this.tokenizer.tokenizeWithPosition("财务");
     for (WordT seg : segs)  {
       logger.info("seg => ");
       logger.info(seg);
