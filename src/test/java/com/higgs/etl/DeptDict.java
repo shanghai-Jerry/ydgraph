@@ -203,9 +203,15 @@ public class DeptDict {
   }
 
   public void kakaSegment() {
-    ArrayList<WordT> segs = this.tokenizer.tokenizeWithPosition("财务");
-    for (WordT seg : segs)  {
-      logger.info("seg => ");
+
+    List<String> segs = this.tokenizer.tokenizeString("变电事业部", true);
+    logger.info("seg => ");
+    for (String seg : segs)  {
+      logger.info(seg);
+    }
+    ArrayList<WordT> segsWithPos = this.tokenizer.tokenizeWithPosition("变电事业部");
+    logger.info("segsWithPos => ");
+    for (WordT seg : segsWithPos)  {
       logger.info(seg);
     }
   }
@@ -214,7 +220,7 @@ public class DeptDict {
     DeptDict deptDict = new DeptDict();
     KakaTokenizer.initConfig("/var/local/kakaseg/conf.json");
     deptDict.setTokenizer(KakaTokenizer.newInstance());
-    deptDict.deptNameSegment();
-    // deptDict.kakaSegment();
+    // deptDict.deptNameSegment();
+    deptDict.kakaSegment();
   }
 }

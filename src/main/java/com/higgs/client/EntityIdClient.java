@@ -470,15 +470,15 @@ public class EntityIdClient {
         String unique_id = NodeUtil.generateEntityUniqueId(NodeUtil.formatName(name), NodeUtil.formatPredicateValue(deptName));
         logger.info("dept:" + unique_id);
         String type = "";
-        int changed = EntityType.COMPANY.getIndex();
+        int changed = EntityType.COMPANY_DEPT.getIndex();
         logger.info("changed:" + changed);
         // switch
-        String res = client.chooseType(changed, name, "");
+        String res = client.chooseType(changed, name, unique_id);
         String [] split = res.split(":");
         type = split[0];
         String key = split[1];
         logger.info("res =>" + res);
-        BatchEntityIdResponse rep = client.entityLinkSimple(key, type,true, true);
+        BatchEntityIdResponse rep = client.entityLinkSimple(key, type,true, false);
         if (rep != null) {
           EntityIdResponse entityIdResponse = rep.getEntityResList().get(0);
           long id = entityIdResponse.getId();
