@@ -47,7 +47,7 @@ sudo systemctl status  dgraph-server
 
 # log 
 
-sudo journalctl -u  dgraph-server -f 
+sudo journalctl -u  dgraph-server -f --since "2018-07-20 16:30" --until "2015-01-11 03:00"
 
 sudo journalctl -u  dgraph-server --since today
 

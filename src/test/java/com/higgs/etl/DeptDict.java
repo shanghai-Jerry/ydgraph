@@ -39,7 +39,7 @@ public class DeptDict {
   // In Mac: use java -Djava.library.path=/data/dept_norm  -jar xxx.jar has problem
   // but In Linux, it's ok
   static {
-    System.load("/Users/lolaliva/Documents/dept_norm/libtokenizer.so");
+    System.load("/Users/devops/workspace/gitlab/dept_norm/libtokenizer.so");
   }
   private KakaTokenizer tokenizer = null;
 
@@ -198,22 +198,79 @@ public class DeptDict {
     FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", dict);
   }
 
+  private String splitor(List<String> keys, String longestKey) {
+    Set<String> set = new HashSet<>(keys);
+    List<String> distintKeys = new ArrayList<>(set);
+    StringBuilder stringBuilder = new StringBuilder();
+    boolean isInit = false;
+    if (!distintKeys.contains(longestKey)) {
+      stringBuilder.append(longestKey);
+      isInit = true;
+    }
+    int length = distintKeys.size();
+    for (int i = 0; i < length; i++) {
+      if (!isInit) {
+        stringBuilder.append(distintKeys.get(i));
+      } else {
+        stringBuilder.append(" " + distintKeys.get(i));
+      }
+    }
+    return stringBuilder.toString();
+  }
+
+  private void getDeptDupKeyNames() {
+    String file = "/Users/devops/workspace/gitlab/dept_norm/dept_dict.txt";
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    Map<String, String> map = new HashMap<>();
+    List<String> finalDict = new ArrayList<>();
+    for (String line : dict) {
+      String [] sp = line.split("\t");
+      String dept = sp[2];
+      String[] keys = dept.split(" ");
+      for (String key : keys) {
+        String finalKey = "200" + "\t" + key + "部\t" + key;
+        if (map.containsKey(key) && !finalDict.contains(finalKey)) {
+          finalDict.add(finalKey);
+        } else {
+          map.put(key, key);
+        }
+      }
+    }
+    FileUtils.saveFiles("/Users/devops/workspace/gitlab/dept_norm/dept_dict_dupkey.txt", finalDict);
+  }
+
+  private void getDeptKeyNames() {
+    String file = "/Users/devops/workspace/gitlab/dept_norm/dept_dict_combine.txt";
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> distinct = new ArrayList<>();
+    List<String> finalDict = new ArrayList<>();
+    for (String line : dict) {
+      String [] sp = line.split("\t");
+      String dept = sp[1];
+      if (distinct.contains(dept)) {
+        continue;
+      }
+      distinct.add(dept);
+      String frq = sp[0];
+      String longestKey = dept.replace("部门", "").replace("部", "");
+      List<String> keys = this.tokenizer.tokenizeString(longestKey, true);
+      finalDict.add(frq + "\t" + dept+ "\t" + splitor(keys, longestKey));
+    }
+    FileUtils.saveFiles("/Users/devops/workspace/gitlab/dept_norm/dept_dict.txt", finalDict);
+  }
+
   public void sortWithPosition(ArrayList<WordT> segs) {
     Collections.sort(segs, (a, b) -> -(a.getStart() - b.getStart()));
   }
 
   public void kakaSegment() {
 
-    List<String> segs = this.tokenizer.tokenizeString("变电事业部", true);
-    logger.info("seg => ");
-    for (String seg : segs)  {
-      logger.info(seg);
-    }
-    ArrayList<WordT> segsWithPos = this.tokenizer.tokenizeWithPosition("变电事业部");
-    logger.info("segsWithPos => ");
-    for (WordT seg : segsWithPos)  {
-      logger.info(seg);
-    }
+    List<String> segs = this.tokenizer.tokenizeString("总经理办公室", false);
+    logger.info("seg => " + segs);
+    ArrayList<WordT> segsWithPos = this.tokenizer.tokenizeWithPosition("战略投资管理部门");
+    logger.info("segsWithPos => " + segsWithPos);
   }
   public static void main(String[] arg) {
     Logger logger = LoggerFactory.getLogger(DeptDict.class);
@@ -221,6 +278,8 @@ public class DeptDict {
     KakaTokenizer.initConfig("/var/local/kakaseg/conf.json");
     deptDict.setTokenizer(KakaTokenizer.newInstance());
     // deptDict.deptNameSegment();
-    deptDict.kakaSegment();
+    // deptDict.kakaSegment();
+    // deptDict.getDeptKeyNames();
+    // deptDict.getDeptDupKeyNames();
   }
 }
