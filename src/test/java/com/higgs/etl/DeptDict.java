@@ -260,6 +260,22 @@ public class DeptDict {
     FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", finalDict);
   }
 
+  private void getKeyMap() {
+    String file = "src/main/resources/dict/dept_dict_20180727.txt";
+    Map<String, List<String>> map = new HashMap<>();
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> finalDict = new ArrayList<>();
+    for (String line : dict) {
+      String[] sp = line.split("\t");
+      String dept = sp[3].trim();
+      String frq = sp[0];
+      String key = sp[1].trim();
+      finalDict.add(key + "\t" + dept);
+    }
+    FileUtils.saveFiles("src/main/resources/dict/dept_dict_mapping.txt", finalDict);
+  }
+
   private void getKeyNames() {
     String file = "src/main/resources/dict/dept_dict_20180727.txt";
     Map<String, List<String>> map = new HashMap<>();
@@ -331,7 +347,8 @@ public class DeptDict {
     // deptDict.kakaSegment();
     // deptDict.getDeptKeyNames();
     // deptDict.getDeptDupKeyNames();
-    deptDict.getKeyNames();
-    deptDict.getDeptDict();
+    // deptDict.getKeyNames();
+    // deptDict.getDeptDict();
+    deptDict.getKeyMap();
   }
 }
