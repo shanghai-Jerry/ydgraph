@@ -1,4 +1,3 @@
-1	it 部	it 	it部
 1	it部	it	it部
 1	it服务部	it服务	it部
 1	it管理部	it管理	it部

@@ -39,7 +39,7 @@ public class DeptDict {
   // In Mac: use java -Djava.library.path=/data/dept_norm  -jar xxx.jar has problem
   // but In Linux, it's ok
   static {
-    System.load("/Users/devops/workspace/gitlab/dept_norm/libtokenizer.so");
+    System.load("/Users/lolaliva/Documents/dept_norm/libtokenizer.so");
   }
   private KakaTokenizer tokenizer = null;
 
@@ -211,6 +211,7 @@ public class DeptDict {
     for (int i = 0; i < length; i++) {
       if (!isInit) {
         stringBuilder.append(distintKeys.get(i));
+        isInit = true;
       } else {
         stringBuilder.append(" " + distintKeys.get(i));
       }
@@ -238,6 +239,55 @@ public class DeptDict {
       }
     }
     FileUtils.saveFiles("/Users/devops/workspace/gitlab/dept_norm/dept_dict_dupkey.txt", finalDict);
+  }
+
+  private void getDeptDict() {
+    String file = "src/main/resources/dict/dept_dict_combine_key.txt";
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> finalDict = new ArrayList<>();
+    for (String line : dict) {
+      List<String> arr = new ArrayList<>();
+      String [] sp = line.split("\t");
+      String[] keys = sp[0].split(",");
+      for (String key : keys) {
+        arr.add(key);
+      }
+      String dept = sp[1];
+      String longestKey = dept.replace("部门", "").replace("部", "");
+      finalDict.add("200" + "\t" + dept+ "\t" + splitor(arr, longestKey));
+    }
+    FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", finalDict);
+  }
+
+  private void getKeyNames() {
+    String file = "src/main/resources/dict/dept_dict_20180727.txt";
+    Map<String, List<String>> map = new HashMap<>();
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> finalDict = new ArrayList<>();
+    for (String line : dict) {
+      String [] sp = line.split("\t");
+      String dept = sp[3].trim();
+      String frq = sp[0];
+      String key = sp[2].trim();
+      if (map.containsKey(dept)) {
+        List<String> keys = map.get(dept);
+        if (!keys.contains(key)) {
+          keys.add(key);
+          List<String> tokens = this.tokenizer.tokenizeString(key, true);
+          keys.addAll(tokens);
+        }
+        map.put(dept, new ArrayList<>(new HashSet<>(keys)));
+      } else {
+        List<String> keys = new ArrayList<>();
+        List<String> tokens = this.tokenizer.tokenizeString(key, true);
+        keys.add(key);
+        keys.addAll(tokens);
+        map.put(dept, new ArrayList<>(new HashSet<>(keys)));
+      }
+    }
+    FileUtils.saveFile("src/main/resources/dict/dept_dict_combine_key.txt", map);
   }
 
   private void getDeptKeyNames() {
@@ -281,5 +331,7 @@ public class DeptDict {
     // deptDict.kakaSegment();
     // deptDict.getDeptKeyNames();
     // deptDict.getDeptDupKeyNames();
+    deptDict.getKeyNames();
+    deptDict.getDeptDict();
   }
 }
