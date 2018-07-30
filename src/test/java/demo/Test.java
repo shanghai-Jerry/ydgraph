@@ -339,6 +339,22 @@ public class Test {
     return (byte) "0123456789ABCDEF".indexOf(c);
   }
 
+  private boolean filter(String src) {
+    char[] t1 = null;
+    boolean isNeedFilter = false;
+    t1 = src.toCharArray();
+    int t0 = t1.length;
+    int count = 0;
+    for (int i = 0; i < t0; i++) {
+      // 中文unicode的编码
+      if (Character.toString(t1[i]).matches("[^\\u4E00-\\u9FA5]+")) {
+        isNeedFilter = true;
+        break;
+      }
+    }
+    return isNeedFilter;
+  }
+
   protected Pattern natureCodePattern = Pattern.compile("^\\d+$");
 
   protected boolean filterCompanyNatureCode(String natureCode) {
@@ -348,10 +364,13 @@ public class Test {
     return !natureCodePattern.matcher(natureCode.trim()).matches();
   }
 
+
+
   public static void main(String[] arg) {
     DClient dClient = new DClient(Config.TEST_HOSTNAME);
     Logger logger = LoggerFactory.getLogger(Test.class);
     Test test = new Test(dClient);
+    // logger.info("test:" + ((-5) / 2));
     // String time = TimeUtil.consumeTime(30000 * 1000);
     // test.putWithJsonFormat();
     // test.putWithRDF();
@@ -359,5 +378,7 @@ public class Test {
     // test.putWithNquadWithFacets();
     // test.handleSubEntityUid();
     // test.prepareUid();
+    boolean filter = test.filter("杜昂收快递费纳斯达克机场大巴数控机床你打开说不出");
+    logger.info("filter:" + filter);
   }
 }
