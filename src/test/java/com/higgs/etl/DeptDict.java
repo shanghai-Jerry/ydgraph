@@ -39,7 +39,7 @@ public class DeptDict {
   // In Mac: use java -Djava.library.path=/data/dept_norm  -jar xxx.jar has problem
   // but In Linux, it's ok
   static {
-    System.load("/Users/lolaliva/Documents/dept_norm/libtokenizer.so");
+    System.load("/Users/devops/workspace/gitlab/dept_norm/libtokenizer.so");
   }
   private KakaTokenizer tokenizer = null;
 
@@ -47,11 +47,64 @@ public class DeptDict {
     return tokenizer;
   }
 
+  HashMap<String, String> map = new HashMap<>();
+  HashMap<String, String> mappingMap = new HashMap<>();
+
   public void setTokenizer(KakaTokenizer tokenizer) {
     this.tokenizer = tokenizer;
   }
 
   private String filePath = "src/main/resources/dict/dept_name_resume.txt";
+
+  private void init(String dictPath, String mappingDict) {
+    List<String> dict = new ArrayList<>();
+    List<String> mapping = new ArrayList<>();
+    FileUtils.readFile(dictPath, dict);
+    FileUtils.readFile(mappingDict, mapping);
+    int dupCount = 0;
+    for(String line : dict) {
+      String []sp = line.split("\t");
+      if (sp.length != 3) {
+        logger.info("line length not equal 3 => " + line);
+        continue;
+      }
+      String match = sp[1];
+      String []items = sp[2].split(" ");
+      int itemIndex = 0;
+      for (String item : items) {
+        if (!"".equals(item)) {
+          if (map.containsKey(item)) {
+            if (itemIndex == 0) {
+              map.put(item, match);
+            } else {
+              // logger.info("this key is contained: " + item + " => " + map.get(item));
+              dupCount = dupCount + 1;
+            }
+          } else {
+            map.put(item, match);
+          }
+        }
+        itemIndex = itemIndex + 1;
+      }
+    }
+    // for mapping
+    for (String line : mapping) {
+      String []sp = line.split("\t");
+      if (sp.length != 2) {
+        // logger.info("mapping line length not equal 2 => " + line);
+        continue;
+      }
+      String org = sp[0];
+      String normed = sp[1];
+      if (mappingMap.containsKey(org)) {
+        // logger.info("this dept is contained, real mapping: " + org + " => " + mappingMap.get
+        // (org));
+      } else {
+        mappingMap.put(org, normed);
+      }
+    }
+    logger.info("dup key: " + dupCount);
+  }
 
   public void gatheringDeptDict() {
     String dept = "src/main/resources/dict/dept_name_resume.txt";
@@ -260,20 +313,43 @@ public class DeptDict {
     FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", finalDict);
   }
 
-  private void getKeyMap() {
-    String file = "src/main/resources/dict/dept_dict_20180727.txt";
+  private void getKeyDictMap() {
+    String file = "src/main/resources/dict/dept_norm/dept_dict_v1.txt";
     Map<String, List<String>> map = new HashMap<>();
     List<String> dict = new ArrayList<>();
     FileUtils.readFile(file, dict);
     List<String> finalDict = new ArrayList<>();
+    List<String> disDict = new ArrayList<>();
     for (String line : dict) {
       String[] sp = line.split("\t");
-      String dept = sp[3].trim();
-      String frq = sp[0];
-      String key = sp[1].trim();
-      finalDict.add(key + "\t" + dept);
+      String dept = sp[1].trim();
+      if (disDict.contains(dept)) {
+        continue;
+      }
+      disDict.add(dept);
+      finalDict.add(line);
     }
-    FileUtils.saveFiles("src/main/resources/dict/dept_dict_mapping.txt", finalDict);
+    FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_v1.txt", finalDict);
+  }
+
+  private void getKeyMappingMap() {
+    String file = "src/main/resources/dict/dept_norm/dept_dict_mapping.txt";
+    Map<String, List<String>> map = new HashMap<>();
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> finalDict = new ArrayList<>();
+    List<String> disDict = new ArrayList<>();
+    for (String line : dict) {
+      String[] sp = line.split("\t");
+      String dept = sp[0].trim();
+      String key = sp[1].trim();
+      if (disDict.contains(dept)) {
+        continue;
+      }
+      disDict.add(dept);
+      finalDict.add(line);
+    }
+    FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_mapping.txt", finalDict);
   }
 
   private void getKeyNames() {
@@ -349,6 +425,8 @@ public class DeptDict {
     // deptDict.getDeptDupKeyNames();
     // deptDict.getKeyNames();
     // deptDict.getDeptDict();
-    deptDict.getKeyMap();
+    // deptDict.getKeyMappingMap();
+    deptDict.getKeyDictMap();
+    //deptDict.init("/Users/devops/workspace/gitlab/dept_norm/dept_dict_v1.txt","/Users/devops/workspace/gitlab/dept_norm/dept_dict_mapping.txt");
   }
 }
