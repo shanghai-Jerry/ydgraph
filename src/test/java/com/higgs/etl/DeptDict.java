@@ -91,7 +91,7 @@ public class DeptDict {
     for (String line : mapping) {
       String []sp = line.split("\t");
       if (sp.length != 2) {
-        // logger.info("mapping line length not equal 2 => " + line);
+        logger.info("mapping line length not equal 2 => " + line);
         continue;
       }
       String org = sp[0];
@@ -426,7 +426,7 @@ public class DeptDict {
     // deptDict.getKeyNames();
     // deptDict.getDeptDict();
     // deptDict.getKeyMappingMap();
-    deptDict.getKeyDictMap();
-    //deptDict.init("/Users/devops/workspace/gitlab/dept_norm/dept_dict_v1.txt","/Users/devops/workspace/gitlab/dept_norm/dept_dict_mapping.txt");
+    // deptDict.getKeyDictMap();
+    deptDict.init("/Users/devops/workspace/hbase-demo/src/main/resources/dict/dept_norm/final/dept_dict_v1.txt","/Users/devops/workspace/hbase-demo/src/main/resources/dict/dept_norm/final/dept_dict_mapping.txt");
   }
 }
