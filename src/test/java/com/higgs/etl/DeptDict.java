@@ -209,6 +209,95 @@ public class DeptDict {
     FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_v2.txt",finalDict);
   }
 
+  public boolean filteKey(String name) {
+    List<String> keys = Arrays.asList("事业", "计划", "发展", "系统");
+    if (keys.contains(name)) {
+      return true;
+    }
+    return false;
+  }
+
+  public void genreateOnlyOneDictMap() {
+    String file = "src/main/resources/dict/dept_norm/final/dept_dict_mapping_v2.txt";
+    String v1 = "src/main/resources/dict/dept_norm/final/dept_dict_v2.txt";
+    List<String> dict = new ArrayList<>();
+    FileUtils.readFile(file, dict);
+    List<String> finalDict = new ArrayList<>();
+    Map<String, String> map = new HashMap<>();
+    Map<String, List<String>> dictMap = new HashMap<>();
+    List<String> disDict = new ArrayList<>();
+    for (String line : dict) {
+      String[] sp = line.split("\t");
+      String dept = sp[0].trim();
+      String key = sp[1].trim();
+      if (disDict.contains(dept)) {
+        continue;
+      }
+      disDict.add(dept);
+      map.put(dept, key);
+      // finalDict.add(dept + "\t" + key);
+    }
+    dict.clear();
+    FileUtils.readFile(v1, dict);
+    int count = 0;
+    for (String line : dict) {
+      String[] sp = line.split("\t");
+      String dept = sp[1].trim();
+      String key = sp[2].trim();
+      if (map.containsKey(dept)) {
+        String v = map.get(dept);
+        if (dictMap.containsKey(v)) {
+          List<String> v2 = dictMap.get(v);
+          Set<String> hash = new HashSet<>(v2);
+          for (String item : key.split(" ")) {
+            if (filteKey(item)) {
+              continue;
+            }
+            hash.add(item);
+          }
+          dictMap.put(v, new ArrayList<>(hash));
+        } else {
+          List<String> v2 = new ArrayList<>();
+          Set<String> hash = new HashSet<>(v2);
+          for (String item : key.split(" ")) {
+            if (filteKey(item)) {
+              continue;
+            }
+            hash.add(item);
+          }
+          dictMap.put(v, new ArrayList<>(hash));
+        }
+      } else {
+        //
+        if (dictMap.containsKey(dept)) {
+          List<String> v2 = dictMap.get(dept);
+          Set<String> hash = new HashSet<>(v2);
+          for (String item : key.split(" ")) {
+            if (filteKey(item)) {
+              continue;
+            }
+            hash.add(item);
+          }
+          dictMap.put(dept, new ArrayList<>(hash));
+        } else {
+          List<String> v2 = new ArrayList<>();
+          Set<String> hash = new HashSet<>(v2);
+          for (String item : key.split(" ")) {
+            if (filteKey(item)) {
+              continue;
+            }
+            hash.add(item);
+          }
+          dictMap.put(dept, new ArrayList<>(hash));
+        }
+      }
+      count++;
+    }
+    logger.info("count:" + count);
+    FileUtils.saveFile("src/main/resources/dict/dept_norm/final/dept_dict.txt",dictMap);
+
+  }
+
 
   public void sortWithPosition(ArrayList<WordT> segs) {
     Collections.sort(segs, (a, b) -> -(a.getStart() - b.getStart()));
@@ -228,7 +317,8 @@ public class DeptDict {
     deptDict.setTokenizer(KakaTokenizer.newInstance());
     deptDict.kakaSegment();
     // deptDict.getKeyMappingMap();
-    deptDict.combineMapingBasicV2();
+    // deptDict.combineMapingBasicV2();
+    deptDict.genreateOnlyOneDictMap();
     // deptDict.init("/Users/devops/workspace/hbase-demo/src/main/resources/dict/dept_norm/final/dept_dict_v1.txt","/Users/devops/workspace/hbase-demo/src/main/resources/dict/dept_norm/final/dept_dict_mapping_v1.txt");
   }
 }

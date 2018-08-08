@@ -208,9 +208,9 @@ public class FileUtils {
         List<String> values= entry.getValue();
         StringBuffer sb = new StringBuffer();
         for (String value : values) {
-          sb.append(value + ",");
+          sb.append(value + " ");
         }
-        printWriter.write(sb.toString() + "\t" + key );
+        printWriter.write("200\t"  + key  + "\t" + sb.toString());
         printWriter.write("\n");
         count++;
         if (count >= 200) {
