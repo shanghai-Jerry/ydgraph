@@ -97,20 +97,32 @@ public class DeptNormClient {
     String srcDir = "/Users/devops/Documents/部门归一化";
     FileUtils.readFile(srcDir + "/dept_name_resume.txt", lines);
     int top = 1000;
-    int offset = 0;
+    int offset = 10;
     int index = 0;
+    int margin = 0;
+    int ceilFreq = 1000;
+    int floorFreq = 100;
     for (String line : lines) {
       index++;
-      if ( (offset * top) <= index && index < ((offset + 1) * top)) {
-        String [] sp = line.split(",");
-        String key = sp[0];
+      String [] sp = line.split(",");
+      String key = sp[0];
+      int freq = Integer.parseInt(sp[1]);
+      // && (offset * top) <= index && index < ((offset + 1) * top)
+      if ( floorFreq <= freq && freq <= ceilFreq) {
         depts.add(key);
       } else {
-        String out = srcDir + "/normed_" + offset + ".txt";
-        client.dumpFile(depts, out);
-        depts.clear();
-        offset++;
-        if (offset >= 5) {
+        if (depts.size() == 0) {
+          continue;
+        } else {
+          String out = srcDir + "/normed_" + floorFreq + "-" + ceilFreq + ".txt";
+          client.dumpFile(depts, out);
+          logger.info("dept size:" + depts.size());
+          depts.clear();
+          offset++;
+          margin++;
+          if (margin >= 5) {
+            break;
+          }
           break;
         }
       }
