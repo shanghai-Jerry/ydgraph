@@ -1,5 +1,7 @@
 package com.higgs.client;
 
+import com.higgs.utils.FileUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,27 +68,53 @@ public class DeptNormClient {
     return nameNormals;
   }
 
-  public static void main(String[] args) throws Exception {
-    DeptNormClient client = new DeptNormClient("172.20.0.14", 26550);
+  public void dumpFile(List<String> depts, String out) {
     List<DeptRequest> deptRequestList = new ArrayList<>();
-    List<String> depts = Arrays.asList("搜索应用部门", "人力资源", "人事部门", "战略投资", "财务");
     for (String dept : depts) {
       deptRequestList.add(DeptRequest.newBuilder().setName(dept).build());
     }
+    List<String> result = new ArrayList<>();
     try {
-      BatchDeptResponse reply = client.batchNorm(BatchDeptRequest.newBuilder().addAllDeptReq(deptRequestList).build());
+      BatchDeptResponse reply = batchNorm(BatchDeptRequest.newBuilder().addAllDeptReq(deptRequestList).build());
       int count = reply.getDeptResCount();
-      JsonArray jsonArray = new JsonArray();
       for (int i = 0; i < count; i++) {
         DeptResponse deptRes = reply.getDeptRes(i);
         String normed = deptRes.getNormed();
-        jsonArray.add(normed);
+        result.add(depts.get(i) + " => " + normed);
       }
-      logger.info("normed => " + jsonArray);
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      client.shutdown();
     }
+    FileUtils.saveFiles(out, result);
+  }
+
+  public static void main(String[] args) throws Exception {
+    DeptNormClient client = new DeptNormClient("192.168.4.27", 26550);
+
+    List<String> depts = new ArrayList<>();
+    List<String> lines = new ArrayList<>();
+    String srcDir = "/Users/devops/Documents/部门归一化";
+    FileUtils.readFile(srcDir + "/dept_name_resume.txt", lines);
+    int top = 1000;
+    int offset = 0;
+    int index = 0;
+    for (String line : lines) {
+      index++;
+      if ( (offset * top) <= index && index < ((offset + 1) * top)) {
+        String [] sp = line.split(",");
+        String key = sp[0];
+        depts.add(key);
+      } else {
+        String out = srcDir + "/normed_" + offset + ".txt";
+        client.dumpFile(depts, out);
+        depts.clear();
+        offset++;
+        if (offset >= 5) {
+          break;
+        }
+      }
+    }
+    client.shutdown();
   }
 }
