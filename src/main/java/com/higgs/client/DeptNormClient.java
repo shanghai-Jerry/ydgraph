@@ -90,7 +90,7 @@ public class DeptNormClient {
   }
 
   public static void main(String[] args) throws Exception {
-    DeptNormClient client = new DeptNormClient("192.168.4.27", 26550);
+    DeptNormClient client = new DeptNormClient("172.20.0.14", 26550);
 
     List<String> depts = new ArrayList<>();
     List<String> lines = new ArrayList<>();

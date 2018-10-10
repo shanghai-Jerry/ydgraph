@@ -68,6 +68,12 @@
       所有实体统一使用：xid => type:NodeUtil.generateEntityUniqueId() = id的形式检查是否存在对应的uid
       
       注意事项:
+
+## 2018.10.10
+
+  * 预分配uid范围（start ~ end）： http://xxx:6080/assignIds?num=1000000
+    可自定义分配可使用uid范围的uid
+    [https://docs.dgraph.io/deploy/#more-about-dgraph-zero]
         
 
         
