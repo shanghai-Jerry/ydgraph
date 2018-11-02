@@ -255,10 +255,10 @@ public class FileUtils {
       }
     }
   }
-  public static void saveFiles(String filePath, List<String> dict) {
+  public static void saveFiles(String filePath, List<String> dict, boolean append) {
     PrintWriter printWriter = null;
     try {
-      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), append));
       int count = 0;
       for (String line : dict) {
         printWriter.write(line);

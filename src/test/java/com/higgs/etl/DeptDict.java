@@ -128,7 +128,7 @@ public class DeptDict {
         dict.add(value + "\t" + key + "\t" + key);
       }
     }
-    FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", dict);
+    FileUtils.saveFiles("src/main/resources/dict/dept_dict.txt", dict, false);
   }
 
   private String splitor(List<String> keys, String longestKey) {
@@ -171,7 +171,7 @@ public class DeptDict {
       finalDict.add(dept + "\t" + key);
     }
     FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_mapping_v2.txt",
-        finalDict);
+        finalDict, false);
   }
 
   private void combineMapingBasicV2() {
@@ -206,7 +206,7 @@ public class DeptDict {
       count++;
     }
     logger.info("count:" + count);
-    FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_v2.txt",finalDict);
+    FileUtils.saveFiles("src/main/resources/dict/dept_norm/final/dept_dict_v2.txt",finalDict,false);
   }
 
   public boolean filteKey(String name) {

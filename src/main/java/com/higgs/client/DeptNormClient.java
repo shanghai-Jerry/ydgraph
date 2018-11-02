@@ -86,7 +86,7 @@ public class DeptNormClient {
       e.printStackTrace();
     } finally {
     }
-    FileUtils.saveFiles(out, result);
+    FileUtils.saveFiles(out, result, false);
   }
 
   public static void main(String[] args) throws Exception {
