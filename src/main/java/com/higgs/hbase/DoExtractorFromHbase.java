@@ -25,7 +25,12 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 /**
- * Created by Jerry on 2017/5/3. com.higgs.hbase 简历更新数据获取, 用于检测最新变化的简历。 如果有重复的docId简历，需要使用重复docId去hbase中更新数据
+ * Created by Jerry on 2017/5/3.
+ *
+ * 从hbase中读取数据
+ *
+ * com.higgs.hbase 简历更新数据获取, 用于检测最新变化的简历。
+ * 如果有重复的docId简历，需要使用重复docId去hbase中更新数据
  * 不可使用新的docId
  */
 public class DoExtractorFromHbase extends Configured implements Tool {
