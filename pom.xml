@@ -369,6 +369,14 @@
             <version>1.2.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.freeswitch.esl.client/org.freeswitch.esl.client -->
+        <dependency>
+            <groupId>org.freeswitch.esl.client</groupId>
+            <artifactId>org.freeswitch.esl.client</artifactId>
+            <version>0.9.2</version>
+        </dependency>
+
+
 
     </dependencies>
 
