@@ -17,7 +17,11 @@ public class Run {
 
   public static void main(String[] args) {
     Run run = new Run();
-    PascalTriangle119 pascalTriangle119 = new PascalTriangle119();
-    run.println(pascalTriangle119.generate(5));
+
+    LCS lcs = new LCS();
+
+    run.println(lcs.maxLCS("13456778", "357486782"));
+
+    run.println(lcs.maxLcs("13456778", "357486782"));
   }
 }
