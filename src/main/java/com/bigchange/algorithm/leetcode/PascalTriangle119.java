@@ -16,7 +16,7 @@ import java.util.List;
  *
  *   f(i,j)=f(i−1,j−1) + f(i−1,j)
  */
-public class PascalTriangle {
+public class PascalTriangle119 {
 
   public List<List<Integer>> generate(int numRows) {
     List<List<Integer>> result = new ArrayList<>();

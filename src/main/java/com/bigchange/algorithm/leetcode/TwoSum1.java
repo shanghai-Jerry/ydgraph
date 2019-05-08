@@ -21,7 +21,7 @@ import java.util.Map;
  *   exactly one solution
  */
 
-public class TwoSum {
+public class TwoSum1 {
 
   public int[] twoSum(int[] nums, int target) {
     // two element in array nums add equal target, return indices of these two element

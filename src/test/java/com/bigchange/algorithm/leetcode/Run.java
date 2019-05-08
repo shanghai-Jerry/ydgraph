@@ -17,7 +17,7 @@ public class Run {
 
   public static void main(String[] args) {
     Run run = new Run();
-    PascalTriangle pascalTriangle = new PascalTriangle();
-    run.println(pascalTriangle.generate(5));
+    PascalTriangle119 pascalTriangle119 = new PascalTriangle119();
+    run.println(pascalTriangle119.generate(5));
   }
 }

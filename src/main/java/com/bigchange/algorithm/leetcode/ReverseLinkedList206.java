@@ -13,7 +13,7 @@ package com.bigchange.algorithm.leetcode;
  *
  * <<licensetext>>
  */
-public class ReverseLinkedList {
+public class ReverseLinkedList206 {
 
   class ListNode {
     int val;

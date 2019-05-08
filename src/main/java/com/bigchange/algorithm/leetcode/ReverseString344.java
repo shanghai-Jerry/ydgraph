@@ -12,7 +12,7 @@ package com.bigchange.algorithm.leetcode;
  * Input: ["h","e","l","l","o"]
  * Output: ["o","l","l","e","h"]
  */
-public class ReverseString {
+public class ReverseString344 {
 
   public void reverseString(char[] s) {
     // recurse(0, s);
