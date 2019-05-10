@@ -44,7 +44,7 @@ public class LCS {
       System.out.println("\n");
     }
   }
-  // 最长公共子序列
+  // 最长公共子序列(lcs.png)
   public int maxLCS(String a, String b) {
     int maxa = a.length() + 1;
     int maxb = b.length() + 1;
@@ -67,7 +67,7 @@ public class LCS {
     printArray(c, maxa, maxb);
     return c[maxa-1][maxb-1];
   }
-  // 最长公共字串
+  // 最长公共字串(lcs2.png)
   public int maxLcs(String str1, String str2) {
     int len1 = str1.length();
     int len2 = str2.length();

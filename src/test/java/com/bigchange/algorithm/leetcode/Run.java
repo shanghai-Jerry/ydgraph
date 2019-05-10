@@ -19,9 +19,9 @@ public class Run {
     Run run = new Run();
 
     LCS lcs = new LCS();
+    // run.println(lcs.maxLCS("13456778", "357486782"));
+    // run.println(lcs.maxLcs("13456778", "357486782"));
 
-    run.println(lcs.maxLCS("13456778", "357486782"));
-
-    run.println(lcs.maxLcs("13456778", "357486782"));
+    run.println(Math.pow(80.0, 0.25));
   }
 }
