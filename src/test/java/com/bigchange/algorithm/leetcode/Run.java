@@ -1,5 +1,8 @@
 package com.bigchange.algorithm.leetcode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * User: JerryYou
  *
@@ -18,10 +21,12 @@ public class Run {
   public static void main(String[] args) {
     Run run = new Run();
 
-    LCS lcs = new LCS();
-    // run.println(lcs.maxLCS("13456778", "357486782"));
-    // run.println(lcs.maxLcs("13456778", "357486782"));
+    UniqueBinarySearchTreesII uniqueBinarySearchTreesII = new UniqueBinarySearchTreesII();
 
-    run.println(Math.pow(80.0, 0.25));
+    List<TreeNode> trees = new ArrayList<>();
+    for (TreeNode treeNode : trees) {
+      run.println(treeNode.val);
+    }
+
   }
 }
