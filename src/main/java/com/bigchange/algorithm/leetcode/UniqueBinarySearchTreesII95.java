@@ -13,7 +13,7 @@ import java.util.List;
  *
  * <<licensetext>>
  */
-public class UniqueBinarySearchTreesII {
+public class UniqueBinarySearchTreesII95 {
 
   public List<TreeNode> generateTrees(int n) {
     return  n != 0 ? GetTrees(1,n): new ArrayList<>();

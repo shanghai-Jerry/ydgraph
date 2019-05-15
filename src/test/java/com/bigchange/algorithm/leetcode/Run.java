@@ -21,7 +21,7 @@ public class Run {
   public static void main(String[] args) {
     Run run = new Run();
 
-    UniqueBinarySearchTreesII uniqueBinarySearchTreesII = new UniqueBinarySearchTreesII();
+    UniqueBinarySearchTreesII95 uniqueBinarySearchTreesII = new UniqueBinarySearchTreesII95();
 
     List<TreeNode> trees = new ArrayList<>();
     for (TreeNode treeNode : trees) {
