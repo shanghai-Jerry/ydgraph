@@ -21,12 +21,9 @@ public class Run {
   public static void main(String[] args) {
     Run run = new Run();
 
-    UniqueBinarySearchTreesII95 uniqueBinarySearchTreesII = new UniqueBinarySearchTreesII95();
 
-    List<TreeNode> trees = new ArrayList<>();
-    for (TreeNode treeNode : trees) {
-      run.println(treeNode.val);
-    }
+    RobotBoundedInCircle1041 robotBoundedInCircle1041 = new RobotBoundedInCircle1041();
 
+    run.println(robotBoundedInCircle1041.isRobotBounded("GL"));
   }
 }
