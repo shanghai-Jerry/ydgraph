@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class RemoveAllAdjacentDuplicatesInString1047 {
 
-  // good solution
+  // good solution: clear your mind first
   public String removeDuplicates_2(String S) {
     if(S == null || S.length() < 2) return S;
     int index = 0;
