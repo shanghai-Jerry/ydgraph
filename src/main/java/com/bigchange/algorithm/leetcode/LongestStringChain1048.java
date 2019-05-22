@@ -71,6 +71,7 @@ public class LongestStringChain1048 {
     return res;
   }
 
+  // this match method is really fast
   private static boolean match(String x, String y)
   {
     for (int i = 0; i < x.length(); ++i)
@@ -84,7 +85,7 @@ public class LongestStringChain1048 {
   }
 
 
-  // 69 ms
+  // 13 ms
   // 预处理好需要继续LCS的words, 时间变快
   Map<Integer, ArrayList<String>> newWordsMap = new HashMap<>();
   Set<String>  visit = new HashSet<>();
@@ -161,7 +162,7 @@ public class LongestStringChain1048 {
     int ret = len;
     for (int i= 0; i< words.size();i++) {
       String word = words.get(i);
-      boolean lcs = maxLCS(wordBase, word);
+      boolean lcs = match(wordBase, word);
       if (lcs) {
         visit.add(word);
         ArrayList<String> newWords = newWords(word);
