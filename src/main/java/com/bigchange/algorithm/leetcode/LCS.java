@@ -44,7 +44,7 @@ public class LCS {
       System.out.println("\n");
     }
   }
-  // 最长公共子序列(lcs.png)
+  // 最长公共子序列(lcs-子序列可以不连续.png)，如何回溯找到子序列是什么？
   public int maxLCS(String a, String b) {
     int maxa = a.length() + 1;
     int maxb = b.length() + 1;
@@ -67,7 +67,7 @@ public class LCS {
     printArray(c, maxa, maxb);
     return c[maxa-1][maxb-1];
   }
-  // 最长公共字串(lcs2.png)
+  // 最长公共字串(lcs2-子串连续的.png), 如何回溯找到子串是什么？
   public int maxLcs(String str1, String str2) {
     int len1 = str1.length();
     int len2 = str2.length();
