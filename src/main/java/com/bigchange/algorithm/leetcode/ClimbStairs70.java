@@ -22,6 +22,7 @@ public class ClimbStairs70 {
   // Memoization
   Map<Integer, Integer> hashTable = new HashMap<>();
 
+  // 递归：自顶向下的求解
   public int climbStairs(int n) {
     if (hashTable.containsKey(n)) {
       return hashTable.get(n);
@@ -38,6 +39,7 @@ public class ClimbStairs70 {
     return  res;
   }
 
+  // 自底向上的求解过程： 边界， 最优子结构(就是往后退一步，能够得到的最好的结果)， 状态转移方程
   // Dynamic Programming
   public int climbStairsWithDP(int n) {
     if (n == 1) {
@@ -46,9 +48,20 @@ public class ClimbStairs70 {
     int[] dp = new int[n + 1];
     dp[1] = 1;
     dp[2] = 2;
+    int a = 1;
+    int b = 2;
+    int temp = 0;
+    if (n ==1)
+      temp = a;
+    else if (n== 2)
+      temp=b;
     for (int i = 3; i <= n; i++) {
+      temp = a + b;
+      a = b;
+      b = temp;
       dp[i] = dp[i - 1] + dp[i - 2];
     }
+    // return temp // 可降低
     return dp[n];
   }
 
