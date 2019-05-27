@@ -44,11 +44,12 @@ public class MyCircularQueue {
     if(isEmpty()) {
       return  false;
     }
-    head = (head +1 ) % size;
     if (head == tail) {
       head = -1;
       tail = -1;
     }
+    head = (head +1 ) % size;
+
     return  true;
   }
 
