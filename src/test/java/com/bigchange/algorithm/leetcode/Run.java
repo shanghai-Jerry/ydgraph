@@ -18,7 +18,14 @@ public class Run {
 
   public static void main(String[] args) {
     Run run = new Run();
-    run.println(new LastStoneWeightII1049().lastStoneWeightII(new int[]{2,7,4,1,8,1}));
-
+    MyCircularQueue circularQueue = new MyCircularQueue(3); // set the size to be 3
+    run.println(circularQueue.enQueue(1));  // return true
+    run.println(circularQueue.Rear());  // return 3
+    run.println(circularQueue.Rear());
+    run.println(circularQueue.Rear());
+    run.println(circularQueue.isFull());  // return true
+    run.println(circularQueue.deQueue());  // return true
+    run.println(circularQueue.enQueue(4));  // return true
+    run.println(circularQueue.Rear());  // return 4
   }
 }
