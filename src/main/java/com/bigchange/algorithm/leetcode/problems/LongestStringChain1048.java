@@ -1,4 +1,4 @@
-package com.bigchange.algorithm.leetcode;
+package com.bigchange.algorithm.leetcode.problems;
 
 import java.util.ArrayList;
 import java.util.HashMap;

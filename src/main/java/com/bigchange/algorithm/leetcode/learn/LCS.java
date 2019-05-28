@@ -1,4 +1,4 @@
-package com.bigchange.algorithm.leetcode;
+package com.bigchange.algorithm.leetcode.learn;
 
 import static java.lang.Math.max;
 

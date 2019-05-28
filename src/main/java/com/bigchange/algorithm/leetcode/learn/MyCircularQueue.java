@@ -1,7 +1,4 @@
-package com.bigchange.algorithm.leetcode;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.bigchange.algorithm.leetcode.learn;
 
 /**
  * User: JerryYou
@@ -9,6 +6,9 @@ import java.util.List;
  * Date: 2019-05-27
  *
  * Copyright (c) 2018 devops
+ *
+ * // 1. Initialize a queue.
+ *  Queue<Integer> q = new LinkedList();
  *
  * <<licensetext>>
  */
@@ -31,7 +31,7 @@ public class MyCircularQueue {
     if (isFull()) {
       return  false;
     }
-    if (head == -1) {
+    if (isEmpty()) {
       head = 0;
     }
     tail =  (tail + 1) % size;
@@ -47,9 +47,9 @@ public class MyCircularQueue {
     if (head == tail) {
       head = -1;
       tail = -1;
+      return true;
     }
     head = (head +1 ) % size;
-
     return  true;
   }
 
@@ -71,20 +71,11 @@ public class MyCircularQueue {
 
   /** Checks whether the circular queue is empty or not. */
   public boolean isEmpty() {
-    if (tail == -1) {
-      return true;
-    }
-    if (tail == head) {
-      return false;
-    }
-    return false;
+    return head == -1;
   }
 
   /** Checks whether the circular queue is full or not. */
   public boolean isFull() {
-    if (tail == -1) {
-      return  false;
-    }
     return (tail +1) % size == head ;
   }
 }
