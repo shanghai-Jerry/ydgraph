@@ -1,7 +1,7 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.learn.MyCircularQueue;
+import com.bigchange.algorithm.leetcode.problems.OpentheLock752;
 
 /**
  * User: JerryYou
@@ -20,6 +20,7 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    Run.println(new MyCircularQueue(3).isEmpty());
+    Run.println(new OpentheLock752().openLock(new String[]{"0201","0101","0102","1212","2002"},
+        "0202"));
   }
 }
