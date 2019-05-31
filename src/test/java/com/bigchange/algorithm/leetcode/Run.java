@@ -2,6 +2,7 @@ package com.bigchange.algorithm.leetcode;
 
 
 import com.bigchange.algorithm.leetcode.problems.OpentheLock752;
+import com.bigchange.algorithm.leetcode.problems.PerfectSquares;
 
 /**
  * User: JerryYou
@@ -20,7 +21,6 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    Run.println(new OpentheLock752().openLock(new String[]{"0201","0101","0102","1212","2002"},
-        "0202"));
+    Run.println(new PerfectSquares().numSquares(13));
   }
 }
