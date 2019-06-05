@@ -14,7 +14,7 @@ import java.util.List;
  *
  * <<licensetext>>
  */
-public class DailyTemperatures {
+public class DailyTemperatures739 {
 
   // stack的妙用
   public int[] dailyTemperatures(int[] T) {
