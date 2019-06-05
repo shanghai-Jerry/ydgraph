@@ -9,7 +9,7 @@ package com.bigchange.algorithm.leetcode.problems;
  *
  * <<licensetext>>
  */
-public class NumberofIslands {
+public class NumberofIslands200 {
 
   public int numIslands(char[][] grid) {
     int xLen = grid.length;
