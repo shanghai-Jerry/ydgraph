@@ -1,7 +1,7 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.problems.PerfectSquares279;
+import com.bigchange.algorithm.leetcode.problems.TargetSum494;
 
 /**
  * User: JerryYou
@@ -20,6 +20,7 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    Run.println(new PerfectSquares279().numSquares(7));
+    Run.println(new TargetSum494().findTargetSumWays(new int[]{1,1,1,1,1},3));
+
   }
 }
