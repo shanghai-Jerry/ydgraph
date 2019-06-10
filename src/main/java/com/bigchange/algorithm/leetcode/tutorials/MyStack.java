@@ -1,4 +1,4 @@
-package com.bigchange.algorithm.leetcode.learn;
+package com.bigchange.algorithm.leetcode.tutorials;
 
 import java.util.ArrayList;
 import java.util.List;

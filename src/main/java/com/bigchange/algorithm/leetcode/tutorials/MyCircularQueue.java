@@ -1,4 +1,4 @@
-package com.bigchange.algorithm.leetcode.learn;
+package com.bigchange.algorithm.leetcode.tutorials;
 
 /**
  * User: JerryYou
