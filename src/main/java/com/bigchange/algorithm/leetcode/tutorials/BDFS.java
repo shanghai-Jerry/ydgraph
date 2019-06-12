@@ -9,7 +9,7 @@ package com.bigchange.algorithm.leetcode.tutorials;
  *
  * <<licensetext>>
  */
-public class BFS {
+public class BDFS {
 
   /*
   // Return the length of the shortest path between root and target node.

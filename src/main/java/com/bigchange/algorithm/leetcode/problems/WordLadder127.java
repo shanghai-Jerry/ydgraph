@@ -110,10 +110,10 @@ public class WordLadder127 {
           }
         });
 
-    // Queues for birdirectional BFS
-    // BFS starting from beginWord
+    // Queues for birdirectional BDFS
+    // BDFS starting from beginWord
     Queue<Pair> Q_begin = new LinkedList<>();
-    // BFS starting from endWord
+    // BDFS starting from endWord
     Queue<Pair> Q_end = new LinkedList<>();
     Q_begin.add(new Pair(beginWord, 1));
     Q_end.add(new Pair(endWord, 1));
@@ -161,7 +161,7 @@ public class WordLadder127 {
           }
         });
 
-    // Queue for BFS
+    // Queue for BDFS
     Queue<Pair> Q = new LinkedList<>();
     Q.add(new Pair(beginWord, 1));
 
@@ -185,7 +185,7 @@ public class WordLadder127 {
           if (adjacentWord.equals(endWord)) {
             return level + 1;
           }
-          // Otherwise, add it to the BFS Queue. Also mark it visited
+          // Otherwise, add it to the BDFS Queue. Also mark it visited
           if (!visited.containsKey(adjacentWord)) {
             visited.put(adjacentWord, true);
             Q.add(new Pair(adjacentWord, level + 1));

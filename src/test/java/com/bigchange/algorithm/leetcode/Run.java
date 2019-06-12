@@ -1,7 +1,7 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.problems.DecodeString394;
+import com.bigchange.algorithm.leetcode.problems.P01Matrix;
 
 /**
  * User: JerryYou
@@ -20,7 +20,10 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    Run.println(new DecodeString394().decodeString("3[z]2[2[y]pq4[2[jk]e1[f]]]ef"));
+    Run.println(new P01Matrix().updateMatrix(new int[][]{
+        {0,0,1,0,1,1,1,0,1,1},
+        {1,1,1,1,0,1,1,1,1,1}
+    }));
 
   }
 }
