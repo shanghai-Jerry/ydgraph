@@ -1,7 +1,7 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.problems.TargetSum494;
+import com.bigchange.algorithm.leetcode.problems.DecodeString394;
 
 /**
  * User: JerryYou
@@ -20,7 +20,7 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    Run.println(new TargetSum494().findTargetSumWays(new int[]{1,1,1,1,1},3));
+    Run.println(new DecodeString394().decodeString("3[z]2[2[y]pq4[2[jk]e1[f]]]ef"));
 
   }
 }
