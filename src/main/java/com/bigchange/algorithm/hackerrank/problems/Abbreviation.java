@@ -9,7 +9,7 @@ package com.bigchange.algorithm.hackerrank.problems;
  *
  * <<licensetext>>
  */
-public class Solution {
+public class Abbreviation {
 
   /**
    * What we need to solve is, regardless of the case, if b is a subsequence of a with the
