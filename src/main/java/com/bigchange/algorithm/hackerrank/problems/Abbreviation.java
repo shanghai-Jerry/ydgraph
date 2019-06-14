@@ -65,7 +65,7 @@ public class Abbreviation {
           // elif uppercase a == b, set = prev character bool. or just eat a.
           isValid[k][l] = isValid[k-1][l-1] || isValid[k-1][l];
         } else if (a.charAt(i) <= 90 && a.charAt(i) >= 65) {
-          // elif uppercase a
+          // elif uppercase a but a != b
           isValid[k][l] = false;
         } else {
           //else just eat a
