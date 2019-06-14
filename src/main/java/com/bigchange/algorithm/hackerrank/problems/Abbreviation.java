@@ -38,6 +38,7 @@ public class Abbreviation {
     boolean[][] isValid = new boolean[a.length()+1][b.length()+1];
     // initializing the first raw to all false; ie. if b is
     // not empty, isValid will always be false
+    // emptyString == emptyString
     isValid[0][0] = true;
     // array initialization - if a is non-empty but b is empty,
     // then isValid == true iff remaining(a) != contain uppercase
@@ -45,10 +46,12 @@ public class Abbreviation {
     for (int k = 1; k <= a.length(); k++) {
       int i = k - 1;
       // if the pointer at string a is uppercase
+      // (upper-case letter) != emptyString
       if (a.charAt(i) <= 90 && a.charAt(i) >= 65 || containsUppercase) {
         containsUppercase = true;
         isValid[k][0] = false;
       }
+      // (lower-case -> emptyString) == emptyString
       else isValid[k][0] = true;
     }
     // tabulation from start of string
@@ -64,7 +67,7 @@ public class Abbreviation {
           isValid[k][l] = isValid[k-1][l-1] || isValid[k-1][l];
           continue;
         }
-        // elif a is uppercase and no more b, or uppercase a is not b, then false
+        // elif uppercase a
         else if (a.charAt(i) <= 90 && a.charAt(i) >= 65) {
           isValid[k][l] = false;
           continue;
@@ -77,6 +80,11 @@ public class Abbreviation {
       }
     }
     return isValid[a.length()][b.length()]? "YES" : "NO";
+  }
+
+  private static boolean isUpperCase(char c) {
+    String letter = String.valueOf(c);
+    return letter.toUpperCase().equals(letter);
   }
 
 }
