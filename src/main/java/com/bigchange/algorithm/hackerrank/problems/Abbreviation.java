@@ -58,24 +58,18 @@ public class Abbreviation {
     for (int k = 1; k <= a.length(); k++) {
       for (int l = 1; l <= b.length(); l++) {
         int i = k - 1; int j = l - 1;
-        // when the characters are equal, set = previous character bool.
         if (a.charAt(i) == b.charAt(j)) {
+          // when the characters are equal, set = previous character bool.
           isValid[k][l] = isValid[k-1][l-1];
-          continue;
-        }// elif uppercase a == b, set = prev character bool. or just eat a.
-        else if ((int) a.charAt(i) - 32 == (int) b.charAt(j)) {
+        } else if ((int) a.charAt(i) - 32 == (int) b.charAt(j)) {
+          // elif uppercase a == b, set = prev character bool. or just eat a.
           isValid[k][l] = isValid[k-1][l-1] || isValid[k-1][l];
-          continue;
-        }
-        // elif uppercase a
-        else if (a.charAt(i) <= 90 && a.charAt(i) >= 65) {
+        } else if (a.charAt(i) <= 90 && a.charAt(i) >= 65) {
+          // elif uppercase a
           isValid[k][l] = false;
-          continue;
-        }
-        //else just eat a
-        else {
+        } else {
+          //else just eat a
           isValid[k][l] = isValid[k-1][l];
-          continue;
         }
       }
     }
