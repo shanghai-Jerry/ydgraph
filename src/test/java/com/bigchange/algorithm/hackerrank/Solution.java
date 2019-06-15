@@ -1,4 +1,4 @@
-package com.bigchange.algorithm.leetcode;
+package com.bigchange.algorithm.hackerrank;
 
 /**
  * User: JerryYou
