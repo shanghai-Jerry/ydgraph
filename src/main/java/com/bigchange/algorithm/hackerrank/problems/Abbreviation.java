@@ -55,6 +55,7 @@ public class Abbreviation {
       else isValid[k][0] = true;
     }
     // tabulation from start of string
+    // for 循环的套路都是如此， 寻找状态转移方程即可
     for (int k = 1; k <= a.length(); k++) {
       for (int l = 1; l <= b.length(); l++) {
         int i = k - 1; int j = l - 1;
