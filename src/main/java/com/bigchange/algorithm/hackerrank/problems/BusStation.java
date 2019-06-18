@@ -1,52 +1,9 @@
 package com.bigchange.algorithm.hackerrank.problems;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class BusStation {
-
-  private static final Scanner scanner = new Scanner(System.in);
-
-  public static void main(String[] args) throws IOException {
-
-    System.setProperty("OUTPUT_PATH", "./out_put.txt");
-
-    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getProperty("OUTPUT_PATH")));
-
-    int aCount = 100000;
-    // scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
-
-    int[] a = new int[aCount];
-
-    // String[] aItems = scanner.nextLine().split(" ");
-    // scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
-
-    for (int aItr = 0; aItr < aCount; aItr++) {
-      int aItem = Integer.parseInt("10000");
-      a[aItr] = aItem;
-    }
-
-    int[] result = solve(a);
-
-    for (int resultItr = 0; resultItr < result.length; resultItr++) {
-      bufferedWriter.write(String.valueOf(result[resultItr]));
-
-      if (resultItr != result.length - 1) {
-        bufferedWriter.write(" ");
-      }
-    }
-
-    bufferedWriter.newLine();
-
-    bufferedWriter.close();
-
-    scanner.close();
-  }
-
 
   // Complete the solve function below.
   static int[] solve(int[] a) {
@@ -63,14 +20,21 @@ public class BusStation {
     dp[0] = true;
     dp[sum] = true;
     int total_count = 0;
+    // 按顺序计算可能的组合人数和
     for (int i = a.length - 1; i >= 0; i--) {
       int ai = a[i];
       total_count += ai;
       dp[total_count] = true;
     }
-    int num = sum / max + 1;
-    // System.out.println("sum:" + sum + ",num:" + num);
+    // 先确定可能需要的最多公交车数量, 车不允许多
+    int  num;
+    if (sum % max == 0) {
+      num = sum / max;
+    } else {
+      num = sum / max + 1;
+    }
     List<Integer> carNums = new ArrayList<>();
+    // 针对每个公交车数量, 得到每批应该装下的人gap，第k辆车装满人数后的dp[total + k * gap]是否都满足存在
     for (int k = 1; k <= num; k++) {
       int total;
       if (sum % k == 0) {
@@ -78,7 +42,6 @@ public class BusStation {
         total = gap;
         boolean isTrue = true;
         while (total != sum) {
-          // System.out.println("dp:" + total + "," + dp[total]);
           if (dp[total]) {
             total += gap;
           } else {
