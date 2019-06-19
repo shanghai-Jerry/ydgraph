@@ -25,5 +25,7 @@ public class DivideAndConquer {
    *     return combine([R1, R2,... Rn])
    */
 
+  // master
+  // https://leetcode.com/explore/learn/card/recursion-ii/470/divide-and-conquer/2871/
 
 }

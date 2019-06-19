@@ -1,6 +1,8 @@
 package com.bigchange.algorithm.leetcode;
 
 
+import com.bigchange.algorithm.leetcode.problems.NQueensII52;
+
 /**
  * User: JerryYou
  *
@@ -18,10 +20,7 @@ public  class Run {
 
   public static void main(String[] args) {
 
-    /*Run.println(new P01Matrix().updateMatrix(new int[][]{
-        {0,0,1,0,1,1,1,0,1,1},
-        {1,1,1,1,0,1,1,1,1,1}
-    }));*/
+    Run.println(new NQueensII52().totalNQueens(4));
 
   }
 }

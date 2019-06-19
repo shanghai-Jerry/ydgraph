@@ -9,7 +9,7 @@ package com.bigchange.algorithm.leetcode.problems;
  *
  * <<licensetext>>
  */
-public class Searcha2DMatrixII {
+public class Searcha2DMatrixII240 {
 
   // 从最右上角的地方开始
   public boolean searchMatrix(int[][] matrix, int target) {

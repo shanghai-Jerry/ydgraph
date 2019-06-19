@@ -31,6 +31,26 @@ public class QuickSort {
     }
   }
 
+  private int partition(int [] lst, int lo, int hi) {
+    /*
+      Picks the last element hi as a pivot
+      and returns the index of pivot value in the sorted array */
+    int pivot = lst[hi];
+    int i = lo;
+    for (int j = lo; j < hi; ++j) {
+      if (lst[j] < pivot) {
+        int tmp = lst[i];
+        lst[i] = lst[j];
+        lst[j] = tmp;
+        i++;
+      }
+    }
+    int tmp = lst[i];
+    lst[i] = lst[hi];
+    lst[hi] = tmp;
+    return i;
+  }
+
   //  按pivotkey位置排序，左边小于，右边大于
   private int partition(int low, int high) {
     int pivotkey = arr[low];
