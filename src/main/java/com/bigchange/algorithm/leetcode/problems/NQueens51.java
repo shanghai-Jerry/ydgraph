@@ -13,7 +13,7 @@ import java.util.List;
  *
  * <<licensetext>>
  */
-public class NQueensII51 {
+public class NQueens51 {
 
   int [][] matrix;
   int N;
