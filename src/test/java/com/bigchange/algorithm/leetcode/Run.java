@@ -1,7 +1,7 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.problems.NQueensII52;
+import com.bigchange.algorithm.leetcode.problems.SudokuSolver37;
 
 /**
  * User: JerryYou
@@ -19,8 +19,16 @@ public  class Run {
   }
 
   public static void main(String[] args) {
-
-    Run.println(new NQueensII52().totalNQueens(4));
-
+    String [] custom_input  = new String[]{
+        "53..7....",
+        "6..195...",
+        ".98....6.",
+        "8...6...3",
+        "4..8.3..1",
+        "7...2...6",
+        ".6....28.",
+        "...419..5",
+        "....8..79" };
+    new SudokuSolver37().setInputString(custom_input);
   }
 }
