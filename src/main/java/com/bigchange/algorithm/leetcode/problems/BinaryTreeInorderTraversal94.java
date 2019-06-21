@@ -33,6 +33,45 @@ public class BinaryTreeInorderTraversal94 {
     return  list;
   }
 
+  // hard to explanation
+  public List <Integer> inorderTraversal_threaded_binary_tree(TreeNode root) {
+    List < Integer > res = new ArrayList <> ();
+    TreeNode curr = root;
+    TreeNode pre;
+    while (curr != null) {
+      if (curr.left == null) {
+        res.add(curr.val);
+        curr = curr.right; // move to next right node
+      } else { // has a left subtree
+        pre = curr.left;
+        while (pre.right != null) { // find rightmost
+          pre = pre.right;
+        }
+        pre.right = curr; // put cur after the pre node
+        TreeNode temp = curr; // store cur node
+        curr = curr.left; // move cur to the top of the new tree
+        temp.left = null; // original cur left be null, avoid infinite loops
+      }
+    }
+    return res;
+  }
+
+  public List <Integer> inorderTraversal_stack(TreeNode root) {
+    List < Integer > res = new ArrayList < > ();
+    Stack < TreeNode > stack = new Stack < > ();
+    TreeNode curr = root;
+    while (curr != null || !stack.isEmpty()) {
+      while (curr != null) {
+        stack.push(curr);
+        curr = curr.left;
+      }
+      curr = stack.pop();
+      res.add(curr.val);
+      curr = curr.right;
+    }
+    return res;
+  }
+
   // 逻辑更严谨，更清晰： 当前node有left先进，需要将push后的节点重置为null，类似与已经visit的逻辑，不能重复访问
   public List<Integer> inorderTraversal_iteratively_2(TreeNode root) {
     List<Integer> ret = new LinkedList<>();

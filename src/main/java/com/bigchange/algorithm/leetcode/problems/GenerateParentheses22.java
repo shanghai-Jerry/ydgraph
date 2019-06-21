@@ -18,6 +18,38 @@ import java.util.Map;
  */
 public class GenerateParentheses22 {
 
+  public List<String> generateParenthesis(int n) {
+    List<String> ans = new ArrayList();
+    if (n == 0) {
+      ans.add("");
+    } else {
+      for (int c = 0; c < n; ++c)
+        for (String left: generateParenthesis(c))
+          for (String right: generateParenthesis(n-1-c))
+            ans.add("(" + left + ")" + right);
+    }
+    return ans;
+  }
+
+  // backtracking - 简练的解法 - 神奇 - 可以好好体会其中的逻辑
+  public List<String> generateParenthesis_backtrack(int n) {
+    List<String> ans = new ArrayList();
+    backtrack(ans, "", 0, 0, n);
+    return ans;
+  }
+
+  public void backtrack(List<String> ans, String cur, int open, int close, int max){
+    if (cur.length() == max * 2) {
+      ans.add(cur);
+      return;
+    }
+
+    if (open < max)
+      backtrack(ans, cur+"(", open+1, close, max);
+    if (close < open)
+      backtrack(ans, cur+")", open, close+1, max);
+  }
+
   class Pair {
     // 下标位置
     int index;
@@ -72,9 +104,37 @@ public class GenerateParentheses22 {
     return result;
   }
 
-  Map<Integer, List<String>> map = new HashMap<>();
+  public List<String> generateParenthesis_brute_force(int n) {
+    List<String> combinations = new ArrayList();
+    generateAll(new char[2 * n], 0, combinations);
+    return combinations;
+  }
 
-  public List<String> generateParenthesis(int n) {
+  public void generateAll(char[] current, int pos, List<String> result) {
+    if (pos == current.length) {
+      if (valid(current))
+        result.add(new String(current));
+    } else {
+      current[pos] = '(';
+      generateAll(current, pos+1, result);
+      current[pos] = ')';
+      generateAll(current, pos+1, result);
+    }
+  }
+
+  public boolean valid(char[] current) {
+    int balance = 0;
+    for (char c: current) {
+      if (c == '(') balance++;
+      else balance--;
+      if (balance < 0) return false;
+    }
+    return (balance == 0);
+  }
+
+  // DP: myself solution
+  Map<Integer, List<String>> map = new HashMap<>();
+  public List<String> generateParenthesis_dp(int n) {
     map.put(1, Arrays.asList("()"));
     map.put(2, Arrays.asList("()()", "(())"));
     for (int i = 3; i <= n; i++) {
