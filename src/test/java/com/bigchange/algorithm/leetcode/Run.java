@@ -1,7 +1,9 @@
 package com.bigchange.algorithm.leetcode;
 
 
-import com.bigchange.algorithm.leetcode.problems.Combinations77;
+import com.bigchange.algorithm.leetcode.problems.GenerateParentheses22;
+
+import java.util.List;
 
 /**
  * User: JerryYou
@@ -19,6 +21,11 @@ public  class Run {
   }
 
   public static void main(String[] args) {
-    new Combinations77().combine(4, 2);
+
+    List<String> ret =  new GenerateParentheses22().generateParenthesis_backtracking(3);
+    for (String item : ret) {
+      System.out.println(item);
+    }
   }
 }
+
