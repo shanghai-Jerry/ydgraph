@@ -3,15 +3,11 @@ package com.higgs.client;
 import com.higgs.utils.FileUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.okhttp.OkHttpChannelBuilder;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import kb.rpc.dept.BatchDeptRequest;
@@ -38,11 +34,11 @@ public class DeptNormClient {
    * Construct client connecting to server at {@code host:port}.
    */
   public DeptNormClient(String host, int port) {
-    this(OkHttpChannelBuilder.forAddress(host, port).usePlaintext(true));
+    this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
   }
 
   public DeptNormClient(String hostAndPort) {
-    this(OkHttpChannelBuilder.forAddress(hostAndPort.split(":")[0],
+    this(ManagedChannelBuilder.forAddress(hostAndPort.split(":")[0],
         Integer.parseInt(hostAndPort.split(":")[1])).usePlaintext(true));
   }
 
