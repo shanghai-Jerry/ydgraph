@@ -140,9 +140,9 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>false</overWriteIfNewer>
                         </configuration>
                     </execution>
                 </executions>
@@ -155,7 +155,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.higgs.grakn.DataMigration</mainClass>
+                            <mainClass>com.higgs.grakn.data.CompanyDeptMigration</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -251,6 +251,17 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
             <version>[3.5.4,)</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-handler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec-http2</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
@@ -268,68 +279,16 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>19.0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-handler -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-            <version>4.1.17.Final</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-http -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-            <version>4.1.23.Final</version>
+            <version>20.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-common -->
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>4.1.23.Final</version>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.12.Final</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-common -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-dns</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-socks</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver-dns</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>4.1.23.Final</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.sangupta/murmur -->
         <dependency>
@@ -399,27 +358,6 @@
             <groupId>org.sharegov</groupId>
             <artifactId>mjson</artifactId>
             <version>1.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grakn.core</groupId>
-            <artifactId>concept</artifactId>
-            <version>1.5.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.graql</groupId>
-                    <artifactId>lang</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.graql</groupId>
-            <artifactId>lang</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grakn.client</groupId>
-            <artifactId>api</artifactId>
-            <version>1.5.2</version>
         </dependency>
 
     </dependencies>
