@@ -6,7 +6,7 @@ import com.higgs.dgraph.DClient;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 

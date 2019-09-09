@@ -1,0 +1,6 @@
+# 查询是技能的实体
+{
+  isskills(func: eq(entity-type, "技能"), first:10,offset:1000) {
+    name
+  }
+}

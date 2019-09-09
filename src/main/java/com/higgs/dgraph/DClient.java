@@ -4,6 +4,14 @@ import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.JsonFormat;
 
+import com.higgs.client.dgrpah.DgraphClient;
+import com.higgs.client.dgrpah.TxnConflictException;
+import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.node.EntityNode;
+import com.higgs.dgraph.put.EdgeFacetPut;
+import com.higgs.dgraph.put.EdgeFacetsPut;
+import com.higgs.dgraph.put.Nodeput;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -12,15 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.higgs.client.dgrpah.DgraphClient;
-import com.higgs.client.dgrpah.TxnConflictException;
-import com.higgs.dgraph.del.NodeDel;
-import com.higgs.dgraph.node.EntityNode;
-import com.higgs.dgraph.put.EdgeFacetPut;
-import com.higgs.dgraph.put.EdgeFacetsPut;
-import com.higgs.dgraph.put.Nodeput;
-import io.dgraph.DgraphGrpc;
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphGrpc;
+import io.dgraph.bigchange.DgraphProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -709,6 +710,31 @@ public class  DClient {
     } catch (Exception e) {
       logger.info("[multiplyEdgesDeleteMutation Exception] =>" + e.getMessage());
       assigned = mutateRetry(mu, e);
+    } finally {
+      txn.discard();
+    }
+    if (assigned == null) {
+      logger.info("[Final] Retry Error!!");
+    }
+    return assigned;
+  }
+
+  public DgraphProto.Assigned mutation(List<DgraphProto.NQuad> nQuads, boolean needRetry) {
+    DgraphClient.Transaction txn = this.dgraphClient.newTransaction();
+    DgraphProto.Assigned assigned = null;
+    DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder()
+        .addAllSet(nQuads)
+        .build();
+    try {
+      assigned = txn.mutate(mu);
+      txn.commit();
+    } catch (Exception e) {
+      logger.info("[multiplyEdgeMutation Exception] =>" + e.getMessage());
+      if (needRetry) {
+        assigned = mutateRetry(mu, e);
+      } else {
+        assigned = null;
+      }
     } finally {
       txn.discard();
     }

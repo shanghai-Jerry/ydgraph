@@ -16,6 +16,13 @@ import java.time.Period;
  * <<licensetext>>
  */
 public class TimeUtil {
+  public static String costTime(long cost) {
+    long hour = cost / 3600;
+    long min = (cost - hour * 3600) / 60;
+    long second = (cost - hour * 3600 - min * 60);
+    return  hour + "时" + min + "分" + second + "秒";
+  }
+
 
   public static DateFormat getDataFormator() {
     return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");

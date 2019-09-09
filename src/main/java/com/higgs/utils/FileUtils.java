@@ -264,7 +264,7 @@ public class FileUtils {
         printWriter.write(line);
         printWriter.write("\n");
         count++;
-        if (count >= 200) {
+        if (count >= 1000) {
           printWriter.flush();
           count = 0;
         }

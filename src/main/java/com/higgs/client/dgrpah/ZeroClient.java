@@ -1,11 +1,8 @@
 package com.higgs.client.dgrpah;
 
-import javax.security.sasl.SaslServer;
-
 import intern.Internal;
 import intern.ZeroGrpc;
-import io.dgraph.DgraphGrpc;
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.vertx.core.logging.Logger;

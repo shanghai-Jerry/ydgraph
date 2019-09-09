@@ -18,7 +18,7 @@ syntax = "proto3";
 
 package api;
 
-option java_package = "io.dgraph";
+option java_package = "io.dgraph.bigchange";
 option java_outer_classname = "DgraphProto";
 
 // Graph response.

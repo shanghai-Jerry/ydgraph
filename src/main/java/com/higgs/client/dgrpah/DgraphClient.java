@@ -16,18 +16,28 @@
 
 package com.higgs.client.dgrpah;
 
-import io.dgraph.DgraphGrpc;
-import io.dgraph.DgraphProto.*;
-import io.grpc.Status.Code;
-import io.grpc.StatusRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.dgraph.bigchange.DgraphGrpc;
+import io.dgraph.bigchange.DgraphProto;
+import io.dgraph.bigchange.DgraphProto.Assigned;
+import io.dgraph.bigchange.DgraphProto.LinRead;
+import io.dgraph.bigchange.DgraphProto.Mutation;
+import io.dgraph.bigchange.DgraphProto.NQuad;
+import io.dgraph.bigchange.DgraphProto.Request;
+import io.dgraph.bigchange.DgraphProto.Response;
+import io.dgraph.bigchange.DgraphProto.TxnContext;
+import io.dgraph.bigchange.DgraphProto.Value;
+import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
 
 /**
  * Implementation of a DgraphClient using grpc.
@@ -45,13 +55,13 @@ public class DgraphClient {
 
   private int deadlineSecs;
 
-  private LinRead linRead;
+  private DgraphProto.LinRead linRead;
 
   final ReentrantLock lrLck = new ReentrantLock();
 
-  LinRead getLinRead() {
+  DgraphProto.LinRead getLinRead() {
     lrLck.lock();
-    LinRead lr = LinRead.newBuilder(linRead).build();
+    DgraphProto.LinRead lr = DgraphProto.LinRead.newBuilder(linRead).build();
     lrLck.unlock();
     return lr;
   }
@@ -66,7 +76,7 @@ public class DgraphClient {
    */
   public DgraphClient(List<DgraphGrpc.DgraphBlockingStub> clients) {
     this.clients = clients;
-    linRead = LinRead.getDefaultInstance();
+    linRead = DgraphProto.LinRead.getDefaultInstance();
   }
 
   /**
@@ -115,7 +125,7 @@ public class DgraphClient {
    *
    * @param op a protocol buffer Operation object representing the operation being performed.
    */
-  public void alter(Operation op) {
+  public void alter(DgraphProto.Operation op) {
     final DgraphGrpc.DgraphBlockingStub client = anyClient();
     client.alter(op);
   }
@@ -130,7 +140,7 @@ public class DgraphClient {
    * @param predicates predicates of the edges to remove
    * @return a new Mutation object with the edges set
    */
-  public static Mutation deleteEdges(Mutation mu, String uid, String... predicates) {
+  public static DgraphProto.Mutation deleteEdges(Mutation mu, String uid, String... predicates) {
     Mutation.Builder b = Mutation.newBuilder(mu);
     for (String predicate : predicates) {
       b.addDel(
@@ -155,8 +165,8 @@ public class DgraphClient {
     return client;
   }
 
-  static LinRead mergeLinReads(LinRead dst, LinRead src) {
-    LinRead.Builder result = LinRead.newBuilder(dst);
+  static DgraphProto.LinRead mergeLinReads(DgraphProto.LinRead dst, DgraphProto.LinRead src) {
+    DgraphProto.LinRead.Builder result = DgraphProto.LinRead.newBuilder(dst);
     for (Map.Entry<Integer, Long> entry : src.getIdsMap().entrySet()) {
       if (dst.containsIds(entry.getKey())
           && dst.getIdsOrThrow(entry.getKey()) >= entry.getValue()) {

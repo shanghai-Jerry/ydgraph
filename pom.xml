@@ -55,6 +55,16 @@
         </repository>
 
         <repository>
+            <id>io-dgraph</id>
+            <name>io-dgraph </name>
+            <layout>default</layout>
+            <url> https://mvnrepository.com/artifact/io.dgraph/dgraph4j/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
             <id>jihui_one </id>
             <name> jihui_one </name>
             <layout> default</layout>
@@ -282,6 +292,31 @@
             <version>20.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.grpc/grpc-auth -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-auth</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-okhttp</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.netty/netty-common -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -358,6 +393,33 @@
             <groupId>org.sharegov</groupId>
             <artifactId>mjson</artifactId>
             <version>1.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sourceforge.javacsv</groupId>
+            <artifactId>javacsv</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dgraph</groupId>
+            <artifactId>dgraph4j</artifactId>
+            <version>2.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-netty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-stub</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
     </dependencies>

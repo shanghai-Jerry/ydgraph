@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.grpc.stub.StreamObserver;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;

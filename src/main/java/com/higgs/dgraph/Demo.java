@@ -10,9 +10,6 @@ import com.higgs.utils.FileUtils;
 import com.higgs.utils.TimeUtil;
 import com.higgs.utils.Util;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 

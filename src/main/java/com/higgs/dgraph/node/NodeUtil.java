@@ -2,6 +2,14 @@ package com.higgs.dgraph.node;
 
 import com.google.gson.Gson;
 
+import com.higgs.client.EntityIdClient;
+import com.higgs.dgraph.DClient;
+import com.higgs.dgraph.del.NodeDel;
+import com.higgs.dgraph.enumtype.EntityType;
+import com.higgs.dgraph.put.EdgeFacetPut;
+import com.higgs.dgraph.put.Nodeput;
+import com.sangupta.murmur.Murmur2;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,15 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.higgs.client.EntityIdClient;
-import com.higgs.dgraph.DClient;
-import com.higgs.dgraph.del.NodeDel;
-import com.higgs.dgraph.enumtype.EntityType;
-import com.higgs.dgraph.put.EdgeFacetPut;
-import com.higgs.dgraph.put.Nodeput;
-import com.sangupta.murmur.Murmur2;
-
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import io.dgraph.DgraphProto;
+import io.dgraph.bigchange.DgraphProto;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
