@@ -14,15 +14,25 @@
 }
 
 {
-  filterword(func: eq(name, "java")) {
+  filterword(func: eq(name, "bat")) {
     name
+    uid
     entity-type
+
   }
+  filterword2(func: eq(name, "速卖通")) {
+      name
+      uid
+      entity-type
+   }
 }
 
-# 3. k-shortest path between 0x25df49 to 0x257e0a (速卖通  -> bat )
+
+
+
+# 3. k-shortest path between 0x3b6ff4 to 0x3c78cd (速卖通  -> bat )
 {
-    path as shortest(from: 0x25df49, to: 0x257e0a) {
+    path as shortest(from: 0x3b6ff4, to: 0x3c78cd) {
        keyword-company
        company-corptype
 

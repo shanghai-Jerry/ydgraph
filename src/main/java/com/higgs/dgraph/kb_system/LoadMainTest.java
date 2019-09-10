@@ -189,17 +189,17 @@ public class LoadMainTest {
 
     // inputs.addAll(entityInputs);
 
-     /*
+     /**
      loadMainTest.dropSchema();
      loadMainTest.alterSchema(Config.kb_schema);
      loadMainTest.getLoadMain().connectAndMigrate(inputs);
      FileUtils.saveFiles(dir + "unique_id_2_uid.txt", loadMainTest.getLoadMain().uids);
      */
      // loadMainTest.mutateTest();
-    // loadMainTest.alterSchema(Config.updateSchema);
+     // loadMainTest.alterSchema(Config.updateSchema);
     loadMainTest.getEntityUniqueKey(Schema.Entity.ENTITY.getName(), "java");
     // loadMainTest.query();
-    loadMainTest.QueryMutation("java");
+    // loadMainTest.QueryMutation("java");
 
     logger.info("main Insert finished!!");
   }

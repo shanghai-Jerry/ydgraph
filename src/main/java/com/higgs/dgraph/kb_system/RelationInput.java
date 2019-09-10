@@ -69,15 +69,16 @@ public class RelationInput extends Input {
     outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
     String inUid = uids.getOrDefault(inVar, "");
     String outUid = uids.getOrDefault(outVar, "");
+    String relType = this.relType;
     if (this.relType.isEmpty()) {
-      this.relType = Variable.relationPairs.get(rel_type).getOutRel();
+      relType = Variable.relationPairs.get(rel_type).getOutRel();
     }
     if (inUid.isEmpty() || outUid.isEmpty()) {
       logger.info("relationFormat get uid error:" + inVar + ":" + in_value + "," + outVar + ":" + out_value);
       return squads;
     }
 
-    DgraphProto.NQuad squad = this.relationFormat(inUid, this.relType, outUid);
+    DgraphProto.NQuad squad = this.relationFormat(inUid, relType, outUid);
     squads.add(squad.toBuilder().addFacets(
         DgraphProto.Facet.newBuilder().setKey(Schema.Attribute.WEIGHT.getName())
             .setValTypeValue(DgraphProto.Facet.ValType.FLOAT_VALUE)
