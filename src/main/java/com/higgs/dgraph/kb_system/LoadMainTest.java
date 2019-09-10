@@ -69,7 +69,7 @@ public class LoadMainTest {
     String query = "";
     try {
       query = new String(Files.readAllBytes(Paths.get
-          ("src/main/resources/kb_system/query/entity_isexist.query")));
+          ("src/main/resources/kb_system/query/is_entity_exist.query")));
 
     } catch (IOException e) {
       e.printStackTrace();

@@ -46,14 +46,60 @@
 
 
 
-
 # 3. k-shortest path between 0x3d0cb0 to 0x3e0e19 (速卖通  -> bat )
 {
     path as shortest(from: 0x3d0cb0, to: 0x3e0e19) {
        keyword-company
        company-corptype
+       is-similarity
+       is-synonym
 
      }
+
+     path(func: uid(path)) {
+      name
+     }
+}
+
+# 4. k-short path between name and name
+# Method One
+{
+
+  u1 as key1(func: eq(name, "速卖通")) {
+     uid
+  }
+  u2 as  key2(func: eq(name, "bat")) {
+     uid
+   }
+
+  path as shortest(from: uid(u1), to:uid(u2)) {
+       keyword-company
+       company-corptype
+       is-similarity
+       is-synonym
+   }
+
+   path(func: uid(path)) {
+      name
+   }
+}
+
+# Method Two
+{
+
+  key1(func: eq(name, "速卖通")) {
+     u1 as uid
+  }
+  key2(func: eq(name, "bat")) {
+     u2 as uid
+   }
+  path as shortest(from: uid(u1), to:uid(u2)) {
+       keyword-company
+       company-corptype
+       is-similarity
+       is-synonym
+
+}
 
      path(func: uid(path)) {
       name

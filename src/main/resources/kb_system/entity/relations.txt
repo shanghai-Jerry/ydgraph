@@ -1,3 +1,4 @@
+NONE
 company-corptype
 school-schooltype
 entity-entitytype
