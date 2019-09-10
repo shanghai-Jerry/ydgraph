@@ -1,0 +1,34 @@
+# 1. 查询是技能的实体
+{
+  isskills(func: eq(entity-type, "技能"), first:10,offset:1000) {
+    name
+  }
+}
+
+# 2. 按条件搜索
+{
+  filterword(func: allofterms(name, "java")) {
+    name
+    entity-type
+  }
+}
+
+{
+  filterword(func: eq(name, "java")) {
+    name
+    entity-type
+  }
+}
+
+# 3. k-shortest path between 0x25df49 to 0x257e0a (速卖通  -> bat )
+{
+    path as shortest(from: 0x25df49, to: 0x257e0a) {
+       keyword-company
+       company-corptype
+
+     }
+
+     path(func: uid(path)) {
+      name
+     }
+}

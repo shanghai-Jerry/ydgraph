@@ -30,10 +30,11 @@ public class EntityInput extends Input {
   @Override
   public List<DgraphProto.NQuad> template(JsonObject data) {
     String name = data.getString("name");
+    long code = data.getLong("id");
     String var = Variable.getVarValue(this.inEntity, name);
     List<DgraphProto.NQuad> squads = new ArrayList<>();
     squads.add(attrFormat(var, Schema.Attribute.NAME.getName(), name, false));
-    squads.add(attrFormat(var, Schema.Attribute.DGRAPH_TYPE.getName(), this.inEntity, false));
+    squads.add(attrFormat(var, Schema.Attribute.CODE.getName(), code, false));
     return squads;
   }
 

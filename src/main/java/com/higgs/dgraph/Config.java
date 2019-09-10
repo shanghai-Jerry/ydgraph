@@ -1,5 +1,7 @@
 package com.higgs.dgraph;
 
+import com.higgs.dgraph.kb_system.schema.Schema;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +31,26 @@ public class Config {
   // 批次小一点速度快一些，但是不能太小
   public  static  int batch = 200;
 
-  public static  String kb_schema =
+  public static String type_schema = "type <实体类型> {\n" +
+      "   name: string\n" +
+      "}\n" +
+      "type <学校类型> {\n" +
+      "  name: string\n" +
+      "} \n" +
+      "type <实体> {\n" +
+      "  name: string\n" +
+      "} \n" +
+      "type <公司类型> {\n" +
+      "  name: string\n" +
+      "} \n"
+      ;
+
+  public static  String getKbSchema() {
+    return Schema.generateEntityTypeSchema()
+        + Schema.generateEntityAttributeSchema()
+        + Schema.generateEntityRealtionsSchema();
+  }
+  public static  String kb_schema = Schema.generateEntityTypeSchema() +
           // 属性
           "uid:int . \n" +
           "name:string .\n" +

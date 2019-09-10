@@ -29,6 +29,31 @@ import io.vertx.core.logging.LoggerFactory;
 public class FileUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+
+  public static void saveFileToCsv(String filePath, List<String> values, boolean append) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), append));
+      int count = 0;
+      for (String value : values) {
+        printWriter.write(value);
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
+
   /**
    * 读取对应的quey语句文件
    *

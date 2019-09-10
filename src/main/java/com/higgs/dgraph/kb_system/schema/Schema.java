@@ -13,10 +13,11 @@ public class Schema {
 
   // 实体
   public enum Entity {
-    NONE("NONE"),
-    ENTITY_TYPE_ENTITY("entity-type-entity"),
-    SCHOOL_TYPE_ENTITY("school-type-entity"),
-    ENTITY("entitytype-entity"),
+    NONE("未知"),
+    ENTITY_TYPE_ENTITY("实体类型"),
+    CORP_TYPE_ENTITY("公司类型"),
+    SCHOOL_TYPE_ENTITY("学校类型"),
+    ENTITY("实体"),
     KEYWORD("关键词"),
     JOB_FUNCTION("职能"),
     DIRECTION("方向"),
@@ -48,30 +49,46 @@ public class Schema {
     }
   }
 
+  public static String typeFormat(Object...orgs) {
+    String typeSchemaFormat = "type <%s> {\n" +
+        "   name: string\n" +
+        "}\n";
+    return String.format(typeSchemaFormat, orgs);
+  }
+
+  public static String generateEntityTypeSchema() {
+    String typeSchema = "";
+    Entity[] entities = Entity.values();
+    for (Entity entity : entities) {
+       typeSchema += typeFormat(entity.getName());
+    }
+    return  typeSchema;
+  }
+
   // 属性
   public enum Attribute {
     DGRAPH_TYPE("dgraph.type", "string"),
-    ENTITY_TYPE("entity-type", "string"),
+    ENTITY_TYPE("entity-type", "[string]"),
     NAME("name","string"),
-    CODE("code","long"),
+    CODE("code","int"),
     MAJOR_CODE("major-code","string"),
-    CORP_TYPE("corp-type","string"),
-    CORP_ALIAS("corp-alias","string"),
+    CORP_TYPE("corp-type","[string]"),
+    CORP_ALIAS("corp-alias","[string]"),
     CORP_ENG_NAME("corp-eng-name","string"),
-    CONSENSUS_TYPE("consensus-type","long"),
-    CONSENSUS_MAX_SCORE("consensus-maxscore","long"),
+    CONSENSUS_TYPE("consensus-type","int"),
+    CONSENSUS_MAX_SCORE("consensus-maxscore","int"),
     CONSENSUS_DESC("consensus-desc","string"),
-    CONSENSUS_FACET("consensus-facet","long"),
+    CONSENSUS_FACET("consensus-facet","int"),
     CONSENSUS_CLASS_NAME("consensus-classname","string"),
     LOC_CODE("loc-code","string"),
     CITY_TYPE("city-type","string"),
     LOC_CITY_CODE("loc-city-code","string"),
-    SCHOOL_TYPE("school-type","string"),
+    SCHOOL_TYPE("school-type","[string]"),
     SCHOOL_CODE("school-code","string"),
     IND_CODE("ind-code","string"),
     CERT_CODE("cert-code","string"),
     ESTABLISH_DATE("establish_date", "string"),
-    WEIGHT("weight", "double")
+    WEIGHT("weight", "float")
     ;
 
     private String name;
@@ -89,6 +106,25 @@ public class Schema {
     public String getType() {
       return type;
     }
+  }
+
+  public static String attributeFormat(Object... orgs) {
+    String typeSchemaFormat = "%s:%s .\n";
+    return String.format(typeSchemaFormat, orgs);
+  }
+
+  public static String generateEntityAttributeSchema() {
+
+    String typeSchema = "";
+    Attribute[] attributes = Attribute.values();
+    for (Attribute attribute : attributes) {
+      // predicate dgraph.type is reserved and is not allowed to be modified
+      if (attribute.getName() == Attribute.DGRAPH_TYPE.getName()) {
+        continue;
+      }
+      typeSchema += attributeFormat(attribute.getName(), attribute.getType());
+    }
+    return  typeSchema;
   }
 
   // 关系类型
@@ -208,4 +244,17 @@ public class Schema {
     }
   }
 
+  public static String relationFormat(Object... orgs) {
+    String typeSchemaFormat =  "%s:[uid] . \n";
+    return String.format(typeSchemaFormat, orgs);
+  }
+  public static String generateEntityRealtionsSchema() {
+
+    String typeSchema = "";
+    Relations[] relations = Relations.values();
+    for (Relations relation : relations) {
+      typeSchema += relationFormat(relation.getName());
+    }
+    return  typeSchema;
+  }
 }

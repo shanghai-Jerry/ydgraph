@@ -48,7 +48,7 @@ public class AttributeInput extends Input {
     String uid = uids.getOrDefault(var, "");
     List<DgraphProto.NQuad> squads = new ArrayList<>();
     if (uid.isEmpty()) {
-      logger.info("attrFormat get uid error");
+      logger.info("attrFormat get uid error:" + var + ":" + name);
       return squads;
     }
     for (String value : values) {

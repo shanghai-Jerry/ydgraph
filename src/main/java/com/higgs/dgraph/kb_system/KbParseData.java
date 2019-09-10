@@ -47,7 +47,7 @@ public class KbParseData {
         }
         JsonObject json = new JsonObject();
         json.put("id", Long.parseLong(values[0]))
-            .put("name", values[1])
+            .put("name", values[1].toLowerCase())
             .put("type", entityType)
             ;
         items.add(json);
@@ -69,9 +69,13 @@ public class KbParseData {
           continue;
         }
         JsonObject json = new JsonObject();
-        json.put("name", values[0])
-            .put("attribute_value", values[1])
+        String attr = values[1];
+        json.put("name", values[0].toLowerCase())
+            .put("attribute_value", attr)
         ;
+        if ("属性值类型".equals(attr)) {
+          continue;
+        }
         items.add(json);
       }
     } catch (FileNotFoundException e) {
@@ -90,8 +94,9 @@ public class KbParseData {
           continue;
         }
         JsonObject json = new JsonObject();
-        json.put("in_value", values[0])
-            .put("out_value", values[1])
+        json.put("in_value", values[0].toLowerCase())
+            .put("out_value", values[1].toLowerCase())
+            .put("rel_type", Integer.parseInt(values[2]))
             .put("weight", Double.valueOf(values[3]))
         ;
         items.add(json);
@@ -114,13 +119,20 @@ public class KbParseData {
         if (values.length != 3) {
           continue;
         }
-        String[] corps = values[1].split(",");
-        for (String corp : corps) {
+        String attrString = values[1];
+        if (attrString.isEmpty()) {
+          continue;
+        }
+        String[] attrs = attrString.split(",");
+        for (String att : attrs) {
           JsonObject json = new JsonObject();
-          json.put("in_value", values[0])
+          if ("属性值类型".equals(att)) {
+            continue;
+          }
+          json.put("in_value", values[0].toLowerCase())
               .put("in", inRel)
               .put("out", outRel)
-              .put("out_value", corp)
+              .put("out_value", att.toLowerCase())
           ;
           items.add(json);
         }

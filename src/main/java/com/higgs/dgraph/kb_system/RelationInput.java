@@ -50,16 +50,33 @@ public class RelationInput extends Input {
     String in_value = data.getString("in_value");
     String out_value = data.getString("out_value");
     double weight = data.getDouble("weight");
+    int rel_type = data.getInteger("rel_type", 0);
     List<DgraphProto.NQuad> squads = new ArrayList<>();
-    String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
-    String outVar =  Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
+    String inVar;
+    String outVar;
+    /* all entity is just entity, no other type for generating key
+    if (rel_type == 40 || rel_type == 42) {
+      outVar = Variable.getVarValue(Schema.Entity.CORP_TYPE_ENTITY.getName(), out_value);
+      inVar = Variable.getVarValue(Schema.Entity.CORP_TYPE_ENTITY.getName(), in_value);
+      if (rel_type == 42) {
+        inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+      }
+    } else {
+      inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+      outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
+    }*/
+    inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+    outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
     String inUid = uids.getOrDefault(inVar, "");
     String outUid = uids.getOrDefault(outVar, "");
-
+    if (this.relType.isEmpty()) {
+      this.relType = Variable.relationPairs.get(rel_type).getOutRel();
+    }
     if (inUid.isEmpty() || outUid.isEmpty()) {
       logger.info("relationFormat get uid error:" + inVar + ":" + in_value + "," + outVar + ":" + out_value);
       return squads;
     }
+
     DgraphProto.NQuad squad = this.relationFormat(inUid, this.relType, outUid);
     squads.add(squad.toBuilder().addFacets(
         DgraphProto.Facet.newBuilder().setKey(Schema.Attribute.WEIGHT.getName())

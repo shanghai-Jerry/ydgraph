@@ -40,10 +40,21 @@ public class Util {
 
   private static Logger logger = LoggerFactory.getLogger(Util.class);
 
+  public static void parseLatency(io.dgraph.DgraphProto.Response res) {
+    long processTime = res.getLatency().getProcessingNs();
+    Util.println("latency:", res.getLatency().toString());
+    logger.info("query took: " + TimeUtil.consumeTime(processTime / 1000/ 1000));
+  }
+
+  public static void println(io.dgraph.DgraphProto.Response res) {
+    formatPrintJson(res.getJson().toStringUtf8());
+    parseLatency(res);
+  }
+
   public static void parseLatency(DgraphProto.Response res) {
     long processTime = res.getLatency().getProcessingNs();
     Util.println("latency:", res.getLatency().toString());
-    logger.info("query took: \n" + TimeUtil.consumeTime(processTime / 1000/ 1000));
+    logger.info("query took: " + TimeUtil.consumeTime(processTime / 1000/ 1000));
   }
 
   public static  void formatPrintJson(String json) {
@@ -52,7 +63,7 @@ public class Util {
       Object obj = mapper.readValue(json, Object.class);
       logger.info("json:\n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj));
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.info("exception:" + e.getMessage());
     }
   }
   public static boolean checkPredicateValue(Object predicate) {

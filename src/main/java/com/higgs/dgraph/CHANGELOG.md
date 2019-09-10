@@ -1,6 +1,6 @@
 # Dgraph入库的操作流程
 
-现有操作流程介绍
+现有操作流程介绍（on version 1.0.x）
 
 # 1.1 json object的方式
   实体的表示: json object的形式，任何非json object的格式的数据，都需要考虑是否需要入库。

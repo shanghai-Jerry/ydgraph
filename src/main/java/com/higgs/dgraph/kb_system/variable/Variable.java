@@ -190,6 +190,9 @@ public class Variable {
     }
     return dataDir;
   }
+  public static String defaultGetVarValue(String key) {
+    return getVarValue(Schema.Entity.ENTITY.getName(), key);
+  }
 
   public static String getVarValue(String type ,String key)  {
     MessageDigest md = null;
@@ -222,5 +225,6 @@ public class Variable {
     String md5 = new BigInteger(1, md.digest()).toString(16);
     return md5;
   }
+
 
 }

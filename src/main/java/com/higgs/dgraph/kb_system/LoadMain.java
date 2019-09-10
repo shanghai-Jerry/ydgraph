@@ -146,6 +146,21 @@ public class LoadMain {
     return new DgraphClient(stub);
   }
 
+  public static void prepare_data() {
+    logger.info("prepare data ....");
+    EntityTypeAttributeFormat entityTypeAttributeFormat = new EntityTypeAttributeFormat();
+    entityTypeAttributeFormat.convertEntityType(
+        "/Users/devops/workspace/kb/kb_system/entity-type.csv",
+        "/Users/devops/workspace/kb/kb_system/entity-type-format.csv");
+    entityTypeAttributeFormat.convertRelation(
+        "/Users/devops/workspace/kb/kb_system",
+        "kb_relation_1567074526188.txt");
+    entityTypeAttributeFormat.entityFilterCorpType(
+        "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
+        "/Users/devops/workspace/kb/kb_system/kb_entity_corp_type.csv",
+        "/Users/devops/workspace/kb/kb_system/kb_entity_filter.csv");
+  }
+
   public static void main(String[] args) {
 
     String dir = Variable.dirFormat("/Users/devops/workspace/kb/kb_system", true);
@@ -154,19 +169,43 @@ public class LoadMain {
 
     LoadMain loadMain = new LoadMain(dClient);
 
+    // 数据预处理
+    prepare_data();
+
+    loadMain.dropSchema();
+
+    String schema = Config.getKbSchema();
+
+    // logger.info("Schema:\n" + schema);
+    loadMain.alterSchema(schema);
+
     Collection<Input> inputs = new ArrayList<>();
 
     // 所有实体入库
     List<EntityInput> entityInputs = Arrays.asList(
-        new EntityInput(dir + "kb_entity.csv", Schema.Entity.ENTITY.getName()),
+        new EntityInput(dir + "kb_entity_filter.csv",
+            Schema.Entity.ENTITY.getName()),
         new EntityInput(dir + "kb_entity_entity_type.csv",
-            Schema.Entity.ENTITY_TYPE_ENTITY.getName()),
+            Schema.Entity.ENTITY.getName()),
         new EntityInput(dir + "kb_entity_school_type.csv",
-            Schema.Entity.SCHOOL_TYPE_ENTITY.getName())
+            Schema.Entity.ENTITY.getName()),
+        new EntityInput(dir + "kb_entity_corp_type.csv",
+          Schema.Entity.ENTITY.getName())
     );
 
     inputs.addAll(entityInputs);
 
+    /**
+     * 先入库所有实体，获取uid
+     * 后面再入属性和关系
+     */
+    loadMain.connectAndMigrate(inputs);
+
+    logger.info("all entity finished, uids:" + loadMain.uids.size());
+
+    inputs.clear();
+
+    // 所有实体的相关属性
     List<Input> attributeInputs = Arrays.asList(
         new AttributeInput(dir + "corp_type.csv", Schema.Attribute.CORP_TYPE.getName(), loadMain.uids),
         new AttributeInput(dir + "cert_code.csv", Schema.Attribute.CERT_CODE.getName(), loadMain.uids),
@@ -199,7 +238,8 @@ public class LoadMain {
         String outUid = loadMain.uids.getOrDefault(outVar, "");
         List<DgraphProto.NQuad> squads = new ArrayList<>();
         if (inUid.isEmpty() || outUid.isEmpty()) {
-          logger.info("relationFormat get uid error");
+          logger.info("relationFormat get uid error:" + inVar + ":" + in_value + ","+outVar + ":"+
+              out_value);
           return squads;
         }
         squads.add(this.relationFormat(inUid, out, outUid));
@@ -224,9 +264,7 @@ public class LoadMain {
         String in = data.getString("in");
         String out = data.getString("out");
         String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
-        String outVar = Variable.getVarValue(Schema.Entity.SCHOOL_TYPE_ENTITY.getName(), out_value);
-        String relVar = Variable.getRelVarValue(Schema.RelType.SCHOOL_SCHOOL_TYPE.getName(), in_value,
-            out_value);
+        String outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
         String inUid = loadMain.uids.getOrDefault(inVar,"");
         String outUid = loadMain.uids.getOrDefault(outVar, "");
         List<DgraphProto.NQuad> squads = new ArrayList<>();
@@ -257,11 +295,18 @@ public class LoadMain {
         String in = data.getString("in");
         String out = data.getString("out");
         String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
-        String outVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE_ENTITY.getName(), out_value);
-        String relVar = Variable.getRelVarValue(Schema.RelType.ENTITY_ENTITY_TYPE.getName(), in_value,
-            out_value);
+        String outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
+        String inUid = loadMain.uids.getOrDefault(inVar,"");
+        String outUid = loadMain.uids.getOrDefault(outVar, "");
         List<DgraphProto.NQuad> squads = new ArrayList<>();
-        squads.add(this.relationFormat(inVar, out, outVar));
+        if (inUid.isEmpty() || outUid.isEmpty()) {
+          logger.info("relationFormat get uid error:" +inVar + ":" + in_value + ","+outVar + ":"+
+              out_value);
+          return squads;
+        }
+        squads.add(this.relationFormat(inUid, out, outUid));
+        // 添加dgraph.type属性
+        squads.add(this.attrFormat(inUid, Schema.Attribute.DGRAPH_TYPE.getName(), out_value, true));
         return squads;
       }
 
@@ -273,18 +318,18 @@ public class LoadMain {
         return items;
       }
     });
-    // 其他关系
+
+    // 其他的关系
     List<RelationInput> relationInputs = new ArrayList<>();
-    for (int i = 0; i <= 42; i++) {
-      relationInputs.add(new RelationInput(dir + "relation_" + String.valueOf(i) + ".csv",
-          Variable.relationPairs.get(i).getOutRel(), loadMain.uids));
-    }
+
+    relationInputs.add(new RelationInput(dir + "relation_format.csv",
+          "", loadMain.uids));
 
     inputs.addAll(relationInputs);
 
-    loadMain.dropSchema();
-    loadMain.alterSchema(Config.kb_schema);
     loadMain.connectAndMigrate(inputs);
+
+    // 保存uid
     FileUtils.saveFiles(dir + "unique_id_2_uid.txt", loadMain.uids);
 
     // loadMain.alterSchema(Config.updateSchema);

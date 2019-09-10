@@ -1,0 +1,3 @@
+{
+  entity as var(func: eq(name, "%s"))
+}
