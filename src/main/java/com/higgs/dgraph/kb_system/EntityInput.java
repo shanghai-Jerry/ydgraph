@@ -35,6 +35,8 @@ public class EntityInput extends Input {
     List<DgraphProto.NQuad> squads = new ArrayList<>();
     squads.add(attrFormat(var, Schema.Attribute.NAME.getName(), name, false));
     squads.add(attrFormat(var, Schema.Attribute.CODE.getName(), code, false));
+    // 添加dgraph.type
+    squads.add(attrFormat(var, Schema.Attribute.DGRAPH_TYPE.getName(), this.inEntity, false));
     return squads;
   }
 

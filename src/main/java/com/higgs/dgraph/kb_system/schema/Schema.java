@@ -1,5 +1,8 @@
 package com.higgs.dgraph.kb_system.schema;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * User: JerryYou
  *
@@ -13,56 +16,145 @@ public class Schema {
 
   // 实体
   public enum Entity {
-    NONE("未知"),
-    ENTITY_TYPE_ENTITY("实体类型"),
-    CORP_TYPE_ENTITY("公司类型"),
-    SCHOOL_TYPE_ENTITY("学校类型"),
-    ENTITY("实体"),
-    KEYWORD("关键词"),
-    JOB_FUNCTION("职能"),
-    DIRECTION("方向"),
-    INDUSTRY("行业"),
-    SKILL("技能"),
-    TOPIC("主题"),
-    CERTIFICATE("证书"),
-    MAJOR("专业"),
-    SCHOOL("学校"),
-    COMPANY("公司"),
-    MAJOR_CATEGORY("专业大类"),
-    MAJOR_DISCIPLINE("专业学科"),
-    LOCATION("城市"),
-    KNOW_NOT_RECOGNIZE("已知未识别"),
-    CONSENSUS("共识"),
-    JOB_TITLE("职位"),
-    JOB_RANK("职级"),
-    ATTRIBUTE("属性值类型"),
-    IT_ORANGE_INDUSTRY("IT桔子行业"),
-    DEPARTMENT("部门")
+    NONE("未知", Arrays.asList(
+        Attribute.NAME
+    )),
+    ENTITY_TYPE_ENTITY("实体类型",Arrays.asList(
+        Attribute.NAME)
+    ),
+    CORP_TYPE_ENTITY("公司类型",Arrays.asList(
+        Attribute.NAME
+    )),
+    SCHOOL_TYPE_ENTITY("学校类型",Arrays.asList(
+        Attribute.NAME
+    )),
+    ENTITY("实体",Arrays.asList(
+        Attribute.NAME
+    )),
+    KEYWORD("关键词",Arrays.asList(
+        Attribute.NAME
+    )),
+
+    JOB_FUNCTION("职能",Arrays.asList(
+        Attribute.NAME
+    )),
+
+    DIRECTION("方向",Arrays.asList(Attribute.NAME)),
+
+    INDUSTRY("行业",Arrays.asList(
+        Attribute.NAME,
+        Attribute.IND_CODE
+    )),
+
+    SKILL("技能",Arrays.asList(Attribute.NAME)),
+
+    TOPIC("主题",Arrays.asList(Attribute.NAME)),
+
+    CERTIFICATE("证书",Arrays.asList(
+        Attribute.NAME,
+        Attribute.CERT_CODE
+    )),
+
+    MAJOR("专业",Arrays.asList(
+        Attribute.NAME,
+        Attribute.MAJOR_CODE
+    )),
+
+    SCHOOL("学校",Arrays.asList(
+        Attribute.NAME,
+        Attribute.SCHOOL_CODE,
+        Attribute.SCHOOL_TYPE
+    )),
+
+    COMPANY("公司",Arrays.asList(
+        Attribute.NAME,
+        Attribute.CORP_TYPE,
+        Attribute.CORP_ALIAS,
+        Attribute.CORP_ENG_NAME
+    )),
+
+    MAJOR_CATEGORY("专业大类",Arrays.asList(
+        Attribute.NAME
+    )),
+
+    MAJOR_DISCIPLINE("专业学科",Arrays.asList(
+        Attribute.NAME
+    )),
+
+    LOCATION("城市",Arrays.asList(
+        Attribute.NAME,
+        Attribute.LOC_CODE,
+        Attribute.CITY_TYPE,
+        Attribute.LOC_CITY_CODE
+    )),
+
+    KNOW_NOT_RECOGNIZE("已知未识别",Arrays.asList(
+        Attribute.NAME
+    )),
+
+    CONSENSUS("共识",Arrays.asList(
+        Attribute.NAME,
+        Attribute.CONSENSUS_TYPE,
+        Attribute.CONSENSUS_MAX_SCORE,
+        Attribute.CONSENSUS_DESC,
+        Attribute.CONSENSUS_FACET,
+        Attribute.CONSENSUS_CLASS_NAME
+    )),
+    JOB_TITLE("职位",Arrays.asList(
+        Attribute.NAME
+    )),
+    JOB_RANK("职级",Arrays.asList(
+        Attribute.NAME
+    )),
+    ATTRIBUTE("属性值类型",Arrays.asList(
+        Attribute.NAME
+    )),
+    IT_ORANGE_INDUSTRY("IT桔子行业",Arrays.asList(
+        Attribute.NAME
+    )),
+    DEPARTMENT("部门",Arrays.asList(
+        Attribute.NAME
+    ))
     ;
     private String name;
-    Entity(String name) {
+
+    public List<Attribute> getAttributes() {
+      return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+      this.attributes = attributes;
+    }
+    private List<Attribute> attributes;
+    Entity(String name, List<Attribute> attributes) {
+      this.attributes = attributes;
       this.name = name;
     }
+
 
     public String getName() {
       return name;
     }
   }
 
-  public static String typeFormat(Object...orgs) {
+  private static String typeFormat(Object...orgs) {
     String typeSchemaFormat = "type <%s> {\n" +
-        "   name: string\n" +
+          "%s\n" +
         "}\n";
     return String.format(typeSchemaFormat, orgs);
   }
 
   public static String generateEntityTypeSchema() {
-    String typeSchema = "";
+    StringBuilder typeSchema = new StringBuilder();
     Entity[] entities = Entity.values();
     for (Entity entity : entities) {
-       typeSchema += typeFormat(entity.getName());
+       StringBuilder attrDefine = new StringBuilder();
+       for (Attribute attribute : entity.getAttributes()) {
+         attrDefine.append(attributeInTypeFormat(attribute.getName(), attribute.getType()));
+       }
+      typeSchema.append(typeFormat(entity.getName(), attrDefine.toString()));
     }
-    return  typeSchema;
+    return typeSchema.toString();
   }
 
   // 属性
@@ -108,23 +200,28 @@ public class Schema {
     }
   }
 
-  public static String attributeFormat(Object... orgs) {
+  private static String attributeFormat(Object... orgs) {
     String typeSchemaFormat = "%s:%s .\n";
+    return String.format(typeSchemaFormat, orgs);
+  }
+
+  private static String attributeInTypeFormat(Object... orgs) {
+    String typeSchemaFormat = "%s:%s \n";
     return String.format(typeSchemaFormat, orgs);
   }
 
   public static String generateEntityAttributeSchema() {
 
-    String typeSchema = "";
+    StringBuilder typeSchema = new StringBuilder();
     Attribute[] attributes = Attribute.values();
     for (Attribute attribute : attributes) {
       // predicate dgraph.type is reserved and is not allowed to be modified
-      if (attribute.getName() == Attribute.DGRAPH_TYPE.getName()) {
+      if (attribute.getName().equals(Attribute.DGRAPH_TYPE.getName())) {
         continue;
       }
-      typeSchema += attributeFormat(attribute.getName(), attribute.getType());
+      typeSchema.append(attributeFormat(attribute.getName(), attribute.getType()));
     }
-    return  typeSchema;
+    return typeSchema.toString();
   }
 
   // 关系类型
@@ -244,17 +341,17 @@ public class Schema {
     }
   }
 
-  public static String relationFormat(Object... orgs) {
+  private static String relationFormat(Object... orgs) {
     String typeSchemaFormat =  "%s:[uid] . \n";
     return String.format(typeSchemaFormat, orgs);
   }
   public static String generateEntityRealtionsSchema() {
 
-    String typeSchema = "";
+    StringBuilder typeSchema = new StringBuilder();
     Relations[] relations = Relations.values();
     for (Relations relation : relations) {
-      typeSchema += relationFormat(relation.getName());
+      typeSchema.append(relationFormat(relation.getName()));
     }
-    return  typeSchema;
+    return typeSchema.toString();
   }
 }

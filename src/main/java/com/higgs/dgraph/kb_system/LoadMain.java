@@ -18,11 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.dgraph.DgraphClient;
-import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.dgraph.Transaction;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -138,14 +135,6 @@ public class LoadMain {
     return data.size();
   }
 
-  private static DgraphClient createDgraphClient() {
-    ManagedChannel channel =
-        ManagedChannelBuilder.forAddress("172.20.0.9", 9080).usePlaintext(true).build();
-    DgraphGrpc.DgraphStub stub = DgraphGrpc.newStub(channel);
-
-    return new DgraphClient(stub);
-  }
-
   public static void prepare_data() {
     logger.info("prepare data ....");
     EntityTypeAttributeFormat entityTypeAttributeFormat = new EntityTypeAttributeFormat();
@@ -165,7 +154,7 @@ public class LoadMain {
 
     String dir = Variable.dirFormat("/Users/devops/workspace/kb/kb_system", true);
 
-    DgraphClient dClient = createDgraphClient();
+    DgraphClient dClient = Variable.createDgraphClient();
 
     LoadMain loadMain = new LoadMain(dClient);
 
@@ -306,6 +295,7 @@ public class LoadMain {
         }
         squads.add(this.relationFormat(inUid, out, outUid));
         // 添加dgraph.type属性
+        // 添加所有实体的实体类型为：dgraph.type
         squads.add(this.attrFormat(inUid, Schema.Attribute.DGRAPH_TYPE.getName(), out_value, true));
         return squads;
       }

@@ -1,11 +1,6 @@
 {
-    path as shortest(from: 0x25df49, to: 0x257e0a) {
-       keyword-company
-       company-corptype
-
-     }
-
-     path(func: uid(path)) {
+  query(func: eq(name, "%s")) {
       name
-     }
+      uid
+   }
 }

@@ -1,5 +1,6 @@
 package com.higgs.dgraph.kb_system;
 
+import com.higgs.dgraph.Config;
 import com.higgs.dgraph.kb_system.schema.Schema;
 import com.higgs.dgraph.kb_system.variable.Variable;
 import com.higgs.utils.Util;
@@ -18,11 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.dgraph.DgraphClient;
-import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.dgraph.Transaction;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 
 /**
  * User: JerryYou
@@ -107,7 +105,7 @@ public class LoadMainTest {
 
   }
 
-  public void query() {
+  public void query(String queryKey) {
     // Query
     String query = "";
     try {
@@ -119,11 +117,10 @@ public class LoadMainTest {
     }
     System.out.println("querying ....\n" + query);
     Map<String, String> vars = new HashMap<>();
-    vars.put("$a", "0x998a17");
-    vars.put("$b", "false");
+    vars.put("$a", queryKey);
     DgraphProto.Response res = dClient.newTransaction()
-        //.query(queryFormat)
-        .queryWithVars(query, vars)
+        .query(String.format(query, queryKey))
+        // .queryWithVars(query, vars)
         ;
     // 获取时间
     // res.getLatency()
@@ -160,19 +157,11 @@ public class LoadMainTest {
 
   }
 
-  private static DgraphClient createDgraphClient() {
-    ManagedChannel channel =
-        ManagedChannelBuilder.forAddress("172.20.0.9", 9080).usePlaintext(true).build();
-    DgraphGrpc.DgraphStub stub = DgraphGrpc.newStub(channel);
-
-    return new DgraphClient(stub);
-  }
-
   public static void main(String[] args) {
 
     String dir = Variable.dirFormat("/Users/devops/workspace/kb/kb_system", true);
 
-    DgraphClient dClient = createDgraphClient();
+    DgraphClient dClient = Variable.createDgraphClient();
 
     LoadMainTest loadMainTest = new LoadMainTest(dClient);
 
@@ -196,10 +185,18 @@ public class LoadMainTest {
      FileUtils.saveFiles(dir + "unique_id_2_uid.txt", loadMainTest.getLoadMain().uids);
      */
      // loadMainTest.mutateTest();
-     // loadMainTest.alterSchema(Config.updateSchema);
+
+    String schema = Config.getKbSchema();
+
+    logger.info("Schema:\n" + schema);
+
     loadMainTest.getEntityUniqueKey(Schema.Entity.ENTITY.getName(), "java");
-    // loadMainTest.query();
+
+    loadMainTest.query("网络通信");
+
     // loadMainTest.QueryMutation("java");
+
+    // loadMainTest.alterSchema(Config.update_schema_type);
 
     logger.info("main Insert finished!!");
   }

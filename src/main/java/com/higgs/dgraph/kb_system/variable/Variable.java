@@ -9,6 +9,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import io.dgraph.DgraphClient;
+import io.dgraph.DgraphGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+
 /**
  * User: JerryYou
  *
@@ -46,15 +51,17 @@ public class Variable {
     String outRel;
   }
 
-  public  static String GRAKN_ADDRESS = "172.20.0.8:48555";
+  public  static String DGRAPH_ADDRESS_SERVER = "172.20.0.9";
 
-  public  static String GRAKN_ADDRESS_KB = "172.20.0.9:48555";
+  public static int DGRAPH_ADDRESS_PORT = 9080;
 
-  public  static String LOCAL_GRAKN_ADDRESS_KB = "127.0.0.1:48555";
+  public static DgraphClient createDgraphClient() {
+    ManagedChannel channel =
+        ManagedChannelBuilder.forAddress(Variable.DGRAPH_ADDRESS_SERVER, Variable.DGRAPH_ADDRESS_PORT).usePlaintext(true).build();
+    DgraphGrpc.DgraphStub stub = DgraphGrpc.newStub(channel);
 
-  public  static String PHONE_CALL_KEY_SPACE = "phone_calls";
-
-  public  static String KEY_SPACE = "kb1";
+    return new DgraphClient(stub);
+  }
 
   public static List<String> entityTypeList = Arrays.asList(
       Schema.Entity.KEYWORD.getName(),

@@ -50,72 +50,7 @@ public class Config {
         + Schema.generateEntityAttributeSchema()
         + Schema.generateEntityRealtionsSchema();
   }
-  public static  String kb_schema = Schema.generateEntityTypeSchema() +
-          // 属性
-          "uid:int . \n" +
-          "name:string .\n" +
-          "entity-type:[string]  . \n" +
-          "unique_id:string .\n" +
-          "major-code:string .\n" +
-          "code:int . \n" +
-          "corp-type:[string] .  \n" +
-          "corp-alias:[string] .\n " +
-          "corp-eng-name:string . \n" +
-          "consensus-type:int  .\n" +
-          "consensus-maxscore:int .\n" +
-          "consensus-desc:string .\n" +
-          "consensus-facet:int . \n" +
-          "consensus-classname:string .\n" +
-          "loc-code:string .\n" +
-          "city-type:string .\n" +
-          "loc-city-code:string .\n" +
-          "school-type:[string] .\n" +
-          "school-code:string .\n" +
-          "ind-code:string .\n" +
-          "cert-code:string .\n" +
-          "weight:float .\n" +
-          // 关系
-          "company-corptype:[uid]  . \n" +
-          "school-schooltype:[uid]  . \n" +
-          "entity-entitytype:[uid]  . \n" +
-          "is-synonym:[uid]  . \n" +
-          "superior-industry:[uid]  . \n" +
-          "keyword-direction:[uid]  . \n" +
-          "keyword-skill:[uid]  . \n" +
-          "keyword-topic:[uid]  . \n" +
-          "func-conflictfunc:[uid]  . \n" +
-          "keyword-cert:[uid]  . \n" +
-          "majorrelates-major:[uid]  . \n" +
-          "keyword-school:[uid]  . \n" +
-          "keyword-company:[uid]  . \n" +
-          "major-majorcategory:[uid]  . \n" +
-          "major-majordiscipline:[uid]  . \n" +
-          "is-similarity:[uid]  . \n" +
-          "keyword-industry:[uid]  . \n" +
-          "conflictword-industry:[uid]  . \n" +
-          "keyword-location:[uid]  . \n" +
-          "highergold-cert:[uid]  . \n" +
-          "company-companygroup:[uid]  . \n" +
-          "keyword-jobtitle:[uid]  . \n" +
-          "jobtitle-func:[uid]  . \n" +
-          "top-func:[uid]  . \n" +
-          "func-industry:[uid]  . \n" +
-          "jobtitle-industry:[uid]  . \n" +
-          "keyword-jobrank:[uid]  . \n" +
-          "conflictword-jobrank:[uid]  . \n" +
-          "top-orangeindustry:[uid]  . \n" +
-          "company-orangeindustry:[uid]  . \n" +
-          "keyword-orangeindustry:[uid]  . \n" +
-          "direction-func:[uid]  . \n" +
-          "skill-func:[uid]  . \n" +
-          "superior-direction:[uid]  . \n" +
-          "superior-skill:[uid]  . \n" +
-          "superior-cert:[uid]  . \n" +
-          "highergold-companytype:[uid]  . \n" +
-          "keyword-major:[uid]  . \n" +
-          "keyword-attribute:[uid]  . \n"
 
-      ;
   public static  String schema =
           "uid:int . \n" +
           "name:string  . \n" +
@@ -140,6 +75,8 @@ public class Config {
 
 
       ;
+
+  public static String update_schema_type = Schema.generateEntityTypeSchema();
 
   public static String updateSchema =
                "name:string @index(term) . \n" +

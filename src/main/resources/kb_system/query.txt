@@ -14,25 +14,42 @@
 }
 
 {
-  filterword(func: eq(name, "bat")) {
+  query(func: uid(0x3cd7a3)) {
+    name
+    expand(_all_) {
+    }
+  }
+}
+
+{
+  key1(func: eq(name, "大众公司") and type(公司) {
     name
     uid
-    entity-type
-
   }
-  filterword2(func: eq(name, "速卖通")) {
+  key2(func: eq(name, "bat")) {
       name
       uid
-      entity-type
+   }
+}
+
+
+{
+  key1(func: eq(name, "速卖通")) {
+    name
+    uid
+  }
+  key2(func: eq(name, "bat")) {
+      name
+      uid
    }
 }
 
 
 
 
-# 3. k-shortest path between 0x3b6ff4 to 0x3c78cd (速卖通  -> bat )
+# 3. k-shortest path between 0x3d0cb0 to 0x3e0e19 (速卖通  -> bat )
 {
-    path as shortest(from: 0x3b6ff4, to: 0x3c78cd) {
+    path as shortest(from: 0x3d0cb0, to: 0x3e0e19) {
        keyword-company
        company-corptype
 
