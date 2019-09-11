@@ -1,18 +1,26 @@
-# 1. 查询是技能的实体
+# 1. 按entity-type查询实体
 {
-  isskills(func: eq(entity-type, "技能"), first:10,offset:1000) {
+  query(func: eq(entity-type, "技能"), first:10,offset:1000) {
+    name
+  }
+}
+
+# indexing in allofterms
+{
+  query(func: allofterms(entity-type, "技能,方向", first:10,offset:1000) {
     name
   }
 }
 
 # 2. 按条件搜索
 {
-  filterword(func: allofterms(name, "java")) {
+  query(func: allofterms(name, "java")) {
     name
     entity-type
   }
 }
 
+# expand all
 {
   query(func: uid(0x3cd7a3)) {
     name
@@ -21,18 +29,15 @@
   }
 }
 
+# use type in filter
 {
-  key1(func: eq(name, "大众公司") and type(公司) {
+  key1(func: eq(name, "大众公司")) @filter(eq(dgraph.type, "公司")) {
     name
     uid
   }
-  key2(func: eq(name, "bat")) {
-      name
-      uid
-   }
 }
 
-
+# query blocks
 {
   key1(func: eq(name, "速卖通")) {
     name
@@ -100,8 +105,117 @@
        is-synonym
 
 }
-
      path(func: uid(path)) {
       name
      }
+}
+
+# 5. fragment keyword
+{
+  query(func:uid(0x3d0cb0)) {
+    ...ListAttributes
+  }
+}
+
+fragment ListAttributes {
+  	name
+  	uid
+}
+
+# 6.
+
+# final. search in entire graph
+{
+
+  u1 as key1(func: eq(name, "java")) {
+     uid
+  }
+  u2 as  key2(func: eq(name, "bat")) {
+     uid
+   }
+
+  path as shortest(from: uid(u1), to:uid(u2)) {
+       company-corptype
+       school-schooltype
+       entity-entitytype
+       is-synonym
+       superior-industry
+       keyword-direction
+       keyword-skill
+       keyword-topic
+       func-conflictfunc
+       keyword-cert
+       majorrelates-major
+       keyword-school
+       keyword-company
+       major-majorcategory
+       major-majordiscipline
+       is-similarity
+       keyword-industry
+       conflictword-industry
+       keyword-location
+       highergold-cert
+       company-companygroup
+       keyword-jobtitle
+       jobtitle-func
+       top-func
+       func-industry
+       jobtitle-industry
+       keyword-jobrank
+       conflictword-jobrank
+       top-orangeindustry
+       company-orangeindustry
+       keyword-orangeindustry
+       direction-func
+       skill-func
+       superior-direction
+       superior-skill
+       superior-cert
+       highergold-companytype
+       keyword-major
+       keyword-attribute
+       ~company-corptype
+       ~school-schooltype
+       ~entity-entitytype
+       ~is-synonym
+       ~superior-industry
+       ~keyword-direction
+       ~keyword-skill
+       ~keyword-topic
+       ~func-conflictfunc
+       ~keyword-cert
+       ~majorrelates-major
+       ~keyword-school
+       ~keyword-company
+       ~major-majorcategory
+       ~major-majordiscipline
+       ~is-similarity
+       ~keyword-industry
+       ~conflictword-industry
+       ~keyword-location
+       ~highergold-cert
+       ~company-companygroup
+       ~keyword-jobtitle
+       ~jobtitle-func
+       ~top-func
+       ~func-industry
+       ~jobtitle-industry
+       ~keyword-jobrank
+       ~conflictword-jobrank
+       ~top-orangeindustry
+       ~company-orangeindustry
+       ~keyword-orangeindustry
+       ~direction-func
+       ~skill-func
+       ~superior-direction
+       ~superior-skill
+       ~superior-cert
+       ~highergold-companytype
+       ~keyword-major
+       ~keyword-attribute
+   }
+
+   path(func: uid(path)) {
+      name
+   }
 }
