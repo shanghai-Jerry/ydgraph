@@ -62,19 +62,23 @@ public class EntityTypeAttributeFormat {
     FileUtils.readFile(src, dict);
 
     for (String item : dict) {
-      int index = item.indexOf("\t");
+      item = item.replaceAll("\t", " ");
+      int index = item.indexOf(" ");
       if (index == -1) {
         errorCount ++;
         continue;
       }
       String key = item.substring(0, index);
-      String value = item.substring(index + "\t".length());
+      String value = item.substring(index + " ".length());
       if (idMap.containsKey(key)) {
-        allList.add(idMap.get(key) + "\t" + value);
+        // 将实体中的空格替换掉
+        String ret = idMap.get(key).replaceAll(" ", ",");
+        allList.add(ret + " " + value);
       } else  {
         allList.add(item);
       }
     }
+    logger.info("errorCount  => " + errorCount);
     logger.info("total:" + dict.size() + ", get:" + allList.size());
     FileUtils.saveFile(des, allList, true);
   }
@@ -113,6 +117,9 @@ public class EntityTypeAttributeFormat {
         if (idMap.containsKey(lhs) && idMap.containsKey(rhs)) {
           all_relations.add(idMap.get(lhs) + "\t" + Variable.relationPairs.get(type).getOutRel()
               + "\t" + idMap.get(rhs));
+          // reverse relations but keep relation type
+          all_relations.add(idMap.get(rhs) + "\t" + Variable.relationPairs.get(type).getOutRel()
+              + "\t" + idMap.get(lhs));
         }
       }
       logger.info("totalSize  => " + all_relations.size());
@@ -248,19 +255,25 @@ public class EntityTypeAttributeFormat {
     FileUtils.saveFileToCsv(outPut, entities, false);
   }
 
-  public static void main(String[] args) {
-    EntityTypeAttributeFormat entityTypeAttributeFormat = new EntityTypeAttributeFormat();
-    /*
-    entityTypeAttributeFormat.convertRelationMapping(
+  public void convertEmbedding() {
+    convertEmbedding(
+        "/Users/devops/workspace/kb/kb_system/entity_embeddings.tsv",
+        "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
+        "/Users/devops/workspace/kb/kb_system/entity_embeddings_format.tsv");
+  }
+
+  public void convertRelationMapping() {
+    convertRelationMapping(
         "/Users/devops/workspace/kb/kb_system/kb_relation_1567074526188.txt",
         "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
         "/Users/devops/workspace/kb/kb_system/kb_relation_mapping.txt"
     );
-    */
-    entityTypeAttributeFormat.convertEmbedding(
-        "/Users/devops/workspace/kb/kb_system/entity_embeddings.tsv",
-        "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
-        "/Users/devops/workspace/kb/kb_system/entity_embeddings_format.tsv");
+  }
+
+  public static void main(String[] args) {
+    EntityTypeAttributeFormat entityTypeAttributeFormat = new EntityTypeAttributeFormat();
+    // entityTypeAttributeFormat.convertRelationMapping();
+    entityTypeAttributeFormat.convertEmbedding();
 
   }
 }
