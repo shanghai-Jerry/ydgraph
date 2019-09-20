@@ -31,6 +31,7 @@ public class FileUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
   public static void saveFileToCsv(String filePath, List<String> values, boolean append) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), append));
@@ -221,6 +222,7 @@ public class FileUtils {
   }
 
   public static void saveFile(String filePath, Map<String, List<String>> map) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
@@ -253,6 +255,7 @@ public class FileUtils {
     }
   }
   public static void saveFiles(String filePath, Map<String, String> map) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
@@ -281,6 +284,7 @@ public class FileUtils {
     }
   }
   public static void saveFiles(String filePath, List<String> dict, boolean append) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), append));
@@ -304,6 +308,7 @@ public class FileUtils {
     }
   }
   public static void saveFileWith(String filePath, Map<String, Integer> map) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
@@ -332,6 +337,7 @@ public class FileUtils {
     }
   }
   public static void saveFile(String filePath, List<String> stringList, boolean isAppend) {
+    deleteFile(filePath);
     PrintWriter printWriter = null;
     try {
       printWriter = new PrintWriter(new FileOutputStream(new File(filePath), isAppend));
