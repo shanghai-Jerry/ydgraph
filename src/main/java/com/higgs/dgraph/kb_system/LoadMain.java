@@ -322,7 +322,7 @@ public class LoadMain {
     // 保存uid
     FileUtils.saveFiles(dir + "unique_id_2_uid.txt", loadMain.uids);
 
-    // 更新schema
+    // 更新schema index
     loadMain.alterSchema(Config.updateSchema);
 
     logger.info("main Insert finished!!");

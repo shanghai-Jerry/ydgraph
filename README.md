@@ -4,10 +4,12 @@
 
 ### based on version 1.1.X
 
-1. 基于存储在数据库中的实体数据, 导入到dgraph中
+1. 基于存储在数据库中的知识图谱数据, 导入到dgraph中
 
 [参考代码](https://github.com/shanghai-Jerry/ydgraph/blob/master/src/main/java/com/higgs/dgraph
 /kb_system/REDAME.MD)
+
+
 
 
 ### based on version 1.0.X
