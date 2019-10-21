@@ -8,9 +8,11 @@ import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +38,7 @@ public class EntityTypeAttributeFormat {
         values[3] +"\"";
   }
 
-  public void convertEmbedding(String src, String entitys,String des) {
+  public void convertEmbedding(String src, String entitys,String des, boolean isName) {
     List<String> dict = new ArrayList<>();
     Map<String, String> idMap = new HashedMap();
     FileUtils.readFile(entitys, dict);
@@ -72,7 +74,12 @@ public class EntityTypeAttributeFormat {
       String value = item.substring(index + " ".length());
       if (idMap.containsKey(key)) {
         // 将实体中的空格替换掉
-        String ret = idMap.get(key).replaceAll(" ", ",");
+        String ret;
+        if (isName) {
+          ret = idMap.get(key).replaceAll(" ", ",");
+        } else {
+          ret = key;
+        }
         allList.add(ret + " " + value);
       } else  {
         allList.add(item);
@@ -81,6 +88,14 @@ public class EntityTypeAttributeFormat {
     logger.info("errorCount  => " + errorCount);
     logger.info("total:" + dict.size() + ", get:" + allList.size());
     FileUtils.saveFile(des, allList, true);
+  }
+
+  public boolean filterRelType(int type) {
+    List<Integer> filters = Arrays.asList(31,19,10);
+    if (filters.contains(type)) {
+      return false;
+    }
+    return true;
   }
 
   public void convertRelationMapping(String src, String entitys,String des) {
@@ -114,7 +129,7 @@ public class EntityTypeAttributeFormat {
         String lhs = values[0];
         String rhs = values[1];
         int type = Integer.parseInt(values[2]);
-        if (idMap.containsKey(lhs) && idMap.containsKey(rhs)) {
+        if (idMap.containsKey(lhs) && idMap.containsKey(rhs) && filterRelType(type)) {
           all_relations.add(idMap.get(lhs) + "\t" + Variable.relationPairs.get(type).getOutRel()
               + "\t" + idMap.get(rhs));
           // reverse relations but keep relation type
@@ -129,6 +144,71 @@ public class EntityTypeAttributeFormat {
       logger.info("[IOExp] => " + e.getMessage());
     }
     FileUtils.saveFile(des, all_relations, true);
+
+  }
+
+  public void convertRelationPaths(String path, String entitys, String file) {
+    List<String> dict = new ArrayList<>();
+    Map<String, String> idMap = new HashedMap();
+    FileUtils.readFile(entitys, dict);
+    int errorCount = 0;
+    for (String item : dict) {
+      int index = item.indexOf(",");
+      if (index == -1) {
+        errorCount ++;
+        continue;
+      }
+      String value = item.substring(0, index);
+      String key = item.substring(index + 1);
+      if (!idMap.containsKey(key)) {
+        idMap.put(key, value);
+      } else  {
+        logger.info("duplicate key => " + key);
+      }
+    }
+    logger.info("errorCount  => " + errorCount);
+    // 关系input
+    List<List<String>> relations = new ArrayList<>();
+    List<String> all_relations = new ArrayList<>();
+
+    try {
+      CsvReader csvReader = new CsvReader(KbParseData.getReader(path + "/" + file) );
+      for (int i = 0; i  <= 42; i++) {
+        relations.add(new ArrayList<>());
+      }
+      while(csvReader.readRecord()) {
+        String [] values = csvReader.getValues();
+        if (values.length != 4) {
+          continue;
+        }
+        int type = Integer.parseInt(values[2]);
+        String lhs = values[0];
+        String rhs = values[1];
+        List<String> relationsIndex = relations.get(type);
+        if (idMap.containsKey(lhs) && idMap.containsKey(rhs) && filterRelType(type)) {
+          String one = idMap.get(lhs) + "\t" + Variable.relationPairs.get(type).getOutRel()
+              + "\t" + idMap.get(rhs);
+          // reverse relations but keep relation type
+          String reverseOne = idMap.get(rhs) + "\t" + Variable.relationPairs.get(type).getOutRel()
+              + "\t" + idMap.get(lhs);
+          all_relations.add(one);
+          all_relations.add(reverseOne);
+          relationsIndex.add(one);
+          relationsIndex.add(reverseOne);
+          relations.set(type,relationsIndex);
+        }
+      }
+    } catch (FileNotFoundException e) {
+      logger.info("[NoFile] =>" + e.getMessage());
+    } catch (IOException e) {
+      logger.info("[IOExp] =>" + e.getMessage());
+    }
+    for (int i = 0; i  <= 42; i++) {
+      String dir = path + "/edge_" + String.valueOf(i);
+      new File(dir).mkdir();
+      FileUtils.saveFile( dir +"/relation_" + String.valueOf(i) + ".csv",
+          relations.get(i), false);
+    }
 
   }
 
@@ -255,11 +335,16 @@ public class EntityTypeAttributeFormat {
     FileUtils.saveFileToCsv(outPut, entities, false);
   }
 
-  public void convertEmbedding() {
+  public void convertEmbedding(String vDir) {
+
     convertEmbedding(
         "/Users/devops/workspace/kb/kb_system/entity_embeddings.tsv",
         "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
-        "/Users/devops/workspace/kb/kb_system/entity_embeddings_format.tsv");
+        "/Users/devops/workspace/kb/kb_system/"+vDir+"/entity_name_embeddings_format.tsv", true);
+    convertEmbedding(
+        "/Users/devops/workspace/kb/kb_system/entity_embeddings.tsv",
+        "/Users/devops/workspace/kb/kb_system/kb_entity.csv",
+        "/Users/devops/workspace/kb/kb_system/"+vDir+"/entity_id_embeddings_format.tsv", false);
   }
 
   public void convertRelationMapping() {
@@ -273,7 +358,8 @@ public class EntityTypeAttributeFormat {
   public static void main(String[] args) {
     EntityTypeAttributeFormat entityTypeAttributeFormat = new EntityTypeAttributeFormat();
     // entityTypeAttributeFormat.convertRelationMapping();
-    entityTypeAttributeFormat.convertEmbedding();
+    entityTypeAttributeFormat.convertEmbedding("v200");
+    // entityTypeAttributeFormat.convertRelationPaths("/Users/devops/workspace/kb/kb_system","/Users/devops/workspace/kb/kb_system/kb_entity.csv","kb_relation_1567074526188.txt");
 
   }
 }

@@ -37,6 +37,7 @@ public class KbParseData {
     return null;
   }
 
+  // data format: id,entity-name
   static public void parseEntity(List<JsonObject> items, String entityType, String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
@@ -59,7 +60,7 @@ public class KbParseData {
     }
 
   }
-
+  // data format: entity-name, attr_values separated by ','
   static  public void parseAttribute(List<JsonObject> items, String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
@@ -85,6 +86,7 @@ public class KbParseData {
     }
   }
 
+  // data format: src,dest,rel_type_int_value,weight
   static  public void parseRelations(List<JsonObject> items, String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
@@ -108,6 +110,7 @@ public class KbParseData {
     }
   }
 
+  // data format: entity-name, attr_values separated by ','
   static  public void parseRelationsInAttribute(List<JsonObject> items,
                                                         String inRel,
                                                         String outRel,

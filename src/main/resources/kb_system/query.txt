@@ -22,7 +22,7 @@
 
 # expand all
 {
-  query(func: uid(0x3cd7a3)) {
+  query(func: uid(0x3ce2af)) {
     name
     expand(_all_) {
     }
