@@ -1,6 +1,13 @@
 # Dgraph入库的操作流程
 
-现有操作流程介绍（on version 1.0.x）
+操作流程介绍（on version 1.0.x）
+
+* 数据的入库
+[主入口](https://github.com/shanghai-Jerry/ydgraph/blob/master/src/main/java/com/higgs/dgraph/StartMain.java)
+
+* 如何操作dgraph
+[Demo参考](https://github.com/shanghai-Jerry/ydgraph/blob/master/src/main/java/com/higgs/dgraph/Demo.java)
+
 
 # 1.1 json object的方式
   实体的表示: json object的形式，任何非json object的格式的数据，都需要考虑是否需要入库。
@@ -75,8 +82,7 @@
     可自定义分配可使用uid范围的uid
     [https://docs.dgraph.io/deploy/#more-about-dgraph-zero]
         
-
-        
+    
 
 # 3. 发现问题
 

@@ -11,7 +11,6 @@
 ### based on version 1.0.X
 
 * 基于具体场景数据抽象出的api，方便对dgraph操作.
-* Demo参考：src/test/Test.java
 
 [变动历史记录](https://github.com/shanghai-Jerry/ydgraph/blob/master/src/main/java/com/higgs/dgraph/CHANGELOG.md)
 
