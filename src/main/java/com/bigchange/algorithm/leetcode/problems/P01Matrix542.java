@@ -12,7 +12,7 @@ import java.util.LinkedList;
  *
  * <<licensetext>>
  */
-public class P01Matrix {
+public class P01Matrix542 {
 
   public int[][] updateMatrix(int[][] matrix) {
     initMatrix(matrix);
