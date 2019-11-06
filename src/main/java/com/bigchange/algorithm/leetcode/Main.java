@@ -1,7 +1,6 @@
 package com.bigchange.algorithm.leetcode;
 
-import com.bigchange.algorithm.leetcode.problems.SingleNumber136;
-import com.higgs.utils.Util;
+import com.bigchange.algorithm.leetcode.problems.FirstUniqueCharacterinaString387;
 
 /**
  * User: JerryYou
@@ -15,9 +14,7 @@ import com.higgs.utils.Util;
 public class Main {
 
   public static  void main(String []args) {
-    SingleNumber136 singleNumber = new SingleNumber136();
-    int [] nums = new int[]{4,1,2,1,2};
-    int ret = singleNumber.singleNumber(nums);
-    Util.println("ret", ret);
+    FirstUniqueCharacterinaString387 firstUniqueCharacterinaString387 = new FirstUniqueCharacterinaString387();
+    firstUniqueCharacterinaString387.firstUniqChar("loveleetcode");
   }
 }
